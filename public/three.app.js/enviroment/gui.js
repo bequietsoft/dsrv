@@ -2,7 +2,8 @@ class GUI_OLD {
 
 	constructor( tabindex, cmd, list, top, left ) {
 
-		log(this);
+		//log(this);
+		
 		this.element = document.createElement('div');
 
 		this.element.style.userSelect = 'none';

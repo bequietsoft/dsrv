@@ -35,9 +35,10 @@ class App {
 		/////App.mouse._onmove = App.pick;
 		
 		App.add_avatars();
-		App.add_animation();
-		App.add_gui();
+		App.add_animations();
+		App.add_gui_elements();
 
+	//	App.world.scene.add( box( 1, V(0, 1, 0), V0, mat('basic'), true ) );
 		App.update();
 	}
 
@@ -45,9 +46,9 @@ class App {
 		
 		App.avatars = new List();
 
-		App.avatars.add( new Avatar('avatar0', App.world.scene ) );
-		App.avatars.add( new Avatar('avatar1', App.world.scene ) );
-		App.avatars.add( new Avatar('avatar2', App.world.scene ) );
+		App.avatars.add( new Avatar('avatar0' ) );
+		App.avatars.add( new Avatar('avatar1' ) );
+		App.avatars.add( new Avatar('avatar2' ) );
 		
 		App.avatars.item(1).root.position.set(0, 0.8, 0.5);
 		App.avatars.item(1).root.rotation.set(0, hPI, 0);
@@ -59,12 +60,25 @@ class App {
 		Events.bind( 'keydown', App.avatars.next.bind( App.avatars ), 'x' );
 	}
 
-	static add_animation() {
+	static add_animations() {
+
+		if( App.avatars.item(0).root.torso != undefined ) {
+
+			let root = 'App.avatars.item(0).root';
+			let bone = '';
+			this.joints00 = new List();
+			this.joints00.debug_info = true;
+			this.joints00.add( [ 'rotation.x', 'rotation.y', 'rotation.z' ] );
+			this.joints00.add( [ 'torso.bones[0].rotation.x', 'torso.bones[0].rotation.y', 'torso.bones[0].rotation.z' ] );
+			this.joints00.add( [ 'torso.bones[1].rotation.x', 'torso.bones[1].rotation.y', 'torso.bones[1].rotation.z' ] );
+		}
+		return;
 
 		this.collection01 = new List();
 		this.collection01.add( 'position.x' );
 		this.collection01.add( 'rotation.y' );
 		this.collection01.debug_info = true;
+
 		// create test Keyframes
 		{
 			//Keyframes.debug_info = true;
@@ -91,7 +105,7 @@ class App {
 		Events.bind( 'keydown', Keyframes.play, 'u', data2 );
 	}
 
-	static add_gui() {
+	static add_gui_elements() {
 
 		App.gui = new List();
 		App.gui.add( new EditBox( 'EditBox', '', [], 0, 10, 10 ) );
@@ -106,8 +120,6 @@ class App {
 			// //App.log_GUI.element.style.fontSize = '10pt';
 	}
 
-
-
 	static update() {
 
 		requestAnimationFrame( App.update );
@@ -116,8 +128,11 @@ class App {
 		Actions.update();	
 		//App.audio.update();
 		App.fps.update();
-		App.avatars.item().update();
+		App.avatars.item(0).update();
+		App.avatars.item(1).update();
+		App.avatars.item(2).update();
 		App.camera.update( App.avatars.item().root );
+
 		//App.physics.update();
 		
 		App.gui.items[0].update();

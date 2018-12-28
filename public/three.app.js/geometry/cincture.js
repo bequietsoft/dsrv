@@ -32,7 +32,7 @@ var default_cincture_data = {
 	cap: { begin: true, end: true },
 	closed: true,
 	material: mat( 'lambert', rgb( 200, 200, 200 ), true ),
-	shadows: { cast: true, resive: true },
+	shadows: { cast: true, recive: true },
 	helpers: 0,
 	vertices_epsilon: 0.001,
 	cloth: false,

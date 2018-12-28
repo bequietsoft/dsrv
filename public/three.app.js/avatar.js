@@ -6,10 +6,10 @@ class Avatar {
 		this.root.name = name;
 		this.root.position.set ( 0, 0.8, 0 );
 		
-		this.test_minimum_cinc();
+		//this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		//this.simple_men();
+		this.simple_men();
 		
 		//this.add_helpers();
 		App.world.scene.add ( this.root );
@@ -22,7 +22,7 @@ class Avatar {
 
 	test_minimum_cinc() {
 		let data = Object.assign( {}, default_cincture_data );
-		data.scale = 1;
+		data.scale = 0.5;
 		data.material = tmat('images/test00.jpg');
         let cinc = new Cincture ( data );	
 		this.root.add( cinc.mesh );
@@ -193,8 +193,8 @@ class Avatar {
 		let skin_mat = mat( 'phong', rgb(229, 220, 206));
 		let hairs_mat1 = mat( 'phong', rgb(127, 108, 94) ); 
 		let hairs_mat2 = mat( 'phong', rgb(51, 41, 34) ); 
-			hairs_mat1.side = THREE.DoubleSide;
-			hairs_mat2.side = THREE.DoubleSide;
+			// hairs_mat1.side = THREE.DoubleSide;
+			// hairs_mat2.side = THREE.DoubleSide;
 
 		let mat_00 = mat( 'phong', rgb( 149, 163, 145 ) ); 
 		let mat_01 = mat( 'phong', rgb( 78, 96, 124 ) ); 
@@ -222,15 +222,7 @@ class Avatar {
 		this.torso.last_bone().add( this.l_arm.mesh );
 		this.torso.last_bone().add( this.r_arm.mesh );
 
-		//this.l_arm.mesh.matrixWorldNeedsUpdate = true;
-
-		// App.world.add( this.torso.mesh, 'torso', true );
-		// App.world.add( this.head.mesh, 'head', true );
-		// App.world.add( this.neck.mesh, 'neck', true );
-		// App.world.add( this.l_leg.mesh, 'l_leg', true );
-		// App.world.add( this.r_leg.mesh, 'r_leg', true );
-		// App.world.add( this.l_arm.mesh, 'l_arm', true );
-		// App.world.add( this.r_arm.mesh, 'r_arm', true );
+		
 	}
 
 	// controls:
@@ -584,6 +576,7 @@ class Avatar {
 		data.cinc_angle = 180;
 		data.symmetry = true;
 		data.material = mat;
+		//data.helpers = 0.0001;
 
         var cinc = new Cincture ( data );
 		return cinc;

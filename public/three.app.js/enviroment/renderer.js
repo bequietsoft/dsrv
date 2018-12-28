@@ -2,22 +2,23 @@ class Renderer  {
 
 	static init() {
 		
-		Renderer.instance = new THREE.WebGLRenderer({ 
-			antialias: true,
-			depth: App.far,
-			autoClear: false,
-			shadowMap: { enabled: true, type: THREE.PCFShadowMap },
-			shadowCameraNear: 0, //
-			shadowCameraFar: 100,//
-			shadowCameraFov: 50, //
-			shadowMapBias: 0.0039,
-			shadowMapDarkness: 0.5,
-			shadowMapWidth: 1024,
-			shadowMapHeight: 1024,
-		});
-
+		Renderer.instance = new THREE.WebGLRenderer();
+		Renderer.instance.antialias = true;
+		Renderer.instance.depth = App.far;
 		Renderer.instance.setClearColor( App.ambient_color, 1 );
+		Renderer.instance.autoClear = false;
+		Renderer.instance.shadowMap.enabled = true;
+		Renderer.instance.shadowMap.type = THREE.PCFShadowMap;
+		//Renderer.instance.shadowMap.type = THREE.BasicShadowMap;
+		Renderer.instance.shadowMapBias = 0.00001;
+		Renderer.instance.shadowMapDarkness = 0.5;
+		Renderer.instance.shadowMapWidth = 1024;
+		Renderer.instance.shadowMapHeight = 1024;
+	
+		//Renderer.instance.setClearColor( App.ambient_color, 1 );
 		document.body.appendChild( Renderer.instance.domElement );
+
+		//log(Renderer.instance);
 	}
 
 	static resize() {
@@ -34,3 +35,5 @@ class Renderer  {
 		Renderer.instance.render( App.world.scene, App.camera );
 	}
 }
+
+

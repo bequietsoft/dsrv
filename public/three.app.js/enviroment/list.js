@@ -12,11 +12,14 @@ class List {
 
 	add( item, checked = true ) {
 
+		if( Array.isArray(item) )
+			item.forEach( element => { this.add( element, checked ) } );
+
 		this.items.push ( item );
 		this.checked.push ( checked );
 		this.current = this.items.length - 1;
 
-		if ( this.debug_info ) this.print();
+		if( !Array.isArray(item) && this.debug_info ) this.print();
 	}
 
 	del( item ) {

@@ -18,7 +18,7 @@ class World {
 			ground.name = 'ground';
 			ground.position.set( 0, 0, 0 );
 			ground.rotation.x = - Math.PI / 2;
-			ground.scale.set( App.far * 2, App.far * 2, 1 );
+			ground.scale.set( App.far /2, App.far /2, 1 );
 			ground.castShadow = false;
 			ground.receiveShadow = true;
 
