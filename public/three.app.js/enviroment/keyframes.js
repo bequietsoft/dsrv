@@ -7,8 +7,6 @@ class Keyframes {
 
 	static add( data ) {	
 
-		log(data.root);
-
 		if( data.items.length == 0 ) return;
 		
 		let values = [];

@@ -6,6 +6,7 @@ class Keyboard {
 		Keyboard.shift = [ false, 0 ];
 		Keyboard.ctrl = [ false, 0 ];
 		Keyboard.alt = [ false, 0 ];
+		Keyboard.enabled = true;
 
 		for ( let i = 0; i < 255; i++ ) Keyboard.keys.push( [ 0, 0 ] );
 
@@ -21,6 +22,7 @@ class Keyboard {
 	}
 
 	static onkeydown ( event ) {
+		if( !Keyboard.enabled ) return;
 		let now = Date.now();
 		if( Keyboard.shift != event.shiftKey ) Keyboard.shift = [ event.shiftKey, now ];
 		if( Keyboard.ctrl != event.ctrlKey) Keyboard.ctrl = [ event.ctrlKey, now ];
@@ -32,6 +34,7 @@ class Keyboard {
 	}
 
 	static onkeyup( event ) {
+		if( !Keyboard.enabled ) return;
 		let now = Date.now();
 		if( Keyboard.shift != event.shiftKey ) Keyboard.shift = [ event.shiftKey, now ];
 		if( Keyboard.ctrl != event.ctrlKey) Keyboard.ctrl = [ event.ctrlKey, now ];

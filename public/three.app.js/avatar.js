@@ -3,43 +3,14 @@ class Avatar {
     constructor( name = 'default_name' ) {
 
 		this.root = new THREE.Object3D();
-		//this.chess = new THREE.Object3D();
-		// this.root.element = this;
 		this.root.name = name;
 		this.root.position.set ( 0, 0.8, 0 );
 		
-
-		//this.test_minimum_cinc();
-		this.simple_men();
+		this.test_minimum_cinc();
+		//this.test_head_cinc();
+		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
+		//this.simple_men();
 		
-		//this.test_cinc00();
-		//this.test_cinc00();
-		//this.test_cinc01( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		//this.test_cinc01( V( 0.0, 0.0, -0.1 ), V( -hPI/2, 0.0, 0.0 ), -1 );
-		
-		//this.init_app_events_binds();
-
-		//this.torso.last_bone().add ( App.camera.target );
-		//this.root.add ( App.camera.target );
-		//App.camera.target.rotation.set( 0, Math.PI/2, 0 );
-		//App.camera.target.rotation.set( 0, Math.PI, 0 );
-			// App.camera.translateZ ( -4.0 );
-			// App.camera.translateY ( +0.55 );
-
-		{ // content code UC
-			//App.avatar = this;
-			//App.world.content.push( this.root );
-			//log(App.world.content);
-
-			// App.physics.add_rigid_body( 
-			// 	App.world.scene, 
-			// 	this.root, 
-			// 	new Ammo.btBoxShape( new Ammo.btVector3( 0.5, 0.5, 0.5 ) ), 
-			// 	1, 
-			// 	this.root.position, new THREE.Quaternion(0, 0, 0, 1) 
-			// );
-		}
-
 		//this.add_helpers();
 		App.world.scene.add ( this.root );
     }
@@ -58,7 +29,7 @@ class Avatar {
 		this.test = cinc;
 	}
 
-	test_cinc00() {
+	test_head_cinc() {
 		
 		var data = Object.assign( {}, default_cincture_data );
 		
@@ -105,9 +76,9 @@ class Avatar {
 		//data.dir = -1;
 
 		data.smooth = { normals: 1, vertices: 1 };
-		data.subnodes = 3;
-		data.subcincs = 3;
-		data.helpers = this.helpers;
+		data.subnodes = 2;
+		data.subcincs = 2;
+		//data.helpers = this.helpers;
 		data.cap_curve = { begin: 2, end: 2 };
 		data.material = tmat('images/test00.jpg');
 		//data.material = tmat('images/face01.jpg');//, 'images/face01.jpg');
@@ -129,7 +100,7 @@ class Avatar {
 		this.test = cinc;
 	}
 
-	test_cinc01( dp, dr, mirror ) {
+	test_cloth_cinc( dp, dr, mirror ) {
 		
 		var data = Object.assign( {}, default_cincture_data );
 		
@@ -174,7 +145,7 @@ class Avatar {
 		data.smooth = { normals: 1, vertices: 1 };
 		data.subnodes = 2;
 		data.subcincs = 2;
-		data.helpers = this.helpers;
+		//data.helpers = this.helpers;
 		//data.cap_curve = { begin: 1, end: 1 };
 		data.material = tmat('images/test00.jpg');
 		data.material.side = THREE.DoubleSide;
@@ -201,7 +172,7 @@ class Avatar {
 		cloth_data.subnodes = 0;
 		cloth_data.subcincs = 0;
 		cloth_data.closed = false;
-		cloth_data.helpers = this.helpers;
+		//cloth_data.helpers = this.helpers;
 		cloth_data.material.side = THREE.DoubleSide;
 		cloth_data.cloth = true;
 		cloth_data.clamp_cinc = { begin: 1, end: 11 };
@@ -290,66 +261,6 @@ class Avatar {
     update () {
 		this.update_mouse();
 		this.update_keyboard();
-		return;
-
-		{
-			// LMB+drag - rotate camera
-			if( App.keyboard.ctrl[0] == false && App.mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-				App.camera.target.rotation.y -= App.mouse.mdx / App.fps.fps;
-				App.camera.target.rotation.z -= App.mouse.mdy / App.fps.fps;
-			}
-			
-			// RMB+drag - up and down 
-			if( App.keyboard.ctrl[0] == false && App.mouse.buttons[2] == 1 ) {
-				App.camera.target.position.y += App.mouse.mdy / (3 * App.fps.fps);
-			}
-		
-			// let d = DP ( App.camera.position, App.camera.target.position );
-			// if( App.mouse.buttons[0] == 0 && d < 2 ) {
-			//     App.camera.target.rotation.y = 0;
-			//     App.camera.target.rotation.z = 0;
-			// }
-			
-			
-
-			// A - turn left
-			if ( App.keyboard.keys[65][0] == true ) {
-				//this.root.rotation.y += THREE.Math.degToRad( 3 );
-				this.torso_rotate( V( 0, +0.01, 0 ) );
-			}
-
-			// D - turn right
-			if ( App.keyboard.keys[68][0] == true ) {
-				//this.root.rotation.y -= THREE.Math.degToRad( 3 );
-				this.torso_rotate( V( 0, -0.01, 0 ) );
-			}
-
-			// S - walk / bend forward 
-			if ( App.keyboard.keys[87][0] == true ) {
-				//if ( this.test_cinc != undefined ) this.test_cinc.bones[0].rotation.y += 0.05;
-				this.root.translateX( +0.001 );
-				this.torso_rotate( V( 0, 0, -0.005 ) );
-			}
-			
-			// W - walk / bend backward 
-			if ( App.keyboard.keys[83][0] == true ) {
-				//if ( this.test_cinc != undefined ) this.test_cinc.bones[0].rotation.y -= 0.05;
-				this.root.translateX( -0.001 );
-				this.torso_rotate( V( 0, 0, +0.005 ) );
-			}
-			
-			// Q - bend left
-			if ( App.keyboard.keys[81][0] == true ) {
-				this.torso_rotate( V( +0.001, 0, 0 ) );
-				this.test_rotate( V( +0.01, +0.01, +0.01 ) );
-			}
-
-			// E - bend right
-			if ( App.keyboard.keys[69][0] == true ) {
-				this.torso_rotate( V( -0.001, 0, 0 ) );
-				this.test_rotate( V( -0.01, -0.01, -0.01 ) );
-			}
-		}
     }
 
 	torso_rotate( step = V0 ) {

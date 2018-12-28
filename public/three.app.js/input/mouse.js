@@ -3,7 +3,7 @@ class Mouse {
 	static init() {
 		
 		Mouse.path = [];		// item format: [pos0, ... , pos_length] [x, y, time]
-		Mouse.max_path_length = 100;
+		Mouse.max_path_length = 10;
 
 		Mouse.pos = []; 		// item format: [x, y, time]
 		Mouse.coords = new THREE.Vector2( -1.1, -1.1 );

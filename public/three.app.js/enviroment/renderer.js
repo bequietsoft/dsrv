@@ -1,47 +1,36 @@
-function renderer(antialias = true) {
-	
-	//#region old code
-	// var r = new THREE.WebGLRenderer();
-	
-	// r.depth = 2000;
-	// r.antialias = true;
-	// r.setClearColor(rgb(255), 1);
+class Renderer  {
 
-	// r.shadowMap.enabled = true;
-	// r.shadowMap.type = THREE.PCFSoftShadowMap;
+	static init() {
+		
+		Renderer.instance = new THREE.WebGLRenderer({ 
+			antialias: true,
+			depth: App.far,
+			autoClear: false,
+			shadowMap: { enabled: true, type: THREE.PCFShadowMap },
+			shadowCameraNear: 0, //
+			shadowCameraFar: 100,//
+			shadowCameraFov: 50, //
+			shadowMapBias: 0.0039,
+			shadowMapDarkness: 0.5,
+			shadowMapWidth: 1024,
+			shadowMapHeight: 1024,
+		});
 
-	// r.shadowCameraNear = 0;
-	// r.shadowCameraFar = 100;
-	// r.shadowCameraFov = 50;
+		Renderer.instance.setClearColor( App.ambient_color, 1 );
+		document.body.appendChild( Renderer.instance.domElement );
+	}
 
-	// r.shadowMapBias = 0.0039;
-	// r.shadowMapDarkness = 0.5;
-	// r.shadowMapWidth = 1024;
-	// r.shadowMapHeight = 1024;
+	static resize() {
+		if( Renderer.width != window.innerWidth || Renderer.height != window.innerHeight ) {
+			Renderer.width = window.innerWidth;
+			Renderer.height = window.innerHeight;
+			Renderer.instance.setSize( Renderer.width, Renderer.height );
+		}
+	}
 
-	// //r.shadowMap.type = THREE.PCFSoftShadowMap;
-
-	// r.setPixelRatio(window.devicePixelRatio);
-	// r.setSize(window.innerWidth, window.innerHeight);
-
-	// document.body.appendChild(r.domElement);
-	//#endregion old code
-
-	var renderer = new THREE.WebGLRenderer( { antialias: antialias } );
-	// renderer.setPixelRatio( window.devicePixelRatio );
-	// renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
-	renderer.antialias = true;
-	renderer.depth = App.far;
-	renderer.setClearColor( App.ambient_color, 1 );
-	renderer.autoClear = false;
-	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFShadowMap;
-	renderer.shadowMapBias = 0.0039;
-	renderer.shadowMapDarkness = 0.5;
-	renderer.shadowMapWidth = 1024;
-	renderer.shadowMapHeight = 1024;
-
-	document.body.appendChild( renderer.domElement );
-
-	return renderer;
+	static update() {
+		Renderer.resize();
+		Renderer.instance.clear();
+		Renderer.instance.render( App.world.scene, App.camera );
+	}
 }

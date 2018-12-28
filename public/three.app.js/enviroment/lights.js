@@ -1,6 +1,9 @@
 class Lights {
 	
-	constructor( scene ) {
+	constructor() {
+
+		let scene = App.world.scene;
+
 		this.alight = new THREE.AmbientLight( App.ambient_color, 0.75 );
 		
 		// //var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 2048;

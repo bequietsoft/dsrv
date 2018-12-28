@@ -1,4 +1,4 @@
-class Physics {
+class PhysicsAmmo {
 	
 	constructor() {
 

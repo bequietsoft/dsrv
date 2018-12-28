@@ -10,7 +10,7 @@ class List {
 		if ( this.debug_info ) this.print();
 	}
 
-	add( item, checked = false ) {
+	add( item, checked = true ) {
 
 		this.items.push ( item );
 		this.checked.push ( checked );
@@ -75,4 +75,9 @@ class List {
 
 		return res;
 	}
+
+	item( index = this.current ) {
+		return this.items[ index ];
+	}
+	
 }

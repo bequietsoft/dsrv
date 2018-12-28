@@ -6,8 +6,6 @@ function load() {
 function resize() {	
 	App.camera.aspect = window.innerWidth / window.innerHeight;
 	App.camera.updateProjectionMatrix();
-	App.renderer.setSize( window.innerWidth, window.innerHeight );
-	App.render();
 }
 
 window.addEventListener ( "resize", resize );
