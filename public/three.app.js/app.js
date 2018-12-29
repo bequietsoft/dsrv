@@ -57,21 +57,49 @@ class App {
 
 		App.avatars.current = 0;
 
-		Events.bind( 'keydown', App.avatars.next.bind( App.avatars ), 'x' );
+		Events.bind( 'keydown', 'App.avatars.next', 'x' );
 	}
+
+	// static app_joint() {
+	// 	log( 'Current joint: ' + this.joints.item().item() );
+	// }
 
 	static add_animations() {
 
-		if( App.avatars.item(0).root.torso != undefined ) {
+		App.joints = new List( 'joints' );
+		let avatar = App.avatars.item();
 
-			let root = 'App.avatars.item(0).root';
-			let bone = '';
-			this.joints00 = new List();
-			this.joints00.debug_info = true;
-			this.joints00.add( [ 'rotation.x', 'rotation.y', 'rotation.z' ] );
-			this.joints00.add( [ 'torso.bones[0].rotation.x', 'torso.bones[0].rotation.y', 'torso.bones[0].rotation.z' ] );
-			this.joints00.add( [ 'torso.bones[1].rotation.x', 'torso.bones[1].rotation.y', 'torso.bones[1].rotation.z' ] );
+		App.j00 = new List( 'default joints' );
+
+		if( avatar.root.torso != undefined ) {
+			App.j00.add( ex( '$A.$B', [ 'position', 'rotation' ], [ 'x', 'y', 'z' ] ) );
+			App.j00.add( ex( 'torso.bones[$A].position.$B', da( 0, avatar.torso.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
 		}
+
+		if( avatar.test != undefined ) {
+			App.j00.add( ex( '$A.$B', [ 'position', 'rotation' ], [ 'x', 'y', 'z' ] ) );
+			App.j00.add( ex( 'test.bones[$A].position.$B', da( 0, avatar.test.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
+		}
+
+		App.j00.debug_info = true;
+		App.joints.add( App.j00 );
+
+		//Events.debug_info = true;
+		
+		Events.bind( 'keydown', 'function() { console.clear(); }', 	['b', 'v', 'u', 'c', 'n', 'p'] );
+
+		Events.bind( 'keydown', 'App.joints.item().print', 			['b'] );			// b - print current joins group
+		Events.bind( 'keydown', 'App.joints.item().check_all', 		['v'] );
+		Events.bind( 'keydown', 'App.joints.item().uncheck_all', 	['u'] );
+		Events.bind( 'keydown', 'App.joints.item().check', 			['c'] );
+		Events.bind( 'keydown', 'App.joints.item().next', 			['n'] );
+		Events.bind( 'keydown', 'App.joints.item().prev', 			['p'] );
+
+		Events.bind( 'keydown', 'App.joints.next',		 			['n + ctrl'] );		// n + ctrl next joints group
+		Events.bind( 'keydown', 'App.joints.prev',		 			['p + ctrl'] );		// b + ctrl prev joints group
+		
+		//Events.debug_info = false;
+
 		return;
 
 		this.collection01 = new List();
@@ -109,9 +137,10 @@ class App {
 
 		App.gui = new List();
 		App.gui.add( new EditBox( 'EditBox', '', [], 0, 10, 10 ) );
-		App.gui.add( new EditBox( 'EditBox', '', [], 0, 10, 10 ) );
+		App.gui.add( new EditBox( 'EditBox', '', [], 0, 10, 45 ) );
 			// App.cmd_GUI = new GUI( 1, true, true, 160, 20 );
-		log(App.gui);
+		//log(App.gui);
+
 		App.gui.item(1).element.onenter = function( cmd ) { App.hub.send( cmd ); }
 			// //App.cmd_gui.element.focus();
 

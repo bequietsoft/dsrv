@@ -88,3 +88,26 @@ function RK( length = 4 ) {
 	for( let i=0; i<length; i++ ) r += RI( 0, 9 );
 	return r;
 }
+
+// insert array a and b values in string s to $A and $B
+function ex( s, a, b ) {
+
+	let r = [];
+	for( let ai = 0; ai < a.length; ai++ ) {
+		let t = s.replace('$A', a[ai] );
+		for( let bi = 0; bi < b.length; bi++ ) {
+			let h = t;
+			h = h.replace('$B', b[bi] );
+			r.push( h );
+		}
+	}
+
+	return r;
+}
+
+// array from a to b
+function da( a, b ) {
+	let r = [];
+	for( let i = a; i <= b; i++ ) r.push( i );
+	return r;
+}

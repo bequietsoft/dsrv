@@ -163,9 +163,6 @@ class EditBox extends GUIElement {
 	
 	onkeyup( event ) { 
 
-		// log(this);
-		// log(event)
-
 		var element = document.activeElement;
 		if( element.tabIndex == -1 ) return;
 
@@ -206,10 +203,10 @@ class EditBox extends GUIElement {
 		if( this == document.activeElement && this.tabIndex != -1 ) cursor = '_';
 		if( this.cmd != undefined ) this.innerHTML = '<div><b>' + this.cmd + cursor + '</b></div>';
 		if( this.list != undefined ) {
-			//this.innerHTML += '<smaller>';
 			for( let i=0; i< this.list.length; i++) 
 				this.innerHTML += '<div style = "height: 12pt"><font size="2pt">' + this.list[i] + '</font></div>';
-			this.innerHTML += '<div style = "height: 12pt"><font size="2pt"></font></div>';
+			if( this.list.length > 0 ) 
+				this.innerHTML += '<div style = "height: 12pt"><font size="2pt"></font></div>';
 		}
 	}
 }

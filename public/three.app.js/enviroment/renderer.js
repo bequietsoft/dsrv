@@ -2,8 +2,8 @@ class Renderer  {
 
 	static init() {
 		
-		Renderer.instance = new THREE.WebGLRenderer();
-		Renderer.instance.antialias = true;
+		Renderer.instance = new THREE.WebGLRenderer( { antialias: true } );
+		//Renderer.instance.antialias = true;
 		Renderer.instance.depth = App.far;
 		Renderer.instance.setClearColor( App.ambient_color, 1 );
 		Renderer.instance.autoClear = false;

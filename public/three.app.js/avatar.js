@@ -6,10 +6,10 @@ class Avatar {
 		this.root.name = name;
 		this.root.position.set ( 0, 0.8, 0 );
 		
-		//this.test_minimum_cinc();
+		this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		this.simple_men();
+		//this.simple_men();
 		
 		//this.add_helpers();
 		App.world.scene.add ( this.root );
@@ -23,7 +23,7 @@ class Avatar {
 	test_minimum_cinc() {
 		let data = Object.assign( {}, default_cincture_data );
 		data.scale = 0.5;
-		data.material = tmat('images/test00.jpg');
+		//data.material = tmat('images/test00.jpg');
         let cinc = new Cincture ( data );	
 		this.root.add( cinc.mesh );
 		this.test = cinc;

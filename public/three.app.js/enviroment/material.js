@@ -54,7 +54,7 @@ function mat( type = 'basic', color = 'white', skinning = true ) {
 		{ 
 			color: color, 
 			skinning: skinning,
-			side: THREE.DoubleSide 
+			//side: THREE.DoubleSide 
 		});
 
 	if(type == 'standard')

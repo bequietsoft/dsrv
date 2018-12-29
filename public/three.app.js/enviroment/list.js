@@ -1,8 +1,9 @@
 class List {
 
-	constructor( _debug_info = false ) {
+	constructor( _name = undefined, _debug_info = false ) {
 		
 		this.items = [];
+		this.name = _name;
 		this.checked = [];
 		this.current = -1;
 		this.debug_info = _debug_info;
@@ -14,12 +15,13 @@ class List {
 
 		if( Array.isArray(item) )
 			item.forEach( element => { this.add( element, checked ) } );
+		else {
+			this.items.push ( item );
+			this.checked.push ( checked );
+			this.current = this.items.length - 1;
+		}
 
-		this.items.push ( item );
-		this.checked.push ( checked );
-		this.current = this.items.length - 1;
-
-		if( !Array.isArray(item) && this.debug_info ) this.print();
+		if( !Array.isArray( item ) && this.debug_info ) this.print();
 	}
 
 	del( item ) {
@@ -34,7 +36,8 @@ class List {
 	}
 
 	print() {
-		
+		log( this );
+		if( this.name != undefined ) log( this.name + ':' );
 		for( let i = 0; i < this.items.length; i++ ) {
 			let current_tag = ' ';
 			let checked_tag = '[ ]';
@@ -52,6 +55,16 @@ class List {
 		if( index < 0 || index > this.items.length - 1 ) return;
 		this.checked[ index ] = !this.checked[ index ];
 
+		if ( this.debug_info ) this.print();
+	}
+
+	check_all() {
+		for( let i = 0; i < this.checked.length; i++ ) this.checked[i] = true;
+		if ( this.debug_info ) this.print();
+	}
+
+	uncheck_all() {
+		for( let i = 0; i < this.checked.length; i++ ) this.checked[i] = false;
 		if ( this.debug_info ) this.print();
 	}
 
