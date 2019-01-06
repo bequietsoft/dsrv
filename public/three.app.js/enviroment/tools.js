@@ -57,6 +57,30 @@ function js( obj ) {
 	return JSON.stringify( obj );
 }
 
+// JSON parse
+function jp( obj ) {
+	return JSON.parse( obj );
+}
+
+// JSON copy
+function jc( obj ) {
+	return JSON.parse( JSON.stringify( obj ) );
+}
+
+// validation code for evaluation 
+function ev( code ) {
+	try {
+		eval( code ); 
+		return true;
+	} catch ( error ) {
+		if ( error instanceof SyntaxError ) 
+			log( 'Code evaluation syntax error: ' + error.message);
+		else 
+			log( 'Code evaluation undefined error.' );
+		return false;
+	}
+}
+
 // convert degrees to radians
 function d2r( deg ) {
 	return deg * Math.PI / 180;

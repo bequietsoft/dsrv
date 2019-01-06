@@ -85,6 +85,7 @@ class Mouse {
 		if ( Mouse._wheel * d < 0 ) Mouse.wheel = 0;
 		Mouse._wheel = Mouse.wheel;
 		Mouse.wheel += d;
+		Events.run( event );
 	}
 
 	static onclick( event ) {

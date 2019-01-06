@@ -99,13 +99,14 @@ class GUI_OLD {
 
 class GUIElement {
 
-	constructor( type, id, tabindex, left, top ) {
+	constructor( type, id, tabindex, left, top, width = undefined, height = undefined ) {
 		
 		this.element = document.createElement( type );
 		this.element.id = id;
-		//this.element.innerHTML = innerHTML;
 		this.element.style.left = left + 'pt';
 		this.element.style.top = top + 'pt';
+		if( width != undefined ) this.element.style.width = width;
+		if( height != undefined ) this.element.style.height = height;
 		this.element.tabIndex = tabindex;
 
 		this.element.style.userSelect = 'none';
@@ -117,21 +118,17 @@ class GUIElement {
 		this.element.style.backgroundColor = 'white';
 		this.element.style.position = 'absolute';
 		this.element.style.borderRadius = '20pt';
-		//this.element.style.borderWidth = '2pt';
-		//this.element.style.borderStyle = 'solid';
-		//this.element.style.borderColor = 'white';
-		// this.element.style.width = data.width;
-		// this.element.style.height = data.height;
+		this.element.style.borderWidth = '2pt';
+		this.element.style.borderStyle = 'solid';
+		this.element.style.borderColor = 'silver';
 	}
-
-	
 }
 
 class EditBox extends GUIElement {
 	
-	constructor( id, cmd, list, tabindex, left, top ) {
+	constructor( id, cmd, list, tabindex, left, top, width = undefined, height = undefined ) {
 
-		super( 'div', id, tabindex, left, top );
+		super( 'div', id, tabindex, left, top, width = 100, height );
 
 		// extra parameters
 		if( cmd != undefined ) this.element.cmd = cmd;
@@ -161,25 +158,42 @@ class EditBox extends GUIElement {
 		this.style.opacity = '0.30';
 	}
 	
+	
 	onkeyup( event ) { 
 
 		var element = document.activeElement;
 		if( element.tabIndex == -1 ) return;
 
-		//log('gui: ' + e.keyCode + ' = ' + e.key);
-		if( event.keyCode != 13 && event.keyCode != 8 &&
-			( event.keyCode < 48 || event.keyCode > 57 ) && 
-			( event.keyCode < 65 || event.keyCode > 90 ) ) return;
+		var keycode = event.keyCode;
+		var valid = 
+			( keycode >  47 && keycode <  58 ) || 	// number keys
+			( keycode >  64 && keycode <  91 ) || 	// letter keys
+			( keycode >  95 && keycode < 112 ) || 	// numpad keys
+			( keycode > 185 && keycode < 193 ) || 	// ;=,-./` (in order)
+			( keycode > 218 && keycode < 223 ) || 	// [\]' (in order)
+			keycode == 32 || 						// spacebar
+			keycode == 13 ||  						// return
+			keycode == 8;   						// backspace
+		if( !valid ) return;
 		
-		if( event.ctrlKey != true && event.altKey != true )
-			if( event.keyCode == 8 ) element.cmd = element.cmd.slice(0, -1);
-			if( event.keyCode > 47 ) element.cmd += event.key;
-			if( event.keyCode == 13 ) {
-				if( element.list != undefined ) element.list.unshift( element.cmd );
-				if( element.list.length > element.max ) element.list.pop();
-				if( element.onenter != undefined ) element.onenter( element.cmd );
-				element.cmd = '';
+		if( event.ctrlKey != true && event.altKey != true ) {
+
+			switch ( event.keyCode ) {
+				case 8:
+					element.cmd = element.cmd.slice(0, -1);
+					break;
+				case 13:
+					if( element.list != undefined ) element.list.unshift( element.cmd );
+					if( element.list.length > element.max ) element.list.pop();
+					if( element.onenter != undefined ) element.onenter( element.cmd );
+					element.cmd = '';
+					break;
+				default:
+					//if( event.keyCode == 32 || event.keyCode > 47 ) 
+					element.cmd += event.key;
+					break;
 			}
+		}
 		
 		element.update();
 	}
@@ -203,7 +217,7 @@ class EditBox extends GUIElement {
 		if( this == document.activeElement && this.tabIndex != -1 ) cursor = '_';
 		if( this.cmd != undefined ) this.innerHTML = '<div><b>' + this.cmd + cursor + '</b></div>';
 		if( this.list != undefined ) {
-			for( let i=0; i< this.list.length; i++) 
+			for( let i = 0; i < this.list.length; i++) 
 				this.innerHTML += '<div style = "height: 12pt"><font size="2pt">' + this.list[i] + '</font></div>';
 			if( this.list.length > 0 ) 
 				this.innerHTML += '<div style = "height: 12pt"><font size="2pt"></font></div>';

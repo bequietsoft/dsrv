@@ -4,30 +4,28 @@ class Hub {
 		
 		this.socket = io();
 		
-		this.socket.on('tocli', function (msg) {
+		this.socket.on( 'tocli', function ( data ) {
 			
-			if (msg.data == 'accept') {
-				if(App.id == undefined) {
-					//log('Client start. Id = ' + msg.id);
-						
-						//App.gui.add(msg.id + ': ' + msg.data);
-				} else {
-					//log('Client update. Id = ' + msg.id);
+			log( data );
 
+			if( data.type == 'accept' ) {
+				if( App.id == undefined ) {
+					//log('Client start. Id = ' + data.id);
+						//App.gui.add(data.id + ': ' + js(data));
+				} else {
+					//log('Client update. Id = ' + data.id);
 						//App.send('camera\n' + App.camera.rotation);
 						//location.reload();
 				}  
 
-				App.id = msg.id;
+				App.id = data.id;
 			}
 
 		});
 
-		this.send = function(data) {
-			this.socket.emit( 'fromcli', { 
-				id: App.id, 
-				data: data 
-			} );
+		this.send = function( data ) {
+			data.id = App.id;
+			this.socket.emit( 'fromcli', data );
 		};
 		
 	}

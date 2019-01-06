@@ -17,7 +17,7 @@ class Keyboard {
 	static key_time( key ) {
 		if ( key == undefined ) return;
 		let keyCode = key.charCodeAt(0);
-		if ( this.keys[keyCode][0] == true ) return Date.now() - this.keys[keyCode][1];
+		if ( this.keys[ keyCode ][0] == true ) return Date.now() - this.keys[keyCode][1];
 		return 0;
 	}
 
@@ -27,7 +27,7 @@ class Keyboard {
 		if( Keyboard.shift != event.shiftKey ) Keyboard.shift = [ event.shiftKey, now ];
 		if( Keyboard.ctrl != event.ctrlKey) Keyboard.ctrl = [ event.ctrlKey, now ];
 		if( Keyboard.alt != event.altKey) Keyboard.alt = [ event.altKey, now ];
-		if( Keyboard.keys[ event.keyCode][0] == false ) Keyboard.keys[ event.keyCode ] = [ true, now ];
+		if( Keyboard.keys[ event.keyCode ][0] == false ) Keyboard.keys[ event.keyCode ] = [ true, now ];
 		//log( 'Key down: ' + event.keyCode + ' [' + event.key + '] all keys: ' + Keyboard.keys[ event.keyCode ].join(' ') );
 		//log( Keyboard.shift[0] + '  ' + Keyboard.ctrl[0] + '   ' + Keyboard.alt[0] );
 		Events.run( event );

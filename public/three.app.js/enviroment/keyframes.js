@@ -1,5 +1,31 @@
 class Keyframes {
 
+	static init () {
+		Keyframes.items = new List();
+		Keyframes.debug_info = false;
+	}
+
+	static add( keyframe ) {
+		Keyframes.items.add( keyframe.get_checked() );
+	}
+
+	static save() {
+		
+	}
+
+	static load() {
+
+	}
+
+	static play( obj, sequence ) {
+		for( let i = 0; i < sequence.length; i++ )
+			log( i + ': ' + sequence[i] );
+	}
+}
+
+
+class Keyframes1 {
+
 	static init() {
 		Keyframes.items = [];
 		Keyframes.debug_info = false;

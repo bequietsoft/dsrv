@@ -7,28 +7,21 @@ class Events {
 
 	static bind( type, action, keys = undefined, object = undefined ) {
 		
+		if( Events.debug_info ) log( js( action ) );
+
 		let func = undefined;
 		let context = undefined;
 
 		// convert string function name or function to function
-		if( action.includes('function') ) 
+		if( action.includes( 'function' ) ) 
 			eval( "action =" + action );
 		else {
 			func = action.split('.').pop();
 			context = action.replace( '.' + func, '' );
-			
-			//log( action + ':   ' + context + '   ' + func );
-			// action = eval( action ).bind( eval( context ) );
-			// log( eval( context ) )
-			// //log( action );
-			// log();
-
 			func = action;
 			action = undefined;
 		}
 		
-		if( Events.debug_info ) log( action );
-
 		let event = {
 			type: type,
 			keys: keys,
@@ -52,10 +45,6 @@ class Events {
 						Events.items[i].keys == undefined ) {
 						if( Events.debug_info ) log( 'run event ' + js( event ) );
 						if( Events.items[i].action == undefined ) {
-							log(Events.items[i]);
-							// log( Events.items[i].func + ' in ' + Events.items[i].context + ': ' + 
-							// 	js( eval( Events.items[i].context ) ) );
-								
 							let action = eval( Events.items[i].func ).bind( eval( Events.items[i].context ) );
 							action( Events.items[i].object );
 

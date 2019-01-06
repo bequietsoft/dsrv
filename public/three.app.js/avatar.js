@@ -5,12 +5,18 @@ class Avatar {
 		this.root = new THREE.Object3D();
 		this.root.name = name;
 		this.root.position.set ( 0, 0.8, 0 );
+		this.active_joint = undefined;
+
+		this.joints = new List( name + 'joints' );
+		this.joints.add( this.root.rotation, 'root' );
 		
-		this.test_minimum_cinc();
+		//this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		//this.simple_men();
+		this.simple_men();
 		
+		this.joints.debug_info = true;
+
 		//this.add_helpers();
 		App.world.scene.add ( this.root );
     }
@@ -26,7 +32,9 @@ class Avatar {
 		//data.material = tmat('images/test00.jpg');
         let cinc = new Cincture ( data );	
 		this.root.add( cinc.mesh );
+		
 		this.test = cinc;
+		this.add_bones_to_joints_list( this.test );
 	}
 
 	test_head_cinc() {
@@ -98,6 +106,7 @@ class Avatar {
 		this.root.add( cinc.mesh );
 
 		this.test = cinc;
+		this.add_bones_to_joints_list( this.test );
 	}
 
 	test_cloth_cinc( dp, dr, mirror ) {
@@ -156,7 +165,7 @@ class Avatar {
 		//data.cloth = true;
 		var cinc = new Cincture ( data );		
 		this.root.add( cinc.mesh );
-		this.test = cinc;
+		
 		
 		//dr.x = 0;
 
@@ -184,7 +193,8 @@ class Avatar {
 		cinc.mesh.add( cloth.mesh );
 		cloth.mesh.bind( cloth.data.skeleton );
 
-		
+		this.test = cinc;
+		this.add_bones_to_joints_list( this.test );
 	}
 
 	simple_men() {
@@ -222,8 +232,20 @@ class Avatar {
 		this.torso.last_bone().add( this.l_arm.mesh );
 		this.torso.last_bone().add( this.r_arm.mesh );
 
-		
+		//
+		this.add_bones_to_joints_list( this.torso );
+		this.add_bones_to_joints_list( this.head );
+		this.add_bones_to_joints_list( this.l_arm );
+		this.add_bones_to_joints_list( this.r_arm );
+		this.add_bones_to_joints_list( this.l_leg );
+		this.add_bones_to_joints_list( this.r_leg );
 	}
+
+	add_bones_to_joints_list( item ) {
+		//log(item);
+		for( let i=0; i<item.data.bones.length; i++ )
+			this.joints.add( item.data.bones[i].rotation, item.data.name + '_bone' + i );
+	}	
 
 	// controls:
 	update_mouse() {
@@ -238,7 +260,21 @@ class Avatar {
 
 			// wheel
 			if( Mouse.wheel != 0 ) {
-				App.camera.translateZ ( -Mouse.wheel / 10 );
+				
+				this.active_joint = App.avatars.item().joints.item();
+				
+				let joints_edit = false;
+
+				if( this.active_joint != undefined ) {
+					if( Keyboard.key_time('X') > 0 ) { this.active_joint.x += Mouse.wheel / 500; joints_edit = true; }
+					if( Keyboard.key_time('Y') > 0 ) { this.active_joint.y += Mouse.wheel / 500; joints_edit = true; }
+					if( Keyboard.key_time('Z') > 0 ) { this.active_joint.z += Mouse.wheel / 500; joints_edit = true; }
+				}
+				
+				if( joints_edit == false ) {
+					App.camera.translateZ ( -Mouse.wheel / 10 );
+					if( App.camera.position.x > -2 ) App.camera.translateZ ( Mouse.wheel / 10 );
+				}
 			}
 		}
 	}
@@ -247,7 +283,7 @@ class Avatar {
 		if ( Keyboard.key_time('W') > 0 ) this.root.translateX( +0.1 );
 		if ( Keyboard.key_time('S') > 0 ) this.root.translateX( -0.1 );
 		if ( Keyboard.key_time('A') > 0 ) this.root.rotateY( +0.1 );
-		if ( Keyboard.key_time('D') > 0 ) this.root.rotateY( -0.1 );
+		if ( Keyboard.key_time('D') > 0 ) this.root.rotateY( -0.1 );		
 	}
 
     update () {
@@ -381,6 +417,7 @@ class Avatar {
 			];
 		}	
 
+		data.name = 'head';
 		data.scale = 0.77;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
@@ -451,6 +488,7 @@ class Avatar {
 			];
 		}	
 
+		data.name = 'hairs';
 		data.scale = 0.80;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
@@ -533,6 +571,9 @@ class Avatar {
 				0.03,	0.02,	0.01,	0.02,	0.02,	0.02,	0.01,	0.02
 			];
 		}
+
+		if( mirror == +1) data.name = 'left_arm';
+		if( mirror == -1) data.name = 'right_arm';
 		data.mirror = mirror;
 		data.smooth = { normals: 1, vertices: 1 };
 		data.subnodes = 1;
@@ -569,6 +610,7 @@ class Avatar {
 			];
 		}
 
+		data.name = 'torso';
 		data.cap.begin = false;
 		data.smooth = { normals: 1, vertices: 1 };
 		data.subnodes = 1;
@@ -613,6 +655,8 @@ class Avatar {
 			];
 		}
 
+		if( mirror == +1) data.name = 'left_leg';
+		if( mirror == -1) data.name = 'right_leg';
 		data.mirror = mirror;
 		data.smooth = { normals: 1, vertices: 1 };
 		data.subnodes = 1;

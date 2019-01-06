@@ -4,6 +4,7 @@ class List {
 		
 		this.items = [];
 		this.name = _name;
+		this.names = [];
 		this.checked = [];
 		this.current = -1;
 		this.debug_info = _debug_info;
@@ -11,12 +12,13 @@ class List {
 		if ( this.debug_info ) this.print();
 	}
 
-	add( item, checked = true ) {
+	add( item, name = undefined, checked = true ) {
 
 		if( Array.isArray(item) )
 			item.forEach( element => { this.add( element, checked ) } );
 		else {
 			this.items.push ( item );
+			this.names.push ( name );
 			this.checked.push ( checked );
 			this.current = this.items.length - 1;
 		}
@@ -28,6 +30,7 @@ class List {
 		for( let i = 0; i < this.items.length; i++ )
 			if( this.items[i] == item ) {
 				this.items.splice( i, 1);
+				this.names.splice( i, 1);
 				this.checked.splice( i, 1);
 				this.current = this.items.length - 1;
 			}
@@ -35,16 +38,21 @@ class List {
 		if ( this.debug_info ) this.print();
 	}
 
-	print() {
-		log( this );
+	print( only_current = false) {
 		if( this.name != undefined ) log( this.name + ':' );
 		for( let i = 0; i < this.items.length; i++ ) {
 			let current_tag = ' ';
 			let checked_tag = '[ ]';
+			let item_name = '';
 			let item_string = this.items[i];
 			if( i == this.current ) current_tag = '>';
 			if( this.checked[i] == true ) checked_tag = '[X]';
-			log( current_tag + ' ' + checked_tag + ' ' + item_string );
+			if( this.names[i] != undefined ) item_name = this.names[i];
+			if (!only_current) 
+				log( i + ' ' + current_tag + ' ' + checked_tag + ' ' + item_name + '\t' + js(item_string) );
+			else
+				if( current_tag == '>' ) 
+					log( i + ' ' + checked_tag + ' ' + item_name + '\t' + js(item_string) );
 		}
 
 		log();
@@ -69,11 +77,12 @@ class List {
 	}
 
 	next() {
+		
 		if ( this.current == -1) return;
 		this.current++;
 		if ( this.current == this.items.length ) this.current = 0;
 
-		if ( this.debug_info ) this.print();
+		if ( this.debug_info ) this.print( true );
 	}
 
 	prev() {
@@ -81,15 +90,19 @@ class List {
 		this.current--;
 		if ( this.current == -1 ) this.current = this.items.length - 1;
 
-		if ( this.debug_info ) this.print();
+		if ( this.debug_info ) this.print( true );
 	}
 
 	get_checked() {
-		let res = [];
+		let items = [];
+		let names = [];
 		for( let i = 0; i < this.checked.length; i++ ) 
-			if( this.checked[i] == true ) res.push( this.items[i] );
+			if( this.checked[i] == true ) {
+				items.push( this.items[i] );
+				names.push( this.names[i] );
+			}
 
-		return res;
+		return { items: items, names: names };
 	}
 
 	item( index = this.current ) {
