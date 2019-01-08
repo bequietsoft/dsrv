@@ -97,7 +97,7 @@ io( server ).on( 'connection', function( socket ) {
 	socket.on( 'fromcli', function ( data ) {
 		
 		let user = getUser( data.id );
-		let root_path = root + '\\data\\' + user.name;
+		let root_path = root + '\\data\\' + user.name + '\\';
 		let type = data.type || undefined;
 
 		console.log( '  user.id   = ' + user.id );
@@ -110,29 +110,30 @@ io( server ).on( 'connection', function( socket ) {
 
 		switch( type ) {
 
-		// 	case 'text':
-		// 		console.log( data.id + ': ' + data.data.text );
-		// 		break;
+			case 'text':
+				console.log( data.id + ': ' + data.text );
+				break;
 
-		// 	case 'json':
+			case 'json':
 				
-		// 		console.log( data.id + ': recive ' + data.text.length + ' bytes JSON object' );
+				console.log( data.id + ': recive ' + data.text.length + ' bytes JSON object' );
 				
-		// 		// console.log( root_path );
-		// 		// console.log( fs.existsSync( root_path ) );
+				let data_path = root_path + data.name + '.json';
+				console.log( data_path );
 				
-		// 		// if( !fs.existsSync( root_path ) ) 
-		// 		// 	fs.mkdirSync( root_path, {recursive: true}, err => {} );
+				fs.writeFile( data_path, data.text, 'utf8', function (err) {
+					if (err) {
+						return console.log(err);
+					}
+					console.log("The file was saved!");
+				}); 
+				//fs.writeFile( data_path, data.text );
+				
+				break;
 
-		// 		if( data.path != undefined ) {
-		// 			fs.writeFile( root_path + data.path, data.text );
-		// 			console.log( 'and write to ' + root_path + data.path );
-		// 		}
-		// 		break;
-
-		// 	default:
-		// 		console.log( data.id + ': undefined msg type ' + data.type );
-		// 		break;
+			default:
+				console.log( data.id + ': undefined msg type ' + data.type );
+				break;
 		}
 
 		//io.emit( 'tocli', data );
