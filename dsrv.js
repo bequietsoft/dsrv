@@ -107,7 +107,8 @@ io( server ).on( 'connection', function( socket ) {
 		console.log( '  name      = ' + data.name );
 		console.log( '  text      = ' + data.text );
 
-		// switch( type ) {
+
+		switch( type ) {
 
 		// 	case 'text':
 		// 		console.log( data.id + ': ' + data.data.text );
@@ -132,7 +133,7 @@ io( server ).on( 'connection', function( socket ) {
 		// 	default:
 		// 		console.log( data.id + ': undefined msg type ' + data.type );
 		// 		break;
-		// }
+		}
 
 		//io.emit( 'tocli', data );
 		socket.broadcast.emit( 'tocli', data );//{ id: socket.id, type: 'echo', masdata: msg.data } );

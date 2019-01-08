@@ -164,6 +164,7 @@ class EditBox extends GUIElement {
 		var element = document.activeElement;
 		if( element.tabIndex == -1 ) return;
 
+		//log(event.keyCode);
 		var keycode = event.keyCode;
 		var valid = 
 			( keycode >  47 && keycode <  58 ) || 	// number keys
@@ -172,6 +173,7 @@ class EditBox extends GUIElement {
 			( keycode > 185 && keycode < 193 ) || 	// ;=,-./` (in order)
 			( keycode > 218 && keycode < 223 ) || 	// [\]' (in order)
 			keycode == 32 || 						// spacebar
+			keycode == 38 || 						// arrow UP
 			keycode == 13 ||  						// return
 			keycode == 8;   						// backspace
 		if( !valid ) return;
@@ -187,6 +189,9 @@ class EditBox extends GUIElement {
 					if( element.list.length > element.max ) element.list.pop();
 					if( element.onenter != undefined ) element.onenter( element.cmd );
 					element.cmd = '';
+					break;
+				case 38:
+					if( element.list.length > 0 ) element.cmd = element.list[ element.list.length - 1 ];
 					break;
 				default:
 					//if( event.keyCode == 32 || event.keyCode > 47 ) 
