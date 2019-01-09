@@ -17,9 +17,7 @@ class App {
 		Keyframes.init();
 		Keyboard.init();
 		Mouse.init();
-		
 		Renderer.init();
-
 		
 		App.hub = new Hub();
 		//App.audio = new Audio();
@@ -76,12 +74,12 @@ class App {
 		
 		if( avatar.root.torso != undefined ) {
 			App.j00.add( ex( '$A.$B', [ 'position', 'rotation' ], [ 'x', 'y', 'z' ] ) );
-			App.j00.add( ex( 'torso.bones[$A].position.$B', da( 0, avatar.torso.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
+			App.j00.add( ex( 'torso.bones[$A].position.$B', DA( 0, avatar.torso.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
 		}
 
 		if( avatar.test != undefined ) {
 			App.j00.add( ex( '$A.$B', [ 'position', 'rotation' ], [ 'x', 'y', 'z' ] ) );
-			App.j00.add( ex( 'test.bones[$A].position.$B', da( 0, avatar.test.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
+			App.j00.add( ex( 'test.bones[$A].position.$B', DA( 0, avatar.test.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
 		}
 		
 		App.joints.debug_info = true;
@@ -170,7 +168,7 @@ class App {
 			log(  js(App.fps) );
 			App.hub.send( { 
 				text: js( App.fps ), 
-				name: 'App.fps', 
+				link: 'App.fps', 
 				type: 'json' 
 			} ); 
 			return; 

@@ -201,7 +201,7 @@ class Avatar {
 		
 		let wire_mat = mat('wire');
 		let skin_mat = mat( 'phong', rgb(229, 220, 206));
-		let hairs_mat1 = mat( 'phong', rgb(127, 108, 94) ); 
+		let hairs_mat1 = mat( 'phong', rgb(199, 190, 176) ); 
 		let hairs_mat2 = mat( 'phong', rgb(51, 41, 34) ); 
 			// hairs_mat1.side = THREE.DoubleSide;
 			// hairs_mat2.side = THREE.DoubleSide;
@@ -210,6 +210,15 @@ class Avatar {
 		let mat_01 = mat( 'phong', rgb( 78, 96, 124 ) ); 
 		let mat_02 = mat( 'phong', rgb( 159, 163, 145 ) ); 
 		let mat_10 = tmat( 'images/test00.jpg' );
+
+		//
+		// wires
+		skin_mat = wire_mat;
+		hairs_mat1 = wire_mat;
+		hairs_mat2 = wire_mat;
+		mat_00 = wire_mat;
+		mat_01 = wire_mat;
+		mat_02 = wire_mat;
 
 		this.torso = this.simple_torso( mat_00 );
 		this.head = this.simple_head( skin_mat );
@@ -468,7 +477,56 @@ class Avatar {
 		{
 			data.offsets = 
 			[	
-			   -0.100,  -0.285,   0.000,
+			   -0.045,  -0.510,   0.000,
+			   -0.020,   0.095,   0.000,
+			    0.015,   0.040,   0.000,
+			    0.005,   0.040,   0.000
+			]
+
+			data.rotates = 
+			[	
+				0.00,   0.00,  +0.05,
+				0.00,   0.00,  +0.05,
+				0.00,   0.00,  +0.05,
+				0.00,   0.00,  +0.05
+			];
+
+			data.nodes = 
+			[	
+				0.070,	0.065,	0.035,	0.025,   0.035,   0.065,
+				0.090,	0.085,	0.075,	0.100,   0.075,   0.085,
+				0.095,	0.080,	0.085,	0.120,   0.085,   0.080,		
+				0.045,	0.040,	0.035,	0.040,   0.035,   0.040
+			];
+		}	
+
+		data.name = 'hairs';
+		data.scale = 0.80;
+		data.start_angle = 180;
+		data.smooth = { normals: 1, vertices: 1 };
+		data.subnodes = 1;
+		data.subcincs = 1;
+		data.cbegin = false;
+		//data.helpers = 0.0001;
+		data.cap_curve = { begin: 1, end: 2 };
+		data.material = mat1;
+		//data.uv = { x: 0, y: 0, height: 1, width: 1 };
+		let cinc = new Cincture ( data );
+		//cinc.data.bones[0].position.set( -0.01, -0.018, 0 );
+		
+		var root = this.head.last_bone();
+		root.add(cinc.mesh);
+		//return cinc;
+	}
+
+	simple_hairs2 ( mat1, mat2 ) {
+		
+		var data = Object.assign( {}, default_cincture_data );
+		
+		{
+			data.offsets = 
+			[	
+			   -0.105,  -0.385,   0.000,
 			   -0.005,   0.070,   0.000,
 			   -0.000,   0.050,   0.000
 			]
@@ -489,14 +547,14 @@ class Avatar {
 		}	
 
 		data.name = 'hairs';
-		data.scale = 0.80;
+		data.scale = 0.75;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
 		data.subnodes = 1;
 		data.subcincs = 1;
 		data.cbegin = false;
 		//data.helpers = 0.0001;
-		data.cap_curve = { begin: -2, end: 2 };
+		data.cap_curve = { begin: -3, end: 2 };
 		data.material = mat1;
 		//data.uv = { x: 0, y: 0, height: 1, width: 1 };
 		let cinc = new Cincture ( data );

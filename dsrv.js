@@ -6,7 +6,8 @@ var fs = require('fs');
 
 var port = 3000;
 var root = __dirname;
-var public = 'public';
+var public_dir = 'public';
+var users_dir = 'users';
 var index = 'index.html';
 
 var users = [];
@@ -86,7 +87,7 @@ var server = http.createServer( function ( request, response ) {
 		}
 		
 	if( request.url == '/' ) request.url += index;
-	send( path.join( root, public, request.url ), response );
+	send( path.join( root, public_dir, request.url ), response );
 });
 
 io( server ).on( 'connection', function( socket ) { 
@@ -94,41 +95,40 @@ io( server ).on( 'connection', function( socket ) {
 	console.log( 'Socket connection ' + socket.id );
 	socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
 	
+	let user = getUser( socket.id );
+	let user_path = path.join( root, users_dir, user.name );
+	sfiles = [];
+	scanDir( user_path );
+	sfiles.forEach(item => {
+		console.log(item);
+		socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
+	});
+
+	//send( path.join( root, public_dir, request.url ), response );
+
 	socket.on( 'fromcli', function ( data ) {
 		
+		//let type = data.type || undefined;
 		let user = getUser( data.id );
-		let root_path = root + '\\data\\' + user.name + '\\';
-		let type = data.type || undefined;
+		let user_path = path.join( root, users_dir, user.name );//'./users/' + user.name;
+		if( fs.existsSync( user_path ) == false ) fs.mkdirSync( user_path );
 
-		console.log( '  user.id   = ' + user.id );
-		console.log( '  user.name = ' + user.name );
-		console.log( '  root_path = ' + root_path );
-		console.log( '  type      = ' + type );
-		console.log( '  name      = ' + data.name );
-		console.log( '  text      = ' + data.text );
+		// console.log( '  user.id   = ' + user.id );
+		// console.log( '  user.name = ' + user.name );
+		// console.log( '  user_path = ' + user_path );
+		// console.log( '  data.type = ' + data.type );
+		// console.log( '  data.link = ' + data.link );
+		// console.log( '  text      = ' + data.text );
 
-
-		switch( type ) {
+		switch( data.type ) {
 
 			case 'text':
 				console.log( data.id + ': ' + data.text );
 				break;
 
 			case 'json':
-				
-				console.log( data.id + ': recive ' + data.text.length + ' bytes JSON object' );
-				
-				let data_path = root_path + data.name + '.json';
-				console.log( data_path );
-				
-				fs.writeFile( data_path, data.text, 'utf8', function (err) {
-					if (err) {
-						return console.log(err);
-					}
-					console.log("The file was saved!");
-				}); 
-				//fs.writeFile( data_path, data.text );
-				
+				console.log( data.id + ': ' + data.text.length + ' bytes JSON object' );
+				fs.writeFileSync( user_path + '/' + data.link + '.json', data.text );
 				break;
 
 			default:
@@ -140,6 +140,11 @@ io( server ).on( 'connection', function( socket ) {
 		socket.broadcast.emit( 'tocli', data );//{ id: socket.id, type: 'echo', masdata: msg.data } );
 	} );	
 } );
+
+// // 
+// function onerror(err) {
+// 	if( err ) throw err;
+// }
 
 // 
 function getUser( id ) {
