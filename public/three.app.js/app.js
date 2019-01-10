@@ -164,32 +164,16 @@ class App {
 			return; 
 		}
 
-		if( cmd.startsWith( '_fps' ) ) { 
-			log(  js(App.fps) );
-			App.hub.send( { 
-				text: js( App.fps ), 
-				link: 'App.fps', 
-				type: 'json' 
-			} ); 
+		// if( cmd.startsWith( 'save_pos_x' ) ) {
+		// 	App.hub.save( 'App.avatars.item().root.position.x' );
+		// 	return; 
+		// }
+
+		if( cmd.startsWith( 'save_pos' ) ) {
+			App.hub.save( 'App.avatars.item().root.position' );
 			return; 
 		}
 
-		
-		// if( cmd.startsWith( '_save ' ) ) { 
-		// 	let path = cmd.replace( '_save ', '' );
-		// 	if( ev( path ) ) {
-		// 		let obj =  eval(path);
-		// 		log( 'Object ' + path +  ' found:' );
-		// 		log( obj );
-		// 		App.hub.send( { text: js( obj ), path: path, type: 'json' } );
-		// 	}
-		// 	else
-		// 		log( 'Object ' + path +  ' not found.' );
-			
-		// 	//if( )
-		// 	//App.hub.send( js(App.avatars.item().joints) ); 
-		// 	return; 
-		// }
 	}
 
 	static update() {
@@ -208,6 +192,11 @@ class App {
 
 		//App.physics.update();
 		
+		App.hub.save( 'App.avatars.item().root.position' );
+		App.hub.save( 'App.avatars.item().root.rotation' );
+		App.hub.save( 'App.camera.position' );
+		App.hub.save( 'App.avatars.item().root.rotation' );
+
 		App.gui.items[0].innerHTML = App.fps.fps;
 		Renderer.update();
 	}

@@ -6,19 +6,22 @@ class Hub {
 		
 		this.socket.on( 'tocli', function ( data ) {
 			
-			log( data );
+			//log( data );
 
-			if( data.type == 'accept' ) {
-				if( App.id == undefined ) {
-					//log('Client start. Id = ' + data.id);
-						//App.gui.add(data.id + ': ' + js(data));
-				} else {
-					//log('Client update. Id = ' + data.id);
-						//App.send('camera\n' + App.camera.rotation);
-						//location.reload();
-				}  
+			switch( data.type ) {
+				
+				case 'accept':
+					// TODO 
+					App.id = data.id;
+					break;
 
-				App.id = data.id;
+				case 'json':
+					//log( data );
+					ovc( jp( data.value ), eval( data.item ) );
+					break;
+
+				default:
+					break;
 			}
 
 		});
@@ -27,6 +30,15 @@ class Hub {
 			data.id = App.id;
 			this.socket.emit( 'fromcli', data );
 		};
+
+		this.save = function( item ) {
+			let value = js( eval( item ) );
+			App.hub.send( { 
+				item: item, 
+				value: value, 
+				type: 'json' 
+			} ); 
+		}
 		
 	}
 }

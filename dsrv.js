@@ -73,6 +73,7 @@ function send( item, response ) {
 
 // #endregion
 
+
 var server = http.createServer( function ( request, response ) {
 	
 	response.sendFile = sendFile;
@@ -90,6 +91,7 @@ var server = http.createServer( function ( request, response ) {
 	send( path.join( root, public_dir, request.url ), response );
 });
 
+
 io( server ).on( 'connection', function( socket ) { 
 	
 	console.log( 'Socket connection ' + socket.id );
@@ -97,28 +99,24 @@ io( server ).on( 'connection', function( socket ) {
 	
 	let user = getUser( socket.id );
 	let user_path = path.join( root, users_dir, user.name );
-	sfiles = [];
-	scanDir( user_path );
-	sfiles.forEach(item => {
-		console.log(item);
-		socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
-	});
+	
+	try {
+		fs.readdirSync( user_path ).forEach( item => {
+			let value = fs.readFileSync( path.join( user_path, item ), "utf8" );// + '\n\n';
+			if( item != undefined && value != undefined) {
+				console.log( 'item = ' + item );
+				console.log( 'value = ' + value );
+				socket.emit( 'tocli', { id: socket.id, type: 'json', item: item , value: value } );
+			}
 
-	//send( path.join( root, public_dir, request.url ), response );
+		});
+	} catch( err ) { }
 
 	socket.on( 'fromcli', function ( data ) {
 		
-		//let type = data.type || undefined;
 		let user = getUser( data.id );
-		let user_path = path.join( root, users_dir, user.name );//'./users/' + user.name;
+		let user_path = path.join( root, users_dir, user.name );
 		if( fs.existsSync( user_path ) == false ) fs.mkdirSync( user_path );
-
-		// console.log( '  user.id   = ' + user.id );
-		// console.log( '  user.name = ' + user.name );
-		// console.log( '  user_path = ' + user_path );
-		// console.log( '  data.type = ' + data.type );
-		// console.log( '  data.link = ' + data.link );
-		// console.log( '  text      = ' + data.text );
 
 		switch( data.type ) {
 
@@ -127,8 +125,8 @@ io( server ).on( 'connection', function( socket ) {
 				break;
 
 			case 'json':
-				console.log( data.id + ': ' + data.text.length + ' bytes JSON object' );
-				fs.writeFileSync( user_path + '/' + data.link + '.json', data.text );
+				console.log( data.id + ': ' + data.value.length + ' bytes JSON object' );
+				fs.writeFileSync( user_path + '/' + data.item, data.value );
 				break;
 
 			default:
@@ -137,16 +135,10 @@ io( server ).on( 'connection', function( socket ) {
 		}
 
 		//io.emit( 'tocli', data );
-		socket.broadcast.emit( 'tocli', data );//{ id: socket.id, type: 'echo', masdata: msg.data } );
+		socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
 	} );	
 } );
 
-// // 
-// function onerror(err) {
-// 	if( err ) throw err;
-// }
-
-// 
 function getUser( id ) {
 	for( let i = 0; i < users.length; i++ ) if( users[i].id == id ) return users[i];
 	return { id: undefined, name: 'anonymous' };

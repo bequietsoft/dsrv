@@ -33,6 +33,16 @@ function jc( obj ) {
 	return JSON.parse( JSON.stringify( obj ) );
 }
 
+// objects 1-st level properties values copy
+function ovc( src, dst ) {
+	let src_keys = Object.keys( src );
+	let dst_keys = Object.keys( dst );	
+	for( let si = 0; si < src_keys.length; si++ )
+		for( let di = 0; di < dst_keys.length; di++ )
+			if( src_keys[si] == dst_keys[di] )
+				dst[ dst_keys[di] ] = src[ src_keys[si] ]; 
+}
+
 // validation code for evaluation 
 function ev( code ) {
 	try {
