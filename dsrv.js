@@ -104,8 +104,8 @@ io( server ).on( 'connection', function( socket ) {
 		fs.readdirSync( user_path ).forEach( item => {
 			let value = fs.readFileSync( path.join( user_path, item ), "utf8" );// + '\n\n';
 			if( item != undefined && value != undefined) {
-				console.log( 'item = ' + item );
-				console.log( 'value = ' + value );
+				// console.log( 'item = ' + item );
+				// console.log( 'value = ' + value );
 				socket.emit( 'tocli', { id: socket.id, type: 'json', item: item , value: value } );
 			}
 
@@ -125,7 +125,7 @@ io( server ).on( 'connection', function( socket ) {
 				break;
 
 			case 'json':
-				console.log( data.id + ': ' + data.value.length + ' bytes JSON object' );
+				console.log( data.id + ': ' + data.item );
 				fs.writeFileSync( user_path + '/' + data.item, data.value );
 				break;
 

@@ -215,17 +215,17 @@ class Avatar {
 
 		//
 		// wires
-		skin_mat = wire_mat;
-		hairs_mat1 = wire_mat;
-		hairs_mat2 = wire_mat;
-		mat_00 = wire_mat;
-		mat_01 = wire_mat;
-		mat_02 = wire_mat;
+		// skin_mat = wire_mat;
+		// hairs_mat1 = wire_mat;
+		// hairs_mat2 = wire_mat;
+		// mat_00 = wire_mat;
+		// mat_01 = wire_mat;
+		// mat_02 = wire_mat;
 
 		this.torso = this.simple_torso( mat_00 );
 		this.head = this.simple_head( skin_mat );
 		this.hairs = this.simple_hairs( hairs_mat1, hairs_mat2 );
-		//this.hairs1 = this.simple_hairs1( this.head, hairs_mat1, hairs_mat2 );
+		this.hairs1 = this.simple_hairs1( this.head, hairs_mat1, hairs_mat2 );
 		
 		this.l_leg = this.simple_leg( V( 0, 0.05, -0.07 ), V( 0, 0, Math.PI ), +1, mat_01 );
 		this.r_leg = this.simple_leg( V( 0, 0.05, +0.07 ), V( 0, 0, Math.PI ), -1, mat_01 );
@@ -283,8 +283,11 @@ class Avatar {
 				}
 				
 				if( joints_edit == false ) {
-					App.camera.translateZ ( -Mouse.wheel / 10 );
-					if( App.camera.position.x > -2 ) App.camera.translateZ ( Mouse.wheel / 10 );
+					// App.camera.translateZ ( -Mouse.wheel / 10 );
+					// if( App.camera.position.x > -2 ) App.camera.translateZ ( -Mouse.wheel / 10 );
+					App.camera.position.x += Mouse.wheel / 10;
+					if( App.camera.position.x > -1 ) App.camera.position.x = -1;
+					log( p2s(App.camera.position) );
 				}
 			}
 		}
@@ -568,25 +571,26 @@ class Avatar {
 	}
 
 	simple_hairs1 ( head, mat1, mat2 ) {
-		
+		return;
+
 		var root = head.last_bone();
 		
 		// up
 		root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0.3, 0.8], [-0.04, -0.01, 0.01] ).mesh );
-		root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0.3, 0.8], [-0.04, -0.01, 0.01] ).mesh );
-		root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0.2, 0.4], [0.0, 0.01, 0.01] ).mesh );
-		root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0, 0], [0.02, 0.01, 0.01] ).mesh );
-		root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, -0.2, -0.4], [0.04, 0.01, 0.01] ).mesh );
+		// root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0.3, 0.8], [-0.04, -0.01, 0.01] ).mesh );
+		// root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0.2, 0.4], [0.0, 0.01, 0.01] ).mesh );
+		// root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, 0, 0], [0.02, 0.01, 0.01] ).mesh );
+		// root.add( this.simple_curl( 0.09, 0.14, 10, 0.9, mat1, [1.7, 0, 0], [0, 0, 0], [1.4, -0.2, -0.4], [0.04, 0.01, 0.01] ).mesh );
 
-		// down right
-		root.add( this.simple_curl( 0.05, 0.10, 10, 0.5, mat2, [0.50, 0, 0], [0, 0, 0], [2.8, 0.0, -0.4], [ 0.00, -0.03, 0.065] ).mesh );
-		root.add( this.simple_curl( 0.05, 0.13, 10, 0.2, mat2, [0.55, 0, 0], [0, 0, 0], [2.9, 0.4,  0.2], [-0.02, -0.04, 0.065] ).mesh );
-		root.add( this.simple_curl( 0.05, 0.11, 10, 0.5, mat2, [0.55, 0, 0], [0, 0, 0], [2.7, 0.9,  0.2], [-0.05, -0.05, 0.050] ).mesh );
+		// // down right
+		// root.add( this.simple_curl( 0.05, 0.10, 10, 0.5, mat2, [0.50, 0, 0], [0, 0, 0], [2.8, 0.0, -0.4], [ 0.00, -0.03, 0.065] ).mesh );
+		// root.add( this.simple_curl( 0.05, 0.13, 10, 0.2, mat2, [0.55, 0, 0], [0, 0, 0], [2.9, 0.4,  0.2], [-0.02, -0.04, 0.065] ).mesh );
+		// root.add( this.simple_curl( 0.05, 0.11, 10, 0.5, mat2, [0.55, 0, 0], [0, 0, 0], [2.7, 0.9,  0.2], [-0.05, -0.05, 0.050] ).mesh );
 
-		// down left
-		root.add( this.simple_curl( 0.05, 0.10, 10, 0.5, mat2, [0.50, 0, 0], [0, 0, 0], [-2.8, 0.0, -0.4], [ 0.00, -0.03, -0.065] ).mesh );
-		root.add( this.simple_curl( 0.05, 0.13, 10, 0.2, mat2, [0.55, 0, 0], [0, 0, 0], [-2.9, 0.4,  0.2], [-0.02, -0.04, -0.065] ).mesh );
-		root.add( this.simple_curl( 0.05, 0.11, 10, 0.5, mat2, [0.55, 0, 0], [0, 0, 0], [-2.7, 0.9,  0.2], [-0.05, -0.05, -0.050] ).mesh );
+		// // down left
+		// root.add( this.simple_curl( 0.05, 0.10, 10, 0.5, mat2, [0.50, 0, 0], [0, 0, 0], [-2.8, 0.0, -0.4], [ 0.00, -0.03, -0.065] ).mesh );
+		// root.add( this.simple_curl( 0.05, 0.13, 10, 0.2, mat2, [0.55, 0, 0], [0, 0, 0], [-2.9, 0.4,  0.2], [-0.02, -0.04, -0.065] ).mesh );
+		// root.add( this.simple_curl( 0.05, 0.11, 10, 0.5, mat2, [0.55, 0, 0], [0, 0, 0], [-2.7, 0.9,  0.2], [-0.05, -0.05, -0.050] ).mesh );
 	}
 
 	simple_arm ( dp, dr, mirror, mat ) {

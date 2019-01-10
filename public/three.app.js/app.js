@@ -154,24 +154,17 @@ class App {
 
 	static onenter( cmd ) {
 		
-		//log( 'cmd = \'' + cmd + '\'' );
-		
-		if( cmd.startsWith( '_ ' ) ) { 
-			App.hub.send( { 
-				text: cmd.replace('_ ', ''), 
-				type: 'text' 
-			} ); 
-			return; 
-		}
+		let _cmd = cmd.split(' ');
+		switch( _cmd[ 0 ] ) {
+			case '1': 
+				App.hub.save( 'App.avatars.item().root.position' );
+				App.hub.save( 'App.avatars.item().root.rotation' );
+				App.hub.save( 'App.camera.position.x' );
+				App.hub.save( 'App.camera.target.rotation.y' );
+				App.hub.save( 'App.camera.target.rotation.z' );
+				break;
 
-		// if( cmd.startsWith( 'save_pos_x' ) ) {
-		// 	App.hub.save( 'App.avatars.item().root.position.x' );
-		// 	return; 
-		// }
-
-		if( cmd.startsWith( 'save_pos' ) ) {
-			App.hub.save( 'App.avatars.item().root.position' );
-			return; 
+			default: App.hub.send( { text: cmd, type: 'text' }); break;
 		}
 
 	}
@@ -191,11 +184,6 @@ class App {
 		App.camera.update( App.avatars.item().root );
 
 		//App.physics.update();
-		
-		App.hub.save( 'App.avatars.item().root.position' );
-		App.hub.save( 'App.avatars.item().root.rotation' );
-		App.hub.save( 'App.camera.position' );
-		App.hub.save( 'App.avatars.item().root.rotation' );
 
 		App.gui.items[0].innerHTML = App.fps.fps;
 		Renderer.update();

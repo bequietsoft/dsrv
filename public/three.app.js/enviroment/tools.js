@@ -18,6 +18,11 @@ function clamp( v, a, b ) {
 	return v;
 }
 
+// 3D point to string 
+function p2s( p ) {	
+	return crop(p.x) + ', ' + crop(p.y) + ', ' + crop(p.z);
+}
+
 // JSON stingify 
 function js( obj ) {
 	return JSON.stringify( obj );

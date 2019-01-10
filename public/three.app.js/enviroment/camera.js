@@ -2,6 +2,8 @@ class Camera extends THREE.PerspectiveCamera {
 
 	constructor( distance = 5 ) {
 		
+		//log( 'Create camera' );
+
 		super( App.fov, window.innerWidth / window.innerHeight, App.near, App.far );
 		this.translateX( -distance );
 		

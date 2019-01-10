@@ -16,8 +16,14 @@ class Hub {
 					break;
 
 				case 'json':
-					//log( data );
+					log( data );
+					log( eval( data.item ) );
+					log( jp( data.value ) );
 					ovc( jp( data.value ), eval( data.item ) );
+					log( eval( data.item ) );
+					log( );
+					//Renderer.update();
+					//App.update();
 					break;
 
 				default:
