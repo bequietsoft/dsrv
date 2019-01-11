@@ -5,7 +5,8 @@ class Camera extends THREE.PerspectiveCamera {
 		//log( 'Create camera' );
 
 		super( App.fov, window.innerWidth / window.innerHeight, App.near, App.far );
-		this.translateX( -distance );
+		this.position.x = -distance;
+		//this.translateX( -distance );
 		
 		this.tank = new THREE.Object3D();
 		this.target = new THREE.Object3D();

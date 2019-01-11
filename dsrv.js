@@ -106,7 +106,10 @@ io( server ).on( 'connection', function( socket ) {
 			if( item != undefined && value != undefined) {
 				// console.log( 'item = ' + item );
 				// console.log( 'value = ' + value );
-				socket.emit( 'tocli', { id: socket.id, type: 'json', item: item , value: value } );
+				if( value != '' ) 
+					socket.emit( 'tocli', { id: socket.id, type: 'json', item: item, value: value } );
+				else
+					socket.emit( 'tocli', { id: socket.id, type: 'function', item: item } );
 			}
 
 		});
@@ -121,12 +124,32 @@ io( server ).on( 'connection', function( socket ) {
 		switch( data.type ) {
 
 			case 'text':
-				console.log( data.id + ': ' + data.text );
+				console.log( user.name + ': ' + data.text );
+				socket.broadcast.emit( 'tocli', data );
 				break;
 
 			case 'json':
-				console.log( data.id + ': ' + data.item );
+				//console.log( data.item );
 				fs.writeFileSync( user_path + '/' + data.item, data.value );
+				socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
+				break;
+			
+			case 'function':
+				console.log( user.name + ': ' + data.item );
+				fs.writeFileSync( user_path + '/' + data.item );
+				socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
+				break;
+
+			case 'cmd':
+				if( data.text == 'reset' ) {
+					fs.readdirSync( user_path ).forEach( item => {
+						fs.unlinkSync( path.join( user_path, item ));
+					});
+					socket.emit( 'tocli', { id: 'server', type: 'text', text: data.text });
+				}
+
+				// TODO
+
 				break;
 
 			default:
@@ -135,7 +158,7 @@ io( server ).on( 'connection', function( socket ) {
 		}
 
 		//io.emit( 'tocli', data );
-		socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
+		//socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
 	} );	
 } );
 

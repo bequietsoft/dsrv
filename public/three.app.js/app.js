@@ -37,6 +37,7 @@ class App {
 		App.add_gui_elements();
 
 	//	App.world.scene.add( box( 1, V(0, 1, 0), V0, mat('basic'), true ) );
+		resize();
 		App.update();
 	}
 
@@ -58,9 +59,9 @@ class App {
 		Events.bind( 'keydown', 'App.avatars.item().joints.prev', ['b'] );
 		Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
 
-		Events.debug_info = true;
-		 	Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
-		Events.debug_info = false;
+		//Events.debug_info = true;
+		Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
+		//Events.debug_info = false;
 	}
 
 	static add_animations() {
@@ -139,32 +140,40 @@ class App {
 	static add_gui_elements() {
 
 		App.gui = new List();
-		App.gui.add( new EditBox( 'EditBox0', '', [], 0, 10, 10 ) );
-		//App.gui.add( new EditBox( 'EditBox1', '', [], 0, 200, 10 ) );
-		// App.cmd_GUI = new GUI( 1, true, true, 160, 20 );
-		//log(App.gui);
-
-		App.gui.item(0).element.onenter = App.onenter;//function( cmd ) { App.hub.send( cmd ); }
-			// //App.cmd_gui.element.focus();
-
-			// App.fps_GUI = new GUI( -1, true, false, 20, 20 );
-			// //App.log_GUI = new GUI( -1, false, true, 200, 20 );
-			// //App.log_GUI.element.style.fontSize = '10pt';
+		App.gui.add( new EditBox( 'EditBox0', '', [], 0, 10, 60 ) );
+		App.gui.add( new EditBox( 'EditBox1', '', [], 0, 0, 10 ) );
+		App.gui.item(0).element.onenter = App.input;
+		//App.cmd_gui.element.focus();
 	}
 
-	static onenter( cmd ) {
+	static input( cmd ) {
 		
 		let _cmd = cmd.split(' ');
 		switch( _cmd[ 0 ] ) {
-			case '1': 
-				App.hub.save( 'App.avatars.item().root.position' );
-				App.hub.save( 'App.avatars.item().root.rotation' );
-				App.hub.save( 'App.camera.position.x' );
-				App.hub.save( 'App.camera.target.rotation.y' );
-				App.hub.save( 'App.camera.target.rotation.z' );
+			
+			case 'reset':
+				App.hub.send( { type: 'cmd', text: 'reset' } ); 
 				break;
 
-			default: App.hub.send( { text: cmd, type: 'text' }); break;
+			case 'save':
+				App.hub.save_item( 'App.camera.position.x' );
+				App.hub.save_item( 'App.camera.target.rotation' ); 
+				App.hub.save_item( 'App.avatars.item().root.position' );
+				App.hub.save_item( 'App.avatars.item().root.rotation.y' );
+				//App.hub.save_func( 'App.avatars.item().test_minimum_cinc' );
+				break;
+
+			case 'run':
+				let func = _cmd[1];
+				if( _cmd[1] == 'min') func = 'App.avatars.item().test_minimum_cinc';
+				if( _cmd[1] == 'man') func = 'App.avatars.item().simple_men';
+				let context = eval( getcontext( func ) );
+				eval( func ).bind( context )();
+				break;
+
+			default: 
+				App.hub.send( { text: cmd, type: 'text' }); 
+				break;
 		}
 
 	}
@@ -179,13 +188,22 @@ class App {
 		App.fps.update();
 		
 		//for( let i = 0; i < App.avatars.items.length; i++) App.avatars.items[i].update();
-		App.avatars.item().update();
+		//log( App.avatars );
+		
+		//if( App != undefined )
 
+		App.avatars.item().update();
 		App.camera.update( App.avatars.item().root );
 
 		//App.physics.update();
 
-		App.gui.items[0].innerHTML = App.fps.fps;
+		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
+
+		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
+		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
+
+		//log(App.avatars.item().root.rotation.y);
+
 		Renderer.update();
 	}
 }

@@ -17,11 +17,14 @@ class Avatar {
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
 		//this.simple_men();
 		
-		this.joints.debug_info = true;
+		//this.joints.debug_info = true;
 
 		//this.add_helpers();
 		App.world.scene.add ( this.root );
+		
+		//log( this.root );
     }
+
 
 	add_helpers () {
 		this.box = box( V( 0.4, 1.6, 0.7 ), V0, V0, mat( 'wire', this.color ), false );
@@ -283,17 +286,17 @@ class Avatar {
 				}
 				
 				if( joints_edit == false ) {
-					// App.camera.translateZ ( -Mouse.wheel / 10 );
-					// if( App.camera.position.x > -2 ) App.camera.translateZ ( -Mouse.wheel / 10 );
 					App.camera.position.x += Mouse.wheel / 10;
 					if( App.camera.position.x > -1 ) App.camera.position.x = -1;
-					log( p2s(App.camera.position) );
 				}
 			}
 		}
 	}
 
 	update_keyboard() {
+		
+		//this.root.rotation.y = this.root.rotation.y;
+
 		if ( Keyboard.key_time('W') > 0 ) this.root.translateX( +0.1 );
 		if ( Keyboard.key_time('S') > 0 ) this.root.translateX( -0.1 );
 		if ( Keyboard.key_time('A') > 0 ) this.root.rotateY( +0.1 );

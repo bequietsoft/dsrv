@@ -135,7 +135,7 @@ class EditBox extends GUIElement {
 		if( list != undefined ) this.element.list = list;
 		
 		this.element.max = 5;
-
+		
 		if( tabindex != -1 ) this.element.innerHTML = '<b>_</b>';
 
 		this.element.addEventListener( "focus", this.onfocus );

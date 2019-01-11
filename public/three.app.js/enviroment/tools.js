@@ -5,6 +5,11 @@ function log( message = undefined ) {
 	if( App.log_gui != undefined ) App.log_gui.add( message );
 }
 
+// 
+function getcontext( item ) {
+	return item.replace( '.' + item.split('.').pop(), '' );
+}
+
 // crop digits
 function crop( a, d = 2 ) {
 	var m = Math.pow( 10, d );
@@ -38,15 +43,19 @@ function jc( obj ) {
 	return JSON.parse( JSON.stringify( obj ) );
 }
 
-// objects 1-st level properties values copy
-function ovc( src, dst ) {
-	let src_keys = Object.keys( src );
-	let dst_keys = Object.keys( dst );	
-	for( let si = 0; si < src_keys.length; si++ )
-		for( let di = 0; di < dst_keys.length; di++ )
-			if( src_keys[si] == dst_keys[di] )
-				dst[ dst_keys[di] ] = src[ src_keys[si] ]; 
-}
+// // objects 1-st level properties values copy
+// function ovc( src, dst ) {
+
+// 	let src_keys = Object.keys( jp(src) );
+// 	let dst_keys = Object.keys( eval(dst) );	
+
+// 	if( src_keys.length == 0 ) { eval( dst + '=' + src ); return; }
+
+// 	for( let si = 0; si < src_keys.length; si++ )
+// 		for( let di = 0; di < dst_keys.length; di++ ) 
+// 			if( src_keys[si] == dst_keys[di] ) 
+// 				eval(dst)[ dst_keys[di] ] = jp(src)[ src_keys[si] ]; 
+// }
 
 // validation code for evaluation 
 function ev( code ) {
