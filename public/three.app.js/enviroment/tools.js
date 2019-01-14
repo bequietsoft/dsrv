@@ -6,7 +6,7 @@ function log( message = undefined ) {
 }
 
 // 
-function getcontext( item ) {
+function get_context_path( item ) {
 	return item.replace( '.' + item.split('.').pop(), '' );
 }
 
@@ -69,6 +69,14 @@ function ev( code ) {
 			log( 'Code evaluation undefined error.' );
 		return false;
 	}
+}
+
+// run function from string with bind context
+function run( func, context = undefined ) {
+	try{
+		if(context == undefined) context = get_context_path( func );
+		eval( func ).bind( context ); 
+	} catch ( err ) { log( err ); }
 }
 
 // convert degrees to radians

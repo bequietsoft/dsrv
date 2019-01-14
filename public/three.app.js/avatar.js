@@ -294,13 +294,15 @@ class Avatar {
 	}
 
 	update_keyboard() {
-		
-		//this.root.rotation.y = this.root.rotation.y;
+		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
+		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
+		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }		
+	}
 
-		if ( Keyboard.key_time('W') > 0 ) this.root.translateX( +0.1 );
-		if ( Keyboard.key_time('S') > 0 ) this.root.translateX( -0.1 );
-		if ( Keyboard.key_time('A') > 0 ) this.root.rotateY( +0.1 );
-		if ( Keyboard.key_time('D') > 0 ) this.root.rotateY( -0.1 );		
+	save() {
+		App.hub.save_item( 'App.avatars.item().root.position' );
+		App.hub.save_item( 'App.avatars.item().root.rotation.y' );
 	}
 
     update () {

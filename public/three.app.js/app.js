@@ -47,7 +47,8 @@ class App {
 
 		for( let i = 0; i < 1; i++ ) {
 			App.avatars.add( new Avatar('avatar' + i ) );
-			if( i > 0 ) {
+			//if( i > 0 ) 
+			{
 				App.avatars.item().root.position.set( RF(-5, 5), 0.8, RF(-5, 5));
 				App.avatars.item().root.rotation.set(0, RF(0, wPI), 0);
 			}
@@ -151,25 +152,31 @@ class App {
 		let _cmd = cmd.split(' ');
 		switch( _cmd[ 0 ] ) {
 			
-			case 'reset':
-				App.hub.send( { type: 'cmd', text: 'reset' } ); 
+			case 'login':
+				if( _cmd.length == 3 )
+					App.hub.send( { user: _cmd[ 1 ], pass: _cmd[ 2 ] } ); 
 				break;
 
-			case 'save':
-				App.hub.save_item( 'App.camera.position.x' );
-				App.hub.save_item( 'App.camera.target.rotation' ); 
-				App.hub.save_item( 'App.avatars.item().root.position' );
-				App.hub.save_item( 'App.avatars.item().root.rotation.y' );
-				//App.hub.save_func( 'App.avatars.item().test_minimum_cinc' );
-				break;
+			// case 'reset':
+			// 	App.hub.send( { type: 'cmd', text: 'reset' } ); 
+			// 	break;
 
-			case 'run':
-				let func = _cmd[1];
-				if( _cmd[1] == 'min') func = 'App.avatars.item().test_minimum_cinc';
-				if( _cmd[1] == 'man') func = 'App.avatars.item().simple_men';
-				let context = eval( getcontext( func ) );
-				eval( func ).bind( context )();
-				break;
+			// case 'save':
+			// 	App.hub.save_item( 'App.camera.position.x' );
+			// 	App.hub.save_item( 'App.camera.target.rotation' ); 
+			// 	//App.hub.save_item( 'App.avatars.item().root.position' );
+			// 	//App.hub.save_item( 'App.avatars.item().root.rotation.y' );
+			// 	//App.hub.save_func( 'App.avatars.item().test_minimum_cinc' );
+			// 	break;
+
+			// case 'run':
+			// 	let func = _cmd[1];
+			// 	if( _cmd[1] == 'min') func = 'App.avatars.item().test_minimum_cinc';
+			// 	if( _cmd[1] == 'man') func = 'App.avatars.item().simple_men';
+			// 		//old	//let context = eval( getcontext( func ) );
+			// 		//old	//eval( func ).bind( context )();
+			// 	run( func );
+			// 	break;
 
 			default: 
 				App.hub.send( { text: cmd, type: 'text' }); 

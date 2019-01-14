@@ -14,8 +14,9 @@ class Hub {
 
 				case 'accept':
 					App.id = data.id;
+					log( 'ID ' + App.id );
 					break;
-
+				
 				case 'json':
 					//log( data.item + ' = ' + data.value );
 					ev( data.item + ' = ' + data.value );
@@ -23,8 +24,9 @@ class Hub {
 				
 				case 'function':
 					//log( data.item );
-					let context = eval( getcontext( data.item ) );
-					eval( data.item ).bind( context )();
+						//old	// let context = eval( getcontext( data.item ) );
+						//old	// eval( data.item ).bind( context )();
+					run( data.item );
 					break;
 
 				default:
@@ -37,6 +39,10 @@ class Hub {
 			data.id = App.id;
 			this.socket.emit( 'fromcli', data );
 		};
+
+		this.login = function( ) {
+
+		}
 
 		this.save_item = function( item ) {
 
@@ -61,7 +67,7 @@ class Hub {
 
 		this.save_func = function( item ) {
 			let obj = eval( item );
-			if( typeof obj != "function") return;
+			if( typeof obj != "function" ) return;
 			App.hub.send( { item: item, type: 'function' } ); 
 		}
 		

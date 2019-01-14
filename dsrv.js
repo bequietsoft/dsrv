@@ -10,7 +10,11 @@ var public_dir = 'public';
 var users_dir = 'users';
 var index = 'index.html';
 
-var users = [];
+var users = [ 
+	{ login: '', pass: '' }, 
+	{ login: 'root', pass: 'root' } 
+];
+
 
 // #region send utils
 
@@ -94,77 +98,114 @@ var server = http.createServer( function ( request, response ) {
 
 io( server ).on( 'connection', function( socket ) { 
 	
-	console.log( 'Socket connection ' + socket.id );
+	console.log( 'socket connection ' + socket.id );
 	socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
-	
-	let user = getUser( socket.id );
-	let user_path = path.join( root, users_dir, user.name );
-	
-	try {
-		fs.readdirSync( user_path ).forEach( item => {
-			let value = fs.readFileSync( path.join( user_path, item ), "utf8" );// + '\n\n';
-			if( item != undefined && value != undefined) {
-				// console.log( 'item = ' + item );
-				// console.log( 'value = ' + value );
-				if( value != '' ) 
-					socket.emit( 'tocli', { id: socket.id, type: 'json', item: item, value: value } );
-				else
-					socket.emit( 'tocli', { id: socket.id, type: 'function', item: item } );
-			}
+	socket.on( 'fromcli', recive );
 
-		});
-	} catch( err ) { }
+	// let user = getUser( socket.id );
+	// let user_path = path.join( root, users_dir, user.name );
+	
+	// if( user.name == 'anonymous' ) user_path = path.join( user_path, user.id );
 
-	socket.on( 'fromcli', function ( data ) {
+	// // send default data for user
+	// try {
+	// 	let items = 0;
+	// 	let bytes = 0;
+	// 	fs.readdirSync( user_path ).forEach( item => {
+	// 		let value = fs.readFileSync( path.join( user_path, item ), "utf8" );// + '\n\n';
+	// 		if( item != undefined && value != undefined) {
+	// 			//console.log( 'item = ' + item );
+	// 			// console.log( 'value = ' + value );
+	// 			if( value != '' )
+	// 				socket.emit( 'tocli', { id: socket.id, type: 'json', item: item, value: value } );
+	// 			else
+	// 				socket.emit( 'tocli', { id: socket.id, type: 'function', item: item } );
+	// 			items ++;
+	// 			bytes += value.length();
+	// 		}
+	// 	});
+
+	// 	if( items > 0 ) console.log( 'send ' + items + ' items (' + bytes + ' bytes) to ' + socket.id );
 		
-		let user = getUser( data.id );
-		let user_path = path.join( root, users_dir, user.name );
-		if( fs.existsSync( user_path ) == false ) fs.mkdirSync( user_path );
+	// } catch( err ) { 
+	// 	//	console.log( err ); 
+	// }
 
-		switch( data.type ) {
+	// socket.on( 'fromcli', function ( data ) {
+		
+	// 	let user = getUser( data.id );
+	// 	let user_path = path.join( root, users_dir, user.name );
+	// 	mkdir( user_path );
+		
+	// 	if( user.name == 'anonymous' ) {
+	// 		user_path = path.join( user_path, user.id );
+	// 		mkdir( user_path );
+	// 	}
 
-			case 'text':
-				console.log( user.name + ': ' + data.text );
-				socket.broadcast.emit( 'tocli', data );
-				break;
+	// 	switch( data.type ) {
 
-			case 'json':
-				//console.log( data.item );
-				fs.writeFileSync( user_path + '/' + data.item, data.value );
-				socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
-				break;
+	// 		case 'text':
+	// 			console.log( user.name + ': ' + data.text );
+	// 			socket.broadcast.emit( 'tocli', data );
+	// 			break;
+
+	// 		case 'json':
+	// 			//console.log( data.item );
+	// 			fs.writeFileSync( user_path + '/' + data.item, data.value );
+	// 			//socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
+	// 			break;
 			
-			case 'function':
-				console.log( user.name + ': ' + data.item );
-				fs.writeFileSync( user_path + '/' + data.item );
-				socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
-				break;
+	// 		case 'function':
+	// 			console.log( user.name + ': ' + data.item );
+	// 			fs.writeFileSync( user_path + '/' + data.item );
+	// 			//socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
+	// 			break;
 
-			case 'cmd':
-				if( data.text == 'reset' ) {
-					fs.readdirSync( user_path ).forEach( item => {
-						fs.unlinkSync( path.join( user_path, item ));
-					});
-					socket.emit( 'tocli', { id: 'server', type: 'text', text: data.text });
-				}
+	// 		case 'cmd':
+	// 			if( data.text == 'reset' ) {
+	// 				fs.readdirSync( user_path ).forEach( item => {
+	// 					//console.log(user.id + '\t' + item);
+	// 					//if( item != user.id ) 
+	// 					fs.unlinkSync( path.join( user_path, item ));
+	// 				});
+	// 				//socket.emit( 'tocli', { id: 'server', type: 'text', text: data.text });
+	// 			}
 
-				// TODO
+	// 			// TODO
 
-				break;
+	// 			break;
 
-			default:
-				console.log( data.id + ': undefined msg type ' + data.type );
-				break;
-		}
+	// 		default:
+	// 			console.log( data.id + ': undefined msg type ' + data.type );
+	// 			break;
+	// 	}
 
-		//io.emit( 'tocli', data );
-		//socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
-	} );	
-} );
+	// 	//io.emit( 'tocli', data );
+	// 	//socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
+	// });	
+});
+
+function recive( data ) {
+	switch( data.type ) {
+		case 'credentials':
+			break;
+		default:
+			console.log( socket'unknown data' );
+			break;
+	}
+}
+
+function mkdir( path ) {
+	try {
+		if( fs.existsSync( path ) ) return false;
+		fs.mkdirSync( path );
+		return true;
+	} catch( err ) { return false; } 
+}
 
 function getUser( id ) {
 	for( let i = 0; i < users.length; i++ ) if( users[i].id == id ) return users[i];
-	return { id: undefined, name: 'anonymous' };
+	return { id: id, name: 'anonymous' };
 }
 
 server.listen( port, function () {
