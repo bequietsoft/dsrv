@@ -11,12 +11,14 @@ var users_dir = 'users';
 var index = 'index.html';
 
 var users = [ 
-	{ login: '', pass: '' }, 
-	{ login: 'root', pass: 'root' } 
+	{ name: '-', pass: '-' }, 
+	{ name: 'root', pass: 'root' } 
 ];
 
+var user;
 
-// #region send utils
+
+// #region send
 
 function sendFile( file ) {
 	var stat = fs.statSync( file );
@@ -77,6 +79,22 @@ function send( item, response ) {
 
 // #endregion
 
+// #region tools
+
+function mkdir( path ) {
+	try {
+		if( fs.existsSync( path ) ) return false;
+		fs.mkdirSync( path );
+		return true;
+	} catch( err ) { return false; } 
+}
+
+function getUser( id ) {
+	for( let i = 0; i < users.length; i++ ) if( users[i].id == id ) return users[i];
+	return { id: id, name: 'anonymous' };
+}
+
+// #endregion
 
 var server = http.createServer( function ( request, response ) {
 	
@@ -100,7 +118,24 @@ io( server ).on( 'connection', function( socket ) {
 	
 	console.log( 'socket connection ' + socket.id );
 	socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
-	socket.on( 'fromcli', recive );
+	
+
+	socket.on( 'fromcli', function ( data ) {
+		switch( data.type ) {
+			case 'auth':
+				users.forEach( item => {
+					if( item.name == data.name && item.pass == data.pass ) {
+						console.log( socket.id + ': auth ' +  data.user + ' ' + data.pass + ' success' );
+						user = item;
+						//break;
+					}
+				});
+				break;
+			default:
+				console.log( socket.id + ': wrong data' );
+				break;
+		}
+	});
 
 	// let user = getUser( socket.id );
 	// let user_path = path.join( root, users_dir, user.name );
@@ -131,8 +166,9 @@ io( server ).on( 'connection', function( socket ) {
 	// 	//	console.log( err ); 
 	// }
 
+	
+	
 	// socket.on( 'fromcli', function ( data ) {
-		
 	// 	let user = getUser( data.id );
 	// 	let user_path = path.join( root, users_dir, user.name );
 	// 	mkdir( user_path );
@@ -185,29 +221,7 @@ io( server ).on( 'connection', function( socket ) {
 	// });	
 });
 
-function recive( data ) {
-	switch( data.type ) {
-		case 'credentials':
-			break;
-		default:
-			console.log( socket'unknown data' );
-			break;
-	}
-}
-
-function mkdir( path ) {
-	try {
-		if( fs.existsSync( path ) ) return false;
-		fs.mkdirSync( path );
-		return true;
-	} catch( err ) { return false; } 
-}
-
-function getUser( id ) {
-	for( let i = 0; i < users.length; i++ ) if( users[i].id == id ) return users[i];
-	return { id: id, name: 'anonymous' };
-}
-
 server.listen( port, function () {
-	console.log( 'Development server listening on port ' + port + ':' );
+	console.log( 'development server listening on port ' + port + ':' );
 } );
+

@@ -154,7 +154,7 @@ class App {
 			
 			case 'login':
 				if( _cmd.length == 3 )
-					App.hub.send( { user: _cmd[ 1 ], pass: _cmd[ 2 ] } ); 
+					App.hub.send( { type: 'auth', name: _cmd[ 1 ], pass: _cmd[ 2 ] } ); 
 				break;
 
 			// case 'reset':
