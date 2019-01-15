@@ -11,11 +11,11 @@ var users_dir = 'users';
 var index = 'index.html';
 
 var users = [ 
-	{ name: '-', pass: '-' }, 
-	{ name: 'root', pass: 'root' } 
+	{ name: '1', pass: '1', state: 'unlogged', id: undefined }, 
+	{ name: '2', pass: '2', state: 'unlogged', id: undefined } 
 ];
 
-var user;
+//var user;
 
 
 // #region send
@@ -94,6 +94,38 @@ function getUser( id ) {
 	return { id: id, name: 'anonymous' };
 }
 
+// JSON stingify 
+function js( obj ) {
+	return JSON.stringify( obj );
+}
+
+// JSON parse
+function jp( obj ) {
+	return JSON.parse( obj );
+}
+
+// JSON copy
+function jc( obj ) {
+	return JSON.parse( JSON.stringify( obj ) );
+}
+
+// random float value
+function ri( min = 0, max = 1 ) {
+	return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
+}
+
+// random string of digits (key)
+function rk( length = 4 ) {
+	let r = '';
+	for( let i=0; i<length; i++ ) r += ri( 0, 9 );
+	return r;
+}
+
+function log( message = undefined ) {
+	if ( message == undefined ) message = '';
+	console.log( message );
+}
+
 // #endregion
 
 var server = http.createServer( function ( request, response ) {
@@ -113,29 +145,44 @@ var server = http.createServer( function ( request, response ) {
 	send( path.join( root, public_dir, request.url ), response );
 });
 
+server.listen( port, function () {
+	console.log( 'development server listening on port ' + port + ':' );
+});
 
 io( server ).on( 'connection', function( socket ) { 
 	
 	console.log( 'socket connection ' + socket.id );
 	socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
 	
-
 	socket.on( 'fromcli', function ( data ) {
+		
+		console.log( socket.id + ' data:\n' + js(data) );
+
 		switch( data.type ) {
+			
 			case 'auth':
-				users.forEach( item => {
-					if( item.name == data.name && item.pass == data.pass ) {
-						console.log( socket.id + ': auth ' +  data.user + ' ' + data.pass + ' success' );
-						user = item;
-						//break;
+				users.forEach( user => {
+					if( !user.logedin && user.name == data.name ) {
+						user.id = socket.id;
+						user.state = 'server wait pass';
+						user.hash = rk( 64 );
+						console.log( user );
+						socket.emit( 'tocli', { type: 'hash', hash: user.hash } );
 					}
 				});
 				break;
+
+			case 'message':
+				socket.broadcast.emit( 'tocli', data );
+				break;
+
 			default:
-				console.log( socket.id + ': wrong data' );
+				console.log( socket.id + ' undefined data type' );
 				break;
 		}
 	});
+
+	// #region old code
 
 	// let user = getUser( socket.id );
 	// let user_path = path.join( root, users_dir, user.name );
@@ -218,10 +265,10 @@ io( server ).on( 'connection', function( socket ) {
 
 	// 	//io.emit( 'tocli', data );
 	// 	//socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
-	// });	
+	// });
+	
+	// #endregion
 });
 
-server.listen( port, function () {
-	console.log( 'development server listening on port ' + port + ':' );
-} );
+
 

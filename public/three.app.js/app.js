@@ -49,8 +49,8 @@ class App {
 			App.avatars.add( new Avatar('avatar' + i ) );
 			//if( i > 0 ) 
 			{
-				App.avatars.item().root.position.set( RF(-5, 5), 0.8, RF(-5, 5));
-				App.avatars.item().root.rotation.set(0, RF(0, wPI), 0);
+				App.avatars.item().root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
+				App.avatars.item().root.rotation.set(0, rf(0, wPI), 0);
 			}
 		}
 
@@ -152,9 +152,10 @@ class App {
 		let _cmd = cmd.split(' ');
 		switch( _cmd[ 0 ] ) {
 			
-			case 'login':
+			case '$':
 				if( _cmd.length == 3 )
-					App.hub.send( { type: 'auth', name: _cmd[ 1 ], pass: _cmd[ 2 ] } ); 
+					App.hub.send( { type: 'auth', name: _cmd[1] } );
+					App.pass =  _cmd[2];
 				break;
 
 			// case 'reset':
@@ -179,7 +180,7 @@ class App {
 			// 	break;
 
 			default: 
-				App.hub.send( { text: cmd, type: 'text' }); 
+				App.hub.send( { type: 'message', text: cmd,  }); 
 				break;
 		}
 

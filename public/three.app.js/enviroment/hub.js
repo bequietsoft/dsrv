@@ -8,13 +8,20 @@ class Hub {
 			
 			switch( data.type ) {
 				
-				case 'text':
+				case 'message':
 					App.gui.item(0).add( data.id + ': ' + data.text );
 					break;
 
 				case 'accept':
 					App.id = data.id;
 					log( 'ID ' + App.id );
+					break;
+
+				case 'hash':
+					if( App.pass != undefined ) {
+						App.gui.item(0).add( data.hash + ' ' + App.pass );
+						App.pass = undefined;
+					}
 					break;
 				
 				case 'json':
@@ -34,6 +41,14 @@ class Hub {
 			}
 
 		});
+
+		this.crypt = function( data, key ) {
+			let _data = data.split('');
+			let _res = key.split('');
+			for( let i = 0; i < _res.length; i++ ) {
+				_res[ _data[i] ]
+			}
+		}
 
 		this.send = function( data ) {
 			data.id = App.id;

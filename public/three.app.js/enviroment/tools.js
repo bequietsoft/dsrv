@@ -90,24 +90,24 @@ function r2d( rad ) {
 }
 
 // random float value 0..1
-function R1() { 
-	return getRandomFloor(0, 1); 
+function r1() { 
+	return getRandomFloor( 0, 1 ); 
 }
 
 // random floor value
-function RF( min = 0, max = 1 ) {
-    return Math.random() * (max - min) + min;
+function rf( min = 0, max = 1 ) {
+    return Math.random() * ( max - min ) + min;
 }
 
 // random float value
-function RI( min = 0, max = 1 ) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function ri( min = 0, max = 1 ) {
+  return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
 }
 
 // random string of digits (key)
-function RK( length = 4 ) {
+function rk( length = 4 ) {
 	let r = '';
-	for( let i=0; i<length; i++ ) r += RI( 0, 9 );
+	for( let i=0; i<length; i++ ) r += ri( 0, 9 );
 	return r;
 }
 
@@ -128,7 +128,7 @@ function ex( s, a, b ) {
 }
 
 // array from a to b
-function DA( a, b ) {
+function da( a, b ) {
 	let r = [];
 	for( let i = a; i <= b; i++ ) r.push( i );
 	return r;
