@@ -1,22 +1,16 @@
-var http = require('http');
-var io = require('socket.io');
+var http = require( 'http' );
+var io = require( 'socket.io' );
 
-var path = require('path'); 
-var fs = require('fs');
+var path = require( 'path' ); 
+var fs = require( 'fs' );
+
+var jsondb = require( 'node-json-db' );
+var db = new jsondb( "db", true, true );
 
 var port = 3000;
 var root = __dirname;
 var public_dir = 'public';
-var users_dir = 'users';
 var index = 'index.html';
-
-var users = [ 
-	{ name: '1', pass: '1', state: 'unlogged', id: undefined }, 
-	{ name: '2', pass: '2', state: 'unlogged', id: undefined } 
-];
-
-//var user;
-
 
 // #region send
 
@@ -89,11 +83,6 @@ function mkdir( path ) {
 	} catch( err ) { return false; } 
 }
 
-function getUser( id ) {
-	for( let i = 0; i < users.length; i++ ) if( users[i].id == id ) return users[i];
-	return { id: id, name: 'anonymous' };
-}
-
 // JSON stingify 
 function js( obj ) {
 	return JSON.stringify( obj );
@@ -128,6 +117,30 @@ function log( message = undefined ) {
 
 // #endregion
 
+// #region db
+
+function dbget( path ) {
+	try { return  db.getData( path ); } catch (error) {}
+	return undefined;
+}
+
+function getuser( id ) {
+	let users = dbget("/users");
+	//log('users: ' + js(users));
+	users.forEach( user => { if( user.id == id ) return user; });
+	return undefined;
+}
+
+function adduser( id, name ) {
+	let user = getuser( id );
+	//log('user: ' + js(user));
+	if( user != undefined ) return false; 
+	db.push( '/users/', { id: id, name: name } );
+	return true; 
+}
+
+// #endregion  
+
 var server = http.createServer( function ( request, response ) {
 	
 	response.sendFile = sendFile;
@@ -137,49 +150,88 @@ var server = http.createServer( function ( request, response ) {
 	//console.log('Remote IP: ' + request.connection.remoteAddress);
 	if(	request.connection.remoteAddress != '::1' &&
 		request.connection.remoteAddress != '::ffff:127.0.0.1') {
-			console.log('Remote IP: ' + request.connection.remoteAddress);
+			log('Remote IP: ' + request.connection.remoteAddress);
 			return;
 		}
 		
 	if( request.url == '/' ) request.url += index;
 	send( path.join( root, public_dir, request.url ), response );
 });
-
+ 
 server.listen( port, function () {
-	console.log( 'development server listening on port ' + port + ':' );
+	log( 'development server listening on port ' + port + ':' );
+	if( dbget( '/users' ) == undefined ) db.push( '/users', {} );
 });
 
 io( server ).on( 'connection', function( socket ) { 
-	
-	console.log( 'socket connection ' + socket.id );
-	socket.emit( 'tocli', { id: socket.id, type: 'accept' } );
+
+	log( 'socket connection ' + socket.id );
+	if( adduser( socket.id, 'anonimous' ))
+		//socket.emit( 'tocli', { type: 'id', id: socket.id } );
 	
 	socket.on( 'fromcli', function ( data ) {
 		
-		console.log( socket.id + ' data:\n' + js(data) );
+		//console.log( socket.id + ' data:\n' + js(data) );
 
 		switch( data.type ) {
+
+			// case 'login':
+			// 	users.forEach( user => {
+					
+			// 		if( user.state == 'logout' && user.name == data.name ) {
+			// 			user.state = 'login';
+			// 			user.socket = socket;
+			// 			user.hash = rk(64);
+			// 			//log( 'user "' + user.name + '" state = ' + user.state );
+			// 			socket.emit( 'tocli', { type: 'hash', hash: user.hash } );
+			// 		}
+
+			// 		if( user.state == 'login' && user.socket.id == data.id && 
+			// 			data.hash == user.hash + user.pass ) {
+			// 			user.state = 'auth';
+			// 			user.socket = socket;
+			// 			user.hash = undefined;
+			// 			log( 'user "' + user.name + '" login' );
+			// 			socket.emit( 'tocli', { type: 'auth' } );
+			// 		}
+			// 	});
+			// 	break;
 			
-			case 'auth':
-				users.forEach( user => {
-					if( !user.logedin && user.name == data.name ) {
-						user.id = socket.id;
-						user.state = 'server wait pass';
-						user.hash = rk( 64 );
-						console.log( user );
-						socket.emit( 'tocli', { type: 'hash', hash: user.hash } );
-					}
-				});
+			// case 'logout':
+			// 	users.forEach( user => {
+			// 		if( user.state == 'auth' && user.id == socket.id ) {
+			// 			user.state = 'logout';
+			// 			user.socket = undefined;
+			// 			log( 'user "' + user.name + '" logout' );
+			// 		}
+			// 	});
+			// 	break;
+
+			// case 'message':
+			// 	let sender = getUser( data.id );
+			// 	log( sender.name + ' message "' + data.text + '"' );
+			// 	//socket.broadcast.emit( 'tocli', data );
+			// 	users.forEach( user => { 
+			// 		if( user.state == 'auth' && user.name != sender.name )
+			// 			user.socket.emit( 'tocli', { name: sender.name, type: 'message', text: data.text } );
+			// 	});
+			// 	break; 
+
+			case 'id':
+				log(data.id + ' >>> ' + socket.id );
+				// users.forEach( user => { 
+				// 	if( user.id == data.id ) {  }
+				// });
 				break;
 
-			case 'message':
-				socket.broadcast.emit( 'tocli', data );
-				break;
-
+			// case 'json':
+			// 	break;
+				
 			default:
-				console.log( socket.id + ' undefined data type' );
+				log( socket.id + ' undefined data type' );
 				break;
 		}
+		
 	});
 
 	// #region old code

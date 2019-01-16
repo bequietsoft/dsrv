@@ -8,8 +8,8 @@ class Fps {
 
 	update() {
 		this.time = Date.now();
-		this.dtime = (this.time - this._time) / 1000;
-		this.fps = ( this.fps + ( 1 / this.dtime ) ) / 2;
+		this.dtime = ( this.time - this._time ) / 1000;
+		if(this.dtime > 0) this.fps = ( this.fps + ( 1 / this.dtime ) ) / 2;
 		this._time = this.time;
 	}
 }

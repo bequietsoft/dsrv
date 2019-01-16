@@ -6,35 +6,45 @@ class Hub {
 		
 		this.socket.on( 'tocli', function ( data ) {
 			
+			//log( data );
+
 			switch( data.type ) {
 				
 				case 'message':
-					App.gui.item(0).add( data.id + ': ' + data.text );
+					App.gui.item(0).add( data.name + ': ' + data.text );
 					break;
 
-				case 'accept':
+				case 'id':
+					if( App.id != undefined ) App.hub.send( { type: 'id' } );
 					App.id = data.id;
 					log( 'ID ' + App.id );
 					break;
 
 				case 'hash':
-					if( App.pass != undefined ) {
-						App.gui.item(0).add( data.hash + ' ' + App.pass );
-						App.pass = undefined;
-					}
+					App.hash = data.hash;
+					App.state = 'login';
+					//log( 'state: ' + App.state );
 					break;
 				
-				case 'json':
-					//log( data.item + ' = ' + data.value );
-					ev( data.item + ' = ' + data.value );
+				case 'auth':
+					App.hash = undefined;
+					App.state = 'auth';
+					//log( 'state: ' + App.state );
+					App.add_avatars();
+					//App.update();
 					break;
+
+				// case 'json':
+				// 	//log( data.item + ' = ' + data.value );
+				// 	ev( data.item + ' = ' + data.value );
+				// 	break;
 				
-				case 'function':
-					//log( data.item );
-						//old	// let context = eval( getcontext( data.item ) );
-						//old	// eval( data.item ).bind( context )();
-					run( data.item );
-					break;
+				// case 'function':
+				// 	//log( data.item );
+				// 		//old	// let context = eval( getcontext( data.item ) );
+				// 		//old	// eval( data.item ).bind( context )();
+				// 	run( data.item );
+				// 	break;
 
 				default:
 					break;
@@ -42,22 +52,12 @@ class Hub {
 
 		});
 
-		this.crypt = function( data, key ) {
-			let _data = data.split('');
-			let _res = key.split('');
-			for( let i = 0; i < _res.length; i++ ) {
-				_res[ _data[i] ]
-			}
-		}
-
 		this.send = function( data ) {
+			if( App.id == undefined ) { log('App ID undefined'); return; }
 			data.id = App.id;
+			//log( data );
 			this.socket.emit( 'fromcli', data );
 		};
-
-		this.login = function( ) {
-
-		}
 
 		this.save_item = function( item ) {
 
