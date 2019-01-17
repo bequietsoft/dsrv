@@ -15,9 +15,23 @@ class Hub {
 					break;
 
 				case 'id':
-					if( App.id != undefined ) App.hub.send( { type: 'id' } );
-					App.id = data.id;
-					log( 'ID ' + App.id );
+					
+					if( App.id == undefined ) {
+						App.id = data.id;
+						App.hub.send( { type: 'id', text: 'new' } );
+						log( 'New ID     ' + App.id );
+					} else {
+						let _id = App.id;
+						App.id = data.id;
+						App.hub.send( { type: 'id', text: 'update', _id: _id } );
+						log( 'Update ID  ' + _id + ' to ' + App.id );
+					}
+
+					break;
+				
+				case 'ping':
+					//log( js(data) );
+					App.hub.send( { type: 'pong' } );
 					break;
 
 				case 'hash':
@@ -53,7 +67,7 @@ class Hub {
 		});
 
 		this.send = function( data ) {
-			if( App.id == undefined ) { log('App ID undefined'); return; }
+			if( App.id == undefined ) { log('Send error: app ID is undefined'); return; }
 			data.id = App.id;
 			//log( data );
 			this.socket.emit( 'fromcli', data );

@@ -11,6 +11,9 @@ var port = 3000;
 var root = __dirname;
 var public_dir = 'public';
 var index = 'index.html';
+var connections_path = '/connections';
+
+var sockets = [];
 
 // #region send
 
@@ -115,6 +118,11 @@ function log( message = undefined ) {
 	console.log( message );
 }
 
+function now() {
+	let now = Date(Date.now());
+	return now;//now.Hours + ':' + now.Minutes + ':' + now.Seconds;
+}
+
 // #endregion
 
 // #region db
@@ -124,19 +132,46 @@ function dbget( path ) {
 	return undefined;
 }
 
-function getuser( id ) {
+function dbgetuser( id ) {
 	let users = dbget("/users");
-	//log('users: ' + js(users));
-	users.forEach( user => { if( user.id == id ) return user; });
-	return undefined;
+	let result = undefined;
+	users.forEach( user => { 
+		if( user.id == id ) result = user;
+	});
+	return result;
 }
 
-function adduser( id, name ) {
-	let user = getuser( id );
-	//log('user: ' + js(user));
+function dbclear( path ) {
+	let item = dbget( path );
+	if( Array.isArray( item ) ) 
+		for( let i = 0; i < item.length; i++ ) db.delete( path + '[-1]' );
+	else 
+		db.delete( path );
+}
+
+function dbadduser( id, name ) {
+	let user = dbgetuser( id );
+	log('find user id ' + id + ' result = ' + js(user));
 	if( user != undefined ) return false; 
-	db.push( '/users/', { id: id, name: name } );
+	db.push( '/users[]', { time: now(), id: id, name: name } );
 	return true; 
+}
+
+function dbdeluser( id ) {
+	let users = dbget("/users");
+	for( let i = 0; i < users.length; i++ )
+		if( users[i].id == id ) {
+			db.delete( '/users[' + i + ']' );
+			return true;
+		}
+	return false;
+}
+
+function dblist( name ) {
+	if( dbget( name ) == undefined ) 
+		db.push( name, [] );
+	else 
+		dbclear( name );
 }
 
 // #endregion  
@@ -159,22 +194,60 @@ var server = http.createServer( function ( request, response ) {
 });
  
 server.listen( port, function () {
+	
 	log( 'development server listening on port ' + port + ':' );
-	if( dbget( '/users' ) == undefined ) db.push( '/users', {} );
+	
+	dblist( connections_path );
+
+	setInterval( update, 5000 );
 });
 
-io( server ).on( 'connection', function( socket ) { 
+function getsocketindex( id ) {
+	for( let i = 0; i < sockets.length; i++) if( sockets[i].id == id ) return i;
+	return -1;
+}
+
+function update() {
+
+	//log( 'update ' + now() );
+	let users = dbget('/users');
+	if( users != undefined ) 
+		if( users.length != undefined ) {
+			for ( let i = 0; i < users.length; i++ ) {
+				
+				let user = users[i];
+				let dt = Date.now() - Date.parse(user.time);
+				
+				if( dt > 5000 ) {
+					let si = getsocketindex( user.id );
+					if( si != -1 ) 
+						sockets[si].emit( 'tocli', { type: 'ping', id: user.id } );
+				}
+				
+				if( dt > 30000 ) {
+					log( 'kill old client ' + user.id );
+					db.delete( '/users[' + i + ']' );
+					break;
+				}
+			}
+		}
+}
+
+io(server).on('connection', function(socket) { 
 
 	log( 'socket connection ' + socket.id );
-	if( adduser( socket.id, 'anonimous' ))
-		//socket.emit( 'tocli', { type: 'id', id: socket.id } );
+	
+	sockets.push( socket );
+	socket.emit( 'tocli', { type: 'id', id: socket.id } );
 	
 	socket.on( 'fromcli', function ( data ) {
 		
-		//console.log( socket.id + ' data:\n' + js(data) );
+		let user = dbgetuser( data.id );
+		//log(user);
 
 		switch( data.type ) {
 
+			// #region
 			// case 'login':
 			// 	users.forEach( user => {
 					
@@ -216,22 +289,61 @@ io( server ).on( 'connection', function( socket ) {
 			// 			user.socket.emit( 'tocli', { name: sender.name, type: 'message', text: data.text } );
 			// 	});
 			// 	break; 
+			// #endregion
 
 			case 'id':
-				log(data.id + ' >>> ' + socket.id );
-				// users.forEach( user => { 
-				// 	if( user.id == data.id ) {  }
-				// });
+
+				if( user == undefined ) {
+					if( data.text == 'new' )
+						log('new (client reset): ' + socket.id);
+					else 
+						log('new (server reset): ' + socket.id);
+					dbadduser( socket.id, 'anonimous' );
+				} 
+
+				if( data.text == 'update' ) {
+					users = dbget('/users');
+					//log('update: ' + data._id + ' to ' + socket.id);
+					for( let i = 0; i < users.length; i++ ) {
+						let user = users[i];
+						if( user.id == data._id ) {
+							user.time = now();
+							user.id = socket.id;
+							db.delete( '/users[' + i + ']' );
+							db.push( '/users[]', user );
+							log( 'change id ' + data._id + ' to ' + socket.id );
+							break;
+						}
+					}
+				}
+
 				break;
 
-			// case 'json':
-			// 	break;
-				
+			case 'pong':
+				users = dbget('/users');
+				for( let i = 0; i < users.length; i++ ) {
+					let user = users[i];
+					if( user.id == data.id ) {
+						user.time = now();
+						db.delete( '/users[' + i + ']' );
+						db.push( '/users[]', user );
+						//log( '\tchange time ' + user.id );
+						break;
+					}
+				}
+				break;
+
 			default:
 				log( socket.id + ' undefined data type' );
 				break;
 		}
 		
+	});
+
+	socket.on( 'disconnect', function( data ) {
+		log( 'socket disconnection ' + socket.id + ': ' + js(data) );
+		dbdeluser( socket.id );
+		//db.delete('/users', );
 	});
 
 	// #region old code
