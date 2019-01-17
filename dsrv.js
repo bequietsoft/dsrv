@@ -123,55 +123,71 @@ function now() {
 	return now;//now.Hours + ':' + now.Minutes + ':' + now.Seconds;
 }
 
+function sleep( ms ) {
+	ms += new Date().getTime();
+	while (new Date() < ms) {}
+} 
+
+// #endregion
+
+// #region sockets
+
+function get_socket_index_by_id( id ) {
+	for( let i = 0; i < sockets.length; i++) if( sockets[i].id == id ) return i;
+	return -1;
+}
+
 // #endregion
 
 // #region db
 
-function dbget( path ) {
+function db_get_items( path ) {
 	try { return  db.getData( path ); } catch (error) {}
 	return undefined;
 }
 
-function dbgetuser( id ) {
-	let users = dbget("/users");
+function db_get_item_by_id( path, id ) {
+	let items = db_get_items( path );
 	let result = undefined;
-	users.forEach( user => { 
-		if( user.id == id ) result = user;
-	});
+	items.forEach( item => { if( item.id == id ) result = item; } );
 	return result;
 }
 
-function dbclear( path ) {
-	let item = dbget( path );
-	if( Array.isArray( item ) ) 
-		for( let i = 0; i < item.length; i++ ) db.delete( path + '[-1]' );
+function db_clear( path ) {
+	let items = db_get_items( path );
+	if( Array.isArray( items ) ) 
+		for( let i = 0; i < items.length; i++ ) db.delete( path + '[-1]' );
 	else 
 		db.delete( path );
 }
-
-function dbadduser( id, name ) {
-	let user = dbgetuser( id );
-	log('find user id ' + id + ' result = ' + js(user));
-	if( user != undefined ) return false; 
-	db.push( '/users[]', { time: now(), id: id, name: name } );
+ 
+function db_add_item( path, data ) {
+	let item = db_get_item_by_id( path, data.id );
+	//log( '   find exist item = ' + js(item) );
+	if( item != undefined ) { 
+		log( 'item with id ' + id + ' already exist: ' + js( item ) );
+		return false; 
+	}
+	db.push( path + '[]', data );
+	//log('ADD ' + now() );
 	return true; 
 }
-
-function dbdeluser( id ) {
-	let users = dbget("/users");
-	for( let i = 0; i < users.length; i++ )
-		if( users[i].id == id ) {
-			db.delete( '/users[' + i + ']' );
+ 
+function db_del_item_by_id( path, id ) {
+	let items = db_get_items( path );
+	for( let i = 0; i < items.length; i++ )
+		if( items[i].id == id ) {
+			db.delete( path + '[' + i + ']' );
 			return true;
 		}
 	return false;
 }
 
-function dblist( name ) {
-	if( dbget( name ) == undefined ) 
-		db.push( name, [] );
+function db_update_path( path ) {
+	if( db_get_items( path ) == undefined ) 
+		db.push( path, [] );
 	else 
-		dbclear( name );
+		db_clear( path );
 }
 
 // #endregion  
@@ -194,156 +210,150 @@ var server = http.createServer( function ( request, response ) {
 });
  
 server.listen( port, function () {
-	
 	log( 'development server listening on port ' + port + ':' );
-	
-	dblist( connections_path );
-
+	db_update_path( connections_path );
 	setInterval( update, 5000 );
 });
 
-function getsocketindex( id ) {
-	for( let i = 0; i < sockets.length; i++) if( sockets[i].id == id ) return i;
-	return -1;
-}
-
 function update() {
-
+	
 	//log( 'update ' + now() );
-	let users = dbget('/users');
-	if( users != undefined ) 
-		if( users.length != undefined ) {
-			for ( let i = 0; i < users.length; i++ ) {
-				
-				let user = users[i];
-				let dt = Date.now() - Date.parse(user.time);
+	let connections = db_get_items( connections_path );
+	if( connections != undefined ) 
+		if( connections.length != undefined ) 
+			for ( let i = 0; i < connections.length; i++ ) {
+				let connection = connections[i];
+				let dt = Date.now() - Date.parse( connection.time );
 				
 				if( dt > 5000 ) {
-					let si = getsocketindex( user.id );
-					if( si != -1 ) 
-						sockets[si].emit( 'tocli', { type: 'ping', id: user.id } );
+					let si = get_socket_index_by_id( connection.id );
+					if( si != -1 ) sockets[si].emit( 'tocli', { type: 'ping', id: connection.id } );
 				}
 				
 				if( dt > 30000 ) {
-					log( 'kill old client ' + user.id );
-					db.delete( '/users[' + i + ']' );
+					log( 'kill connection ' + connection.id + ' by timeout' );
+					db.delete( connections_path + '[' + i + ']' );
 					break;
 				}
 			}
-		}
 }
 
-io(server).on('connection', function(socket) { 
+io( server ).on( 'connection', function( socket ) { 
 
-	log( 'socket connection ' + socket.id );
-	
+	log( 'open connection ' + socket.id );
 	sockets.push( socket );
 	socket.emit( 'tocli', { type: 'id', id: socket.id } );
 	
 	socket.on( 'fromcli', function ( data ) {
 		
-		let user = dbgetuser( data.id );
-		//log(user);
+		let connection = db_get_item_by_id( connections_path, data.id );
+		//log( connection );
 
 		switch( data.type ) {
 
 			// #region
-			// case 'login':
-			// 	users.forEach( user => {
+			case 'login': {
+				let connections = db_get_items( connections_path );
+				users.forEach( user => {
 					
-			// 		if( user.state == 'logout' && user.name == data.name ) {
-			// 			user.state = 'login';
-			// 			user.socket = socket;
-			// 			user.hash = rk(64);
-			// 			//log( 'user "' + user.name + '" state = ' + user.state );
-			// 			socket.emit( 'tocli', { type: 'hash', hash: user.hash } );
-			// 		}
+					if( user.state == 'logout' && user.name == data.name ) {
+						user.state = 'login';
+						user.socket = socket;
+						user.hash = rk(64);
+						//log( 'user "' + user.name + '" state = ' + user.state );
+						socket.emit( 'tocli', { type: 'hash', hash: user.hash } );
+					}
 
-			// 		if( user.state == 'login' && user.socket.id == data.id && 
-			// 			data.hash == user.hash + user.pass ) {
-			// 			user.state = 'auth';
-			// 			user.socket = socket;
-			// 			user.hash = undefined;
-			// 			log( 'user "' + user.name + '" login' );
-			// 			socket.emit( 'tocli', { type: 'auth' } );
-			// 		}
-			// 	});
-			// 	break;
+					if( user.state == 'login' && user.socket.id == data.id && 
+						data.hash == user.hash + user.pass ) {
+						user.state = 'auth';
+						user.socket = socket;
+						user.hash = undefined;
+						log( 'user "' + user.name + '" login' );
+						socket.emit( 'tocli', { type: 'auth' } );
+					}
+				});
+				break;
+			}
 			
-			// case 'logout':
-			// 	users.forEach( user => {
-			// 		if( user.state == 'auth' && user.id == socket.id ) {
-			// 			user.state = 'logout';
-			// 			user.socket = undefined;
-			// 			log( 'user "' + user.name + '" logout' );
-			// 		}
-			// 	});
-			// 	break;
+			case 'logout': {
+				users.forEach( user => {
+					if( user.state == 'auth' && user.id == socket.id ) {
+						user.state = 'logout';
+						user.socket = undefined;
+						log( 'user "' + user.name + '" logout' );
+					}
+				});
+				break;
+			}
 
-			// case 'message':
-			// 	let sender = getUser( data.id );
-			// 	log( sender.name + ' message "' + data.text + '"' );
-			// 	//socket.broadcast.emit( 'tocli', data );
-			// 	users.forEach( user => { 
-			// 		if( user.state == 'auth' && user.name != sender.name )
-			// 			user.socket.emit( 'tocli', { name: sender.name, type: 'message', text: data.text } );
-			// 	});
-			// 	break; 
+			case 'message': {
+				let sender = getUser( data.id );
+				log( sender.name + ' message "' + data.text + '"' );
+				//socket.broadcast.emit( 'tocli', data );
+				users.forEach( user => { 
+					if( user.state == 'auth' && user.name != sender.name )
+						user.socket.emit( 'tocli', { name: sender.name, type: 'message', text: data.text } );
+				});
+				break; 
+			}
 			// #endregion
-
-			case 'id':
-
-				if( user == undefined ) {
-					if( data.text == 'new' )
-						log('new (client reset): ' + socket.id);
-					else 
-						log('new (server reset): ' + socket.id);
-					dbadduser( socket.id, 'anonimous' );
+ 
+			case 'id': {
+ 
+				if( connection == undefined ) {
+					// if( data.text == 'new' )
+					// 	log('client reset update connection ' + socket.id);
+					// else 
+					// 	log('server reset update connection ' + socket.id);
+					
+					db_add_item( connections_path, { time: now(), id: socket.id, name: 'anonimous' } );
 				} 
 
 				if( data.text == 'update' ) {
-					users = dbget('/users');
-					//log('update: ' + data._id + ' to ' + socket.id);
-					for( let i = 0; i < users.length; i++ ) {
-						let user = users[i];
-						if( user.id == data._id ) {
-							user.time = now();
-							user.id = socket.id;
-							db.delete( '/users[' + i + ']' );
-							db.push( '/users[]', user );
-							log( 'change id ' + data._id + ' to ' + socket.id );
-							break;
+					let connections = db_get_items( connections_path );
+					for( let i = 0; i < connections.length; i++ ) {
+						let connection = connections[i];
+						if( connection.id == data._id ) {
+							connection.time = now();
+							connection.id = socket.id;
+							db.delete( connections_path + '[' + i + ']' );
+							//db.push( connections_path + '[]', connection );
+							//log( 'ID ' + data._id + ' > ID ' + socket.id );
+							break; 
 						}
-					}
+					} 
 				}
 
 				break;
+			}
 
-			case 'pong':
-				users = dbget('/users');
-				for( let i = 0; i < users.length; i++ ) {
-					let user = users[i];
-					if( user.id == data.id ) {
-						user.time = now();
-						db.delete( '/users[' + i + ']' );
-						db.push( '/users[]', user );
-						//log( '\tchange time ' + user.id );
+			case 'pong': {
+				let connections = db_get_items( connections_path );
+				for( let i = 0; i < connections.length; i++ ) {
+					let connection = connections[i];
+					if( connection.id == data.id ) {
+						connection.time = now();
+						db.delete( connections_path + '[' + i + ']' );
+						db.push( connections_path + '[]', connection );
+						// log( '\tchange ' + connection.id + ' time' );
 						break;
 					}
 				}
 				break;
+			}
 
-			default:
+			default: {
 				log( socket.id + ' undefined data type' );
 				break;
+			}
 		}
 		
 	});
 
 	socket.on( 'disconnect', function( data ) {
-		log( 'socket disconnection ' + socket.id + ': ' + js(data) );
-		dbdeluser( socket.id );
-		//db.delete('/users', );
+		log( 'close connection ' + socket.id + ': ' + js(data) );
+		db_del_item_by_id( connections_path, socket.id );
 	});
 
 	// #region old code

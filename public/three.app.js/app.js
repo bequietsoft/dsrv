@@ -2,16 +2,18 @@ class App {
 
 	static init() {
 
-		App.state = 'logout';
-		
-		App.shadows = true;
-		App.smooth = 0;
-		App.ambient_color = rgb(240, 240, 220);
-		App.fog_color = rgb(240, 240, 220);
-		App.near = 0.1;
-		App.fov = 50;
-		App.far = 100;
-		App.fog = 0.2;
+		{
+			App.state = 'logout';
+			App.debug = true;
+			App.shadows = true;
+			App.smooth = 0;
+			App.ambient_color = rgb(240, 240, 220);
+			App.fog_color = rgb(240, 240, 220);
+			App.near = 0.1;
+			App.fov = 50;
+			App.far = 100;
+			App.fog = 0.2;
+		}
 
 		Actions.init();
 		Events.init();
@@ -148,6 +150,37 @@ class App {
 		//App.cmd_gui.element.focus();
 	}
 
+	static update() {
+
+		requestAnimationFrame( App.update );
+
+		Mouse.update();
+		Actions.update();	
+		//App.audio.update();
+		App.fps.update();
+		
+		//for( let i = 0; i < App.avatars.items.length; i++) App.avatars.items[i].update();
+		//log( App.avatars );
+
+		if( App.avatars != undefined ) {
+			let current_avatar = App.avatars.item();
+			if( current_avatar != undefined ) {
+				current_avatar.update();
+				App.camera.update( current_avatar.root );
+			}
+		} else App.camera.update( { position: V(0, 0.8, 0) } );
+
+		//App.physics.update();
+
+		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
+		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
+		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
+
+		//log(App.avatars.item().root.rotation.y);
+
+		Renderer.update();
+	}
+
 	static input( cmd ) {
 		
 		let _cmd = cmd.split(' ');
@@ -213,36 +246,5 @@ class App {
 
 		}
 
-	}
-
-	static update() {
-
-		requestAnimationFrame( App.update );
-
-		Mouse.update();
-		Actions.update();	
-		//App.audio.update();
-		App.fps.update();
-		
-		//for( let i = 0; i < App.avatars.items.length; i++) App.avatars.items[i].update();
-		//log( App.avatars );
-
-		if( App.avatars != undefined ) {
-			let current_avatar = App.avatars.item();
-			if( current_avatar != undefined ) {
-				current_avatar.update();
-				App.camera.update( current_avatar.root );
-			}
-		} else App.camera.update( { position: V(0, 0.8, 0) } );
-
-		//App.physics.update();
-
-		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
-		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
-		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
-
-		//log(App.avatars.item().root.rotation.y);
-
-		Renderer.update();
 	}
 }

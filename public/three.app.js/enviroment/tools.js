@@ -1,9 +1,16 @@
 // loging
 function log( message = undefined ) {
-	if ( message == undefined ) message = '';
+	if( !App.debug ) return;
+	if( message == undefined ) message = '';
 	console.log( message );
 	if( App.log_gui != undefined ) App.log_gui.add( message );
 }
+
+//
+function sleep( ms ) {
+	ms += new Date().getTime();
+	while (new Date() < ms) {}
+} 
 
 // 
 function get_context_path( item ) {

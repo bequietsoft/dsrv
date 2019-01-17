@@ -4,48 +4,48 @@ class Hub {
 		
 		this.socket = io();
 		
-		this.socket.on( 'tocli', function ( data ) {
-			
-			//log( data );
+		//this.socket.io._reconnection = false;
+		this.socket.io._reconnectionDelay = 5000;
+		log( this.socket );
 
+		this.socket.on( 'connect_error', function (data) {
+			log( 'connection error ' + js(data) );// + ' delay = ' + 
+			//App.hub.socket.io._reconnectionDelay );
+		});
+	
+		this.socket.on( 'tocli', function ( data ) {
+			//log( data );
 			switch( data.type ) {
 				
 				case 'message':
 					App.gui.item(0).add( data.name + ': ' + data.text );
 					break;
 
-				case 'id':
-					
+				case 'id':	
 					if( App.id == undefined ) {
 						App.id = data.id;
 						App.hub.send( { type: 'id', text: 'new' } );
-						log( 'New ID     ' + App.id );
 					} else {
 						let _id = App.id;
 						App.id = data.id;
 						App.hub.send( { type: 'id', text: 'update', _id: _id } );
-						log( 'Update ID  ' + _id + ' to ' + App.id );
 					}
-
+					log( 'ID ' + App.id );
 					break;
 				
 				case 'ping':
-					//log( js(data) );
 					App.hub.send( { type: 'pong' } );
 					break;
 
 				case 'hash':
 					App.hash = data.hash;
 					App.state = 'login';
-					//log( 'state: ' + App.state );
 					break;
 				
 				case 'auth':
 					App.hash = undefined;
 					App.state = 'auth';
-					//log( 'state: ' + App.state );
 					App.add_avatars();
-					//App.update();
 					break;
 
 				// case 'json':
