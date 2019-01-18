@@ -137,6 +137,18 @@ function get_socket_index_by_id( id ) {
 	return -1;
 }
 
+function socket_send( id, event, data ) {
+	let index = get_socket_index_by_id( id );
+	if( index == -1 ) return;
+	sockets[ index ].emit( event, data );
+}
+
+function socket_broadcast( id, event, data ) {
+	let index = get_socket_index_by_id( id );
+	if( index == -1 ) return;
+	sockets[ index ].broadcast.emit( event, data );
+}
+
 // #endregion
 
 // #region db
@@ -181,6 +193,11 @@ function db_del_item_by_id( path, id ) {
 			return true;
 		}
 	return false;
+}
+
+function db_rewrite( path, id, data ) {
+	db_del_item_by_id( path, id );
+	db_add_item( path, data );
 }
 
 function db_update_path( path ) {
@@ -247,104 +264,82 @@ io( server ).on( 'connection', function( socket ) {
 	socket.on( 'fromcli', function ( data ) {
 		
 		let connection = db_get_item_by_id( connections_path, data.id );
-		//log( connection );
-
+		
 		switch( data.type ) {
 
-			// #region
 			case 'login': {
-				let connections = db_get_items( connections_path );
-				users.forEach( user => {
-					
-					if( user.state == 'logout' && user.name == data.name ) {
-						user.state = 'login';
-						user.socket = socket;
-						user.hash = rk(64);
-						//log( 'user "' + user.name + '" state = ' + user.state );
-						socket.emit( 'tocli', { type: 'hash', hash: user.hash } );
-					}
+				if( connection != undefined )
+					if( connection.id == socket.id && connection.state == 'logout' )
+						if( data.id == socket.id && data.name != undefined ) {
+							let message = { 
+								type: 'message', 
+								name: data.name, 
+								text: 'login' 
+							};
+							connection.state = 'login';
+							connection.name = data.name;
+							connection.time = now();
+							db_rewrite( connections_path, connection.id, connection );
+							socket_broadcast( connection.id, 'tocli', message );
+							socket_send( connection.id, 'tocli', { type: 'login' } );
+							log( data.name + ': ' + message.text );
+						}
+			
+				break;
+			}
 
-					if( user.state == 'login' && user.socket.id == data.id && 
-						data.hash == user.hash + user.pass ) {
-						user.state = 'auth';
-						user.socket = socket;
-						user.hash = undefined;
-						log( 'user "' + user.name + '" login' );
-						socket.emit( 'tocli', { type: 'auth' } );
-					}
-				});
+			case 'logout': {
+				if( connection != undefined )
+					if( connection.id == socket.id && connection.state == 'login' )
+						if( data.id == socket.id && data.name != undefined ) {
+							let message = { 
+								type: 'message', 
+								name: data.name, 
+								text: 'logout' 
+							};
+							connection.state = 'logout';
+							connection.name = 'anonimous';
+							connection.time = now();
+							db_rewrite( connections_path, connection.id, connection );
+							socket_broadcast( connection.id, 'tocli', message );
+							socket_send( connection.id, 'tocli', { type: 'logout' } );
+							log( data.name + ': ' + message.text );
+						}
 				break;
 			}
 			
-			case 'logout': {
-				users.forEach( user => {
-					if( user.state == 'auth' && user.id == socket.id ) {
-						user.state = 'logout';
-						user.socket = undefined;
-						log( 'user "' + user.name + '" logout' );
-					}
-				});
-				break;
-			}
-
-			case 'message': {
-				let sender = getUser( data.id );
-				log( sender.name + ' message "' + data.text + '"' );
-				//socket.broadcast.emit( 'tocli', data );
-				users.forEach( user => { 
-					if( user.state == 'auth' && user.name != sender.name )
-						user.socket.emit( 'tocli', { name: sender.name, type: 'message', text: data.text } );
-				});
-				break; 
-			}
-			// #endregion
- 
 			case 'id': {
  
 				if( connection == undefined ) {
-					// if( data.text == 'new' )
-					// 	log('client reset update connection ' + socket.id);
-					// else 
-					// 	log('server reset update connection ' + socket.id);
-					
-					db_add_item( connections_path, { time: now(), id: socket.id, name: 'anonimous' } );
+					let connection = { time: now(), id: socket.id, name: 'anonimous', state: 'logout' };
+					db_add_item( connections_path, connection );
 				} 
 
-				if( data.text == 'update' ) {
-					let connections = db_get_items( connections_path );
-					for( let i = 0; i < connections.length; i++ ) {
-						let connection = connections[i];
-						if( connection.id == data._id ) {
-							connection.time = now();
-							connection.id = socket.id;
-							db.delete( connections_path + '[' + i + ']' );
-							//db.push( connections_path + '[]', connection );
-							//log( 'ID ' + data._id + ' > ID ' + socket.id );
-							break; 
-						}
-					} 
-				}
+				if( data.text == 'update' ) 
+					db_del_item_by_id( connections_path, data._id );
 
 				break;
 			}
 
 			case 'pong': {
-				let connections = db_get_items( connections_path );
-				for( let i = 0; i < connections.length; i++ ) {
-					let connection = connections[i];
-					if( connection.id == data.id ) {
-						connection.time = now();
-						db.delete( connections_path + '[' + i + ']' );
-						db.push( connections_path + '[]', connection );
-						// log( '\tchange ' + connection.id + ' time' );
-						break;
-					}
-				}
+				let connection = db_get_item_by_id( connections_path, data.id );
+				connection.time = now();
+				db_rewrite( connections_path, data.id, connection );
 				break;
 			}
 
+			case 'message': {
+				if( connection != undefined ) {
+					log( connection.name + ': ' + data.text );
+					let message = { type: 'message', name: connection.name, text: data.text };
+					socket_broadcast( connection.id, 'tocli', message );
+					socket_send( connection.id, 'tocli', message );
+				}
+				break; 
+			}
+
 			default: {
-				log( socket.id + ' undefined data type' );
+				//log( socket.id + ': ' + js(data) );
 				break;
 			}
 		}
@@ -356,92 +351,6 @@ io( server ).on( 'connection', function( socket ) {
 		db_del_item_by_id( connections_path, socket.id );
 	});
 
-	// #region old code
-
-	// let user = getUser( socket.id );
-	// let user_path = path.join( root, users_dir, user.name );
-	
-	// if( user.name == 'anonymous' ) user_path = path.join( user_path, user.id );
-
-	// // send default data for user
-	// try {
-	// 	let items = 0;
-	// 	let bytes = 0;
-	// 	fs.readdirSync( user_path ).forEach( item => {
-	// 		let value = fs.readFileSync( path.join( user_path, item ), "utf8" );// + '\n\n';
-	// 		if( item != undefined && value != undefined) {
-	// 			//console.log( 'item = ' + item );
-	// 			// console.log( 'value = ' + value );
-	// 			if( value != '' )
-	// 				socket.emit( 'tocli', { id: socket.id, type: 'json', item: item, value: value } );
-	// 			else
-	// 				socket.emit( 'tocli', { id: socket.id, type: 'function', item: item } );
-	// 			items ++;
-	// 			bytes += value.length();
-	// 		}
-	// 	});
-
-	// 	if( items > 0 ) console.log( 'send ' + items + ' items (' + bytes + ' bytes) to ' + socket.id );
-		
-	// } catch( err ) { 
-	// 	//	console.log( err ); 
-	// }
-
-	
-	
-	// socket.on( 'fromcli', function ( data ) {
-	// 	let user = getUser( data.id );
-	// 	let user_path = path.join( root, users_dir, user.name );
-	// 	mkdir( user_path );
-		
-	// 	if( user.name == 'anonymous' ) {
-	// 		user_path = path.join( user_path, user.id );
-	// 		mkdir( user_path );
-	// 	}
-
-	// 	switch( data.type ) {
-
-	// 		case 'text':
-	// 			console.log( user.name + ': ' + data.text );
-	// 			socket.broadcast.emit( 'tocli', data );
-	// 			break;
-
-	// 		case 'json':
-	// 			//console.log( data.item );
-	// 			fs.writeFileSync( user_path + '/' + data.item, data.value );
-	// 			//socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
-	// 			break;
-			
-	// 		case 'function':
-	// 			console.log( user.name + ': ' + data.item );
-	// 			fs.writeFileSync( user_path + '/' + data.item );
-	// 			//socket.emit( 'tocli', { id: 'server', type: 'text', text: data.item } );
-	// 			break;
-
-	// 		case 'cmd':
-	// 			if( data.text == 'reset' ) {
-	// 				fs.readdirSync( user_path ).forEach( item => {
-	// 					//console.log(user.id + '\t' + item);
-	// 					//if( item != user.id ) 
-	// 					fs.unlinkSync( path.join( user_path, item ));
-	// 				});
-	// 				//socket.emit( 'tocli', { id: 'server', type: 'text', text: data.text });
-	// 			}
-
-	// 			// TODO
-
-	// 			break;
-
-	// 		default:
-	// 			console.log( data.id + ': undefined msg type ' + data.type );
-	// 			break;
-	// 	}
-
-	// 	//io.emit( 'tocli', data );
-	// 	//socket.broadcast.emit( 'tocli', data ); //{ id: socket.id, type: 'echo', masdata: msg.data } );
-	// });
-	
-	// #endregion
 });
 
 

@@ -217,6 +217,18 @@ class EditBox extends GUIElement {
 		this.element.update();
 	}
 
+	pop() {
+		if( this.element.list == undefined ) return;
+		this.element.list.pop();
+		this.element.update();
+	}
+
+	shift() {
+		if( this.element.list == undefined ) return;
+		this.element.list.shift();
+		this.element.update();
+	}
+
 	update() {
 		var cursor = '';
 		if( this == document.activeElement && this.tabIndex != -1 ) cursor = '_';

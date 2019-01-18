@@ -3,7 +3,6 @@ class App {
 	static init() {
 
 		{
-			App.state = 'logout';
 			App.debug = true;
 			App.shadows = true;
 			App.smooth = 0;
@@ -64,8 +63,14 @@ class App {
 		Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
 
 		//Events.debug_info = true;
-		Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
+			Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
 		//Events.debug_info = false;
+	}
+
+	static kill_avatars() {
+		App.avatars.items.forEach( avatar => { App.world.scene.remove( avatar.root ); });
+		App.avatars = undefined;
+		Events.init();
 	}
 
 	static add_animations() {
@@ -183,24 +188,24 @@ class App {
 
 	static input( cmd ) {
 		
-		let _cmd = cmd.split(' ');
-		
-		if( _cmd.length == 1 ) {
-			if( App.state == 'logout' ) App.hub.send( { type: 'login', name: cmd } );
-			if( App.state == 'login' ) 	App.hub.send( { type: 'login', hash: App.hash + cmd } );
+		if( App.hub.state == 'logout' ) {
+			App.hub.name = cmd;
+			App.hub.send( { type: 'login', name: App.hub.name, pass: undefined } );
+			App.gui.item(0).shift();
 		}
 		
-		if( App.state == 'auth') { 
+		if( App.hub.state == 'login' ) { 
 			
-			switch(cmd) {
+			switch( cmd ) {
 				
-				case 'logout':
-					App.hub.send( { type: 'logout' } );
-					App.state = 'logout';
+				case App.hub.name:
+					App.hub.send( { type: 'logout', name: App.hub.name } );
+					App.gui.item(0).shift();
 					break;
 
 				default:
 					App.hub.send( { type: 'message', text: cmd } );
+					App.gui.item(0).shift();
 					break;
 			}
 			
