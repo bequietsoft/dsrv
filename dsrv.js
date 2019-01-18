@@ -7,6 +7,8 @@ var fs = require( 'fs' );
 var jsondb = require( 'node-json-db' );
 var db = new jsondb( "db", true, true );
 
+var debug = true;
+
 var port = 3000;
 var root = __dirname;
 var public_dir = 'public';
@@ -24,7 +26,8 @@ function sendFile( file ) {
 }
 
 function sendData( data ) {
-    this.writeHead( 200 );
+	this.writeHead( 200 );
+	data = data.replace( 'App.debug = undefined', 'App.debug = ' + debug );
 	this.end( data );
 }
 
@@ -115,12 +118,21 @@ function rk( length = 4 ) {
 
 function log( message = undefined ) {
 	if ( message == undefined ) message = '';
-	console.log( message );
+	console.log( ts() + '  ' + message );
 }
 
 function now() {
 	let now = Date(Date.now());
 	return now;//now.Hours + ':' + now.Minutes + ':' + now.Seconds;
+}
+
+function ts() {
+	var d = new Date();
+	var h = ("0" + d.getHours()).slice(-2);
+	var m = ("0" + d.getMinutes()).slice(-2);
+	var s = ("0" + d.getSeconds()).slice(-2);
+	var ms = ("000" + d.getMilliseconds()).slice(-3);
+	return h + ':' + m + ':' + s + '.' + ms;
 }
 
 function sleep( ms ) {
@@ -214,13 +226,15 @@ var server = http.createServer( function ( request, response ) {
 	response.sendFile = sendFile;
 	response.sendData = sendData;
 	
-	// lock only for local host clients
-	//console.log('Remote IP: ' + request.connection.remoteAddress);
-	if(	request.connection.remoteAddress != '::1' &&
-		request.connection.remoteAddress != '::ffff:127.0.0.1') {
-			log('Remote IP: ' + request.connection.remoteAddress);
-			return;
-		}
+	if( debug ) {
+		// lock only for local host clients
+		//console.log('Remote IP: ' + request.connection.remoteAddress);
+		if(	request.connection.remoteAddress != '::1' &&
+			request.connection.remoteAddress != '::ffff:127.0.0.1') {
+				log('Remote IP: ' + request.connection.remoteAddress);
+				return;
+			}
+	}
 		
 	if( request.url == '/' ) request.url += index;
 	send( path.join( root, public_dir, request.url ), response );
@@ -271,11 +285,7 @@ io( server ).on( 'connection', function( socket ) {
 				if( connection != undefined )
 					if( connection.id == socket.id && connection.state == 'logout' )
 						if( data.id == socket.id && data.name != undefined ) {
-							let message = { 
-								type: 'message', 
-								name: data.name, 
-								text: 'login' 
-							};
+							let message = { type: 'message', name: data.name, text: 'login' };
 							connection.state = 'login';
 							connection.name = data.name;
 							connection.time = now();
@@ -284,7 +294,6 @@ io( server ).on( 'connection', function( socket ) {
 							socket_send( connection.id, 'tocli', { type: 'login' } );
 							log( data.name + ': ' + message.text );
 						}
-			
 				break;
 			}
 
@@ -292,11 +301,7 @@ io( server ).on( 'connection', function( socket ) {
 				if( connection != undefined )
 					if( connection.id == socket.id && connection.state == 'login' )
 						if( data.id == socket.id && data.name != undefined ) {
-							let message = { 
-								type: 'message', 
-								name: data.name, 
-								text: 'logout' 
-							};
+							let message = { type: 'message', name: data.name, text: 'logout' };
 							connection.state = 'logout';
 							connection.name = 'anonimous';
 							connection.time = now();
@@ -311,7 +316,13 @@ io( server ).on( 'connection', function( socket ) {
 			case 'id': {
  
 				if( connection == undefined ) {
-					let connection = { time: now(), id: socket.id, name: 'anonimous', state: 'logout' };
+					let connection = { 
+						time: now(), 
+						id: socket.id, 
+						name: 'anonimous', 
+						state: 'logout', 
+						storage: [] 
+					};
 					db_add_item( connections_path, connection );
 				} 
 
@@ -322,7 +333,7 @@ io( server ).on( 'connection', function( socket ) {
 			}
 
 			case 'pong': {
-				let connection = db_get_item_by_id( connections_path, data.id );
+				//let connection = db_get_item_by_id( connections_path, data.id );
 				connection.time = now();
 				db_rewrite( connections_path, data.id, connection );
 				break;
@@ -336,6 +347,24 @@ io( server ).on( 'connection', function( socket ) {
 					socket_send( connection.id, 'tocli', message );
 				}
 				break; 
+			}
+
+			case 'json': {
+				if( connection != undefined ) {
+					let update = false;
+					connection.storage.forEach( element => {
+						if( element.item == data.item ) {
+							element.value = data.value;
+							//log( connection.name + ': ' + data.item + ' update');
+							update = true;
+						} 
+					});
+					if( !update ) {
+						connection.storage.push( { item: data.item, value: data.value } ); 
+						//log( connection.name + ': ' + data.item + ' create');
+					}
+					db_rewrite( connections_path, data.id, connection );
+				}
 			}
 
 			default: {

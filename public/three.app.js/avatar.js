@@ -301,8 +301,8 @@ class Avatar {
 	}
 
 	save() {
-		App.hub.save_item( 'App.avatars.item().root.position' );
-		App.hub.save_item( 'App.avatars.item().root.rotation.y' );
+		App.hub.send_item( 'App.avatars.item().root.position' );
+		App.hub.send_item( 'App.avatars.item().root.rotation.y' );
 	}
 
     update () {

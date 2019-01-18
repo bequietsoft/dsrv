@@ -3,7 +3,7 @@ class App {
 	static init() {
 
 		{
-			App.debug = true;
+			App.debug = undefined;
 			App.shadows = true;
 			App.smooth = 0;
 			App.ambient_color = rgb(240, 240, 220);
@@ -13,7 +13,7 @@ class App {
 			App.far = 100;
 			App.fog = 0.2;
 		}
-
+		
 		Actions.init();
 		Events.init();
 		Keyframes.init();
@@ -33,20 +33,20 @@ class App {
 		//App.world.scene.add( App.camera.tank );
 		//this.picker = new Picker();
 		/////App.mouse._onmove = App.pick;
-		
+	
 		//App.add_avatars();
 		//App.add_animations();
 		App.add_gui_elements();
-
+	
 	//	App.world.scene.add( box( 1, V(0, 1, 0), V0, mat('basic'), true ) );
 		resize();
 		App.update();
+		
 	}
 
 	static add_avatars() {
 		
 		App.avatars = new List();
-
 		for( let i = 0; i < 1; i++ ) {
 			App.avatars.add( new Avatar('avatar' + i ) );
 			//if( i > 0 ) 
@@ -149,10 +149,10 @@ class App {
 	static add_gui_elements() {
 
 		App.gui = new List();
-		App.gui.add( new EditBox( 'EditBox0', '', [], 0, 10, 60 ) );
-		App.gui.add( new EditBox( 'EditBox1', '', [], 0, 0, 10 ) );
+		App.gui.add( new EditBox( 'EditBox0', '', [], 1, 10, 60 ) );
+		App.gui.add( new EditBox( 'EditBox1', '', undefined, -1, 0, 10 ) );
 		App.gui.item(0).element.onenter = App.input;
-		//App.cmd_gui.element.focus();
+		App.gui.item(0).element.focus();
 	}
 
 	static update() {
@@ -194,8 +194,7 @@ class App {
 			App.gui.item(0).shift();
 		}
 		
-		if( App.hub.state == 'login' ) { 
-			
+		if( App.hub.state == 'login' ) 
 			switch( cmd ) {
 				
 				case App.hub.name:
@@ -208,48 +207,6 @@ class App {
 					App.gui.item(0).shift();
 					break;
 			}
-			
-			{
-			// switch( _cmd[ 0 ] ) {
-				
-				// case '$':
-				// 	if( _cmd.length == 3 )
-				// 		App.hub.send( { type: 'login', name: _cmd[1] } );
-				// 		App.pass =  _cmd[2];
-				// 	break;
-
-				// case 'reset':
-				// 	App.hub.send( { type: 'cmd', text: 'reset' } ); 
-				// 	break;
-
-				// case 'save':
-				// 	App.hub.save_item( 'App.camera.position.x' );
-				// 	App.hub.save_item( 'App.camera.target.rotation' ); 
-				// 	//App.hub.save_item( 'App.avatars.item().root.position' );
-				// 	//App.hub.save_item( 'App.avatars.item().root.rotation.y' );
-				// 	//App.hub.save_func( 'App.avatars.item().test_minimum_cinc' );
-				// 	break;
-
-				// case 'run':
-				// 	let func = _cmd[1];
-				// 	if( _cmd[1] == 'min') func = 'App.avatars.item().test_minimum_cinc';
-				// 	if( _cmd[1] == 'man') func = 'App.avatars.item().simple_men';
-				// 		//old	//let context = eval( getcontext( func ) );
-				// 		//old	//eval( func ).bind( context )();
-				// 	run( func );
-				// 	break;
-
-				// default: 
-
-					
-					
-					//App.hub.send( { type: 'message', name: cmd } );
-
-					// break;
-			// }
-			}
-
-		}
 
 	}
 }

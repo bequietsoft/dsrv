@@ -1,102 +1,3 @@
-class GUI_OLD {
-
-	constructor( tabindex, cmd, list, top, left ) {
-
-		//log(this);
-		
-		this.element = document.createElement('div');
-
-		this.element.style.userSelect = 'none';
-		this.element.style.padding = '5pt';
-		this.element.style.opacity = '0.2';
-		this.element.style.fontFamily = 'consolas';
-		this.element.style.color = 'black';
-		this.element.style.fontSize = '16pt';
-		this.element.style.backgroundColor = 'white';
-		this.element.style.left = left + 'pt';
-		this.element.style.top = top + 'pt';
-		this.element.style.position = 'absolute';
-		this.element.style.borderRadius = '20pt';
-		//this.element.style.borderWidth = '2pt';
-		//this.element.style.borderStyle = 'solid';
-		//this.element.style.borderColor = 'white';
-		this.element.tabIndex = tabindex;
-
-		// extra parameters
-		if(cmd) this.element.cmd = '';
-		if(list) this.element.list = [];
-		this.element.max = 5;
-
-		if(tabindex != -1) this.element.innerHTML = '<b>_</b>';
-
-		this.element.update = this.update;
-
-		this.element.addEventListener("focus", this.onfocus);
-		this.element.addEventListener("blur", this.onblur);
-		document.getElementsByTagName('body')[0].appendChild(this.element);
-    	document.addEventListener("keyup", this.onkeyup);
-	}
-
-	set( message ) 
-	{
-		this.element.cmd = message;
-		this.element.update();
-	}
-
-	onfocus( event ) {
-		
-		if(this.tabIndex == -1) {
-			document.body.focus();
-			return;
-		} 
-
-		this.style.opacity = '0.80';
-		//this.style.borderColor = 'silver';
-	}
-
-	onblur( event ) { 
-		this.style.opacity = '0.20';
-		//this.style.borderColor = 'white';
-	}
-
-	onkeyup( event ) { 
-
-		var element = document.activeElement;
-		if( element.tabIndex == -1 ) return;
-
-		//log('gui: ' + e.keyCode + ' = ' + e.key);
-		if( event.keyCode != 13 && event.keyCode != 8 &&
-			( event.keyCode < 48 || event.keyCode > 57 ) && 
-			( event.keyCode < 65 || event.keyCode > 90 ) ) return;
-		
-		if( event.ctrlKey != true && event.altKey != true )
-			if( event.keyCode == 8 ) element.cmd = element.cmd.slice(0, -1);
-			if( event.keyCode > 47 ) element.cmd += event.key;
-			if( event.keyCode == 13 ) {
-				if( element.list != undefined ) element.list.unshift( element.cmd );
-				if( element.list.length > element.max ) element.list.pop();
-				if( element.onenter != undefined ) element.onenter( element.cmd );
-				element.cmd = '';
-			}
-		
-		element.update();
-	}
-
-	update() {
-		var cursor = '';
-		if( this == document.activeElement && this.tabIndex != -1 ) cursor = '_';
-		if( this.cmd != undefined ) this.innerHTML = '<b>' + this.cmd + cursor + '</b><br>';
-		if( this.list != undefined ) this.innerHTML += this.list.join('<br>');
-	}
-
-	add( line ) {
-		if( this.element.list == undefined ) return;
-		this.element.list.unshift( line );
-		if( this.element.list.length > this.element.max ) this.element.list.pop();
-		this.element.update();
-	}
-}
-
 class GUIElement {
 
 	constructor( type, id, tabindex, left, top, width = undefined, height = undefined ) {
@@ -148,9 +49,13 @@ class EditBox extends GUIElement {
 	}
 
 	onfocus( event ) {
+		
+		//log(this);
+		//this.element.cmd = '';
 		if( this.tabIndex == -1 ) { document.body.focus(); return; } 
 		Keyboard.enabled = false;
 		this.style.opacity = '0.80';
+		
 	}
 
 	onblur( event ) { 
@@ -181,16 +86,20 @@ class EditBox extends GUIElement {
 		if( event.ctrlKey != true && event.altKey != true ) {
 
 			switch ( event.keyCode ) {
-				case 8:
+				case 8: // backspace
 					element.cmd = element.cmd.slice(0, -1);
 					break;
-				case 13:
+				case 13: // return
 					if( element.list != undefined ) element.list.unshift( element.cmd );
 					if( element.list.length > element.max ) element.list.pop();
-					if( element.onenter != undefined ) element.onenter( element.cmd );
+					if( element.onenter != undefined ) {
+						element.blur();
+						element.onenter( element.cmd );
+					}
 					element.cmd = '';
+
 					break;
-				case 38:
+				case 38: // arrow UP
 					if( element.list.length > 0 ) element.cmd = element.list[ element.list.length - 1 ];
 					break;
 				default:

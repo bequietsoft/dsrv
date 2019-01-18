@@ -1,16 +1,3 @@
 {
-    "connections": [
-        {
-            "time": "Fri Jan 18 2019 12:42:31 GMT+0700 (GMT+07:00)",
-            "id": "q5xTW4HCGYp_YvS9AAAB",
-            "name": "anonimous",
-            "state": "logout"
-        },
-        {
-            "time": "Fri Jan 18 2019 12:42:34 GMT+0700 (GMT+07:00)",
-            "id": "uO2QR7au3Rkvw0G_AAAA",
-            "name": "anonimous",
-            "state": "logout"
-        }
-    ]
+    "connections": []
 }

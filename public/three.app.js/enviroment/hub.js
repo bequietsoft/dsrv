@@ -37,7 +37,7 @@ class Hub {
 							App.hub.send( { type: 'login', name: App.hub.name } );
 						}
 					}
-					log( 'ID ' + App.id );
+					log( 'ID = ' + App.id );
 					break;
 				
 				case 'ping':
@@ -55,10 +55,10 @@ class Hub {
 					App.kill_avatars();
 					break;
 
-				// case 'json':
-				// 	//log( data.item + ' = ' + data.value );
-				// 	ev( data.item + ' = ' + data.value );
-				// 	break;
+				case 'json':
+					log( data.id + ': ' + data.item + ' = ' + data.value );
+					ev( data.item + ' = ' + data.value );
+					break;
 
 				default:
 					break;
@@ -69,28 +69,27 @@ class Hub {
 		this.send = function( data ) {
 			if( App.id == undefined ) { log('Send error: app ID is undefined'); return; }
 			data.id = App.id;
-			//log( data );
+			//log('send: ' + js(data) );
 			this.socket.emit( 'fromcli', data );
 		};
 
-		// this.save_item = function( item ) {
-		// 	//log( item ); 
-		// 	let obj = eval( item );
-		// 	let keys = Object.keys( obj );
+		this.send_item = function( item ) {
 			
-		// 	if( keys.length == 0 ) {
-		// 		if(js( obj )) 
-		// 			App.hub.send( { item: item, value: js( obj ), type: 'json' } ); 
-		// 		return;
-		// 	}
+			let obj = eval( item );
+			let keys = Object.keys( obj );
 
-		// 	keys.forEach( k => { 
-		// 		if( k.startsWith('_') ) k = k.substr(1);
-		// 		try { 
-		// 			this.save_item( item + '.' + k ); 
-		// 		} catch( e ) {}
-		// 	});
-		// }
+			if( keys.length == 0 ) {
+				if( js( obj ) ) App.hub.send( { item: item, value: js( obj ), type: 'json' } ); 
+				return;
+			}
+
+			keys.forEach( k => { 
+				if( k.startsWith('_') ) k = k.substr(1);
+				try { 
+					this.send_item( item + '.' + k ); 
+				} catch( e ) {}
+			});
+		}
 		
 	}
 }

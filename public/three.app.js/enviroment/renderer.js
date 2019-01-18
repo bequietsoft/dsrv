@@ -14,7 +14,7 @@ class Renderer  {
 		Renderer.instance.shadowMapDarkness = 0.5;
 		Renderer.instance.shadowMapWidth = 1024;
 		Renderer.instance.shadowMapHeight = 1024;
-	
+		Renderer.instance.domElement.id = 'three_canvas';
 		//Renderer.instance.setClearColor( App.ambient_color, 1 );
 		document.body.appendChild( Renderer.instance.domElement );
 

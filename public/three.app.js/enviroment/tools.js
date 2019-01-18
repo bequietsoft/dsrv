@@ -1,9 +1,23 @@
 // loging
-function log( message = undefined ) {
+function log( message = undefined, ts = true ) {
 	if( !App.debug ) return;
 	if( message == undefined ) message = '';
-	console.log( message );
+	
+	if( ts ) 
+		console.log( ts() + '  ' + message );
+	else 
+		console.log( message );
+
 	if( App.log_gui != undefined ) App.log_gui.add( message );
+}
+
+function ts() {
+	var d = new Date();
+	var h = ("0" + d.getHours()).slice(-2);
+	var m = ("0" + d.getMinutes()).slice(-2);
+	var s = ("0" + d.getSeconds()).slice(-2);
+	var ms = ("000" + d.getMilliseconds()).slice(-3);
+	return h + ':' + m + ':' + s + '.' + ms;
 }
 
 //
