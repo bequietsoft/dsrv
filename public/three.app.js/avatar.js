@@ -12,10 +12,10 @@ class Avatar {
 		this.joints = new List( name + 'joints' );
 		this.joints.add( this.root.rotation, 'root' );
 		
-		this.test_minimum_cinc();
+		//this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		//this.simple_men();
+		this.simple_men();
 		
 		//this.joints.debug_info = true;
 
@@ -294,16 +294,16 @@ class Avatar {
 	}
 
 	update_keyboard() {
-		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
-		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
-		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
-		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }		
+		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save( 'all' ); }
+		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save( 'all' ); }
+		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save( 'all' ); }
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save( 'all' ); }		
 	}
 
-	save() {
-		//log(this, false);
-		App.hub.send_item( 'App.avatar.root.position', 'all' );
-		App.hub.send_item( 'App.avatar.root.rotation.y', 'all' );
+	save( broadcast ) {
+		//log( his, false );
+		App.hub.send_item( 'App.avatar.root.position', broadcast );
+		App.hub.send_item( 'App.avatar.root.rotation.y', broadcast );
 	}
 
     update () {

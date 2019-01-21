@@ -207,17 +207,20 @@ class App {
 		}
 		
 		if( App.hub.state == 'login' ) 
-			switch( cmd ) {
+			
+		switch( cmd ) {
 				
-				case App.hub.name:
+				case App.hub.name: {
 					App.hub.send( { type: 'logout', name: App.hub.name } );
 					App.gui.item(0).shift();
 					break;
+				}
 
-				default:
+				default: {
 					App.hub.send( { type: 'message', text: cmd } );
 					App.gui.item(0).shift();
 					break;
+				}
 			}
 
 	}

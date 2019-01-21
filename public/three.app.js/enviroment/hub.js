@@ -46,16 +46,19 @@ class Hub {
 					
 					document.title = 'logout';
 					log( 'ID = ' + App.id );
-
-					if( data.room != undefined ) {
-						log(data.room, false);
-						App.avatars.clear();
-						data.room.forEach( member => {
-							let avatar = new Avatar( member.name )
-							App.avatars.add( avatar );
-							App.world.scene.add( avatar.root );
-						});
-					}
+					
+					//App.avatars.clear();
+					
+					// if( data.room != undefined ) {
+					// 	//log(data.room, false);
+					// 	App.avatars.clear();
+					// 	data.room.forEach( member => {
+					// 		let avatar = new Avatar( member.name )
+					// 		App.avatars.add( avatar );
+					// 		App.world.scene.add( avatar.root );
+					// 		App.gui.item(0).add( member.name + ': already in room' );
+					// 	});
+					// }
 
 					break;
 				
@@ -71,9 +74,9 @@ class Hub {
 						document.title = App.hub.name;
 						App.avatar = new Avatar( App.hub.name );
 						App.avatar.root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
-						App.avatar.root.rotation.set( 0, rf(0, wPI), 0 );
+						//App.avatar.root.rotation.set( 0, rf(0, wPI), 0 );
 						App.world.scene.add( App.avatar.root );
-						App.avatar.save();
+						App.avatar.save( 'all' );
 					}
 					else {
 						App.gui.item(0).add( data.name + ': login' );
@@ -81,7 +84,7 @@ class Hub {
 						App.avatars.add( avatar );
 						App.world.scene.add( avatar.root );
 
-						log(App.avatars, false);
+						log( data.name + ' login avatars =' +  App.avatars.items.length );
 					}
 					break;
 				}
@@ -103,37 +106,31 @@ class Hub {
 							App.avatars.del( avatar );
 						}
 
-						log(App.avatars, false);
+						log( data.name + ' logout avatars =' +  App.avatars.items.length );
 					}
 					break;
 				}
 
 				case 'json': {
 					
+					// log( data, false );
+
 					if( data.name == App.hub.name ) {
 						//log( 'Resore?: ' + js(data) );
 					}
 					else {
-						//let i =
+
 						data.item = data.item.replace( 
 							'App.avatar', 
 							'App.avatars.find("' + data.name + '")' );
-
-						
-						// let obj = ev(data.item);	
-						// log(obj, false);
-						// log( 'Update?: ' + js(data) );
-						
+						ev( data.item + ' = ' + data.value );
+						// if ( ev( data.item + ' = ' + data.value ) )
+						// 	log( data.name + ' moving' );
 					}
 					//log( data.id + ': ' + data.item + ' = ' + data.value );
 					//ev( data.item + ' = ' + data.value );
 					break;
 				}
-
-				// case 'move': {
-				// 	log( data );
-				// 	break;
-				// }
 
 				default:
 					break;
@@ -142,20 +139,23 @@ class Hub {
 		});
 
 		this.send = function( data ) {
-			if( App.id == undefined ) { log('Send error: app ID is undefined'); return; }
+			if( App.id == undefined ) 
+			{ log('Send error: app ID is undefined'); return; }
 			data.id = App.id;
-			//log('send: ' + js(data) );
+			//if( data.broadcast != undefined ) log('btoadcast send: ' + js(data) );
 			this.socket.emit( 'fromcli', data );
 		};
 
 		this.send_item = function( item, broadcast ) {
 			
-			if( App.hub.name == undefined ) { log('Send item error: cant send item in logout mode '); return; }
+			if( App.hub.name == undefined ) 
+			{ log('Send item error: cant send item in logout mode '); return; }
 			let obj = eval( item );
 			let keys = Object.keys( obj );
 
 			if( keys.length == 0 ) {
-				if( js( obj ) ) App.hub.send( { type: 'json', name: App.hub.name, broadcast: broadcast, item: item, value: js( obj ) } ); 
+				if( js( obj ) ) 
+					App.hub.send( { type: 'json', name: App.hub.name, broadcast: broadcast, item: item, value: js( obj ) } ); 
 				return;
 			}
 
