@@ -12,6 +12,13 @@ class List {
 		if ( this.debug_info ) this.print();
 	}
 
+	clear() {
+		this.items = [];
+		this.names = [];
+		this.checked = [];
+		this.current = -1;
+	}
+
 	add( item, name = undefined, checked = true ) {
 
 		if( Array.isArray(item) )
@@ -36,6 +43,12 @@ class List {
 			}
 
 		if ( this.debug_info ) this.print();
+	}
+
+	find( name ) {
+		for( let i = 0; i < this.items.length; i++ )
+			if( this.items[i].name == name ) return this.items[i];
+		return undefined;
 	}
 
 	print( only_current = false) {

@@ -12,6 +12,8 @@ class App {
 			App.fov = 50;
 			App.far = 100;
 			App.fog = 0.2;
+			App.avatar = undefined;
+			App.avatars = new List('App.avatars');
 		}
 		
 		Actions.init();
@@ -39,39 +41,43 @@ class App {
 		App.add_gui_elements();
 	
 	//	App.world.scene.add( box( 1, V(0, 1, 0), V0, mat('basic'), true ) );
+		
+		
 		resize();
 		App.update();
 		
 	}
 
-	static add_avatars() {
+	// static add_avatars() {
 		
-		App.avatars = new List();
-		for( let i = 0; i < 1; i++ ) {
-			App.avatars.add( new Avatar('avatar' + i ) );
-			//if( i > 0 ) 
-			{
-				App.avatars.item().root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
-				App.avatars.item().root.rotation.set(0, rf(0, wPI), 0);
-			}
-		}
+	// 	App.avatar = undefined;
 
-		App.avatars.current = 0;
+	// 	App.avatars = new List();
+	// 	for( let i = 0; i < 1; i++ ) {
+	// 		App.avatars.add( new Avatar('avatar' + i ) );
+	// 		//if( i > 0 ) 
+	// 		{
+	// 			App.avatars.item().root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
+	// 			App.avatars.item().root.rotation.set(0, rf(0, wPI), 0);
+	// 		}
+	// 	}
 
-		Events.bind( 'keydown', 'App.avatars.next', ['m'] );
-		Events.bind( 'keydown', 'App.avatars.item().joints.prev', ['b'] );
-		Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
+	// 	App.avatars.current = 0;
 
-		//Events.debug_info = true;
-			Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
-		//Events.debug_info = false;
-	}
+	// 	Events.bind( 'keydown', 'App.avatars.next', ['m'] );
+	// 	Events.bind( 'keydown', 'App.avatars.item().joints.prev', ['b'] );
+	// 	Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
 
-	static kill_avatars() {
-		App.avatars.items.forEach( avatar => { App.world.scene.remove( avatar.root ); });
-		App.avatars = undefined;
-		Events.init();
-	}
+	// 	//Events.debug_info = true;
+	// 		Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
+	// 	//Events.debug_info = false;
+	// }
+
+	// static kill_avatars() {
+	// 	App.avatars.items.forEach( avatar => { App.world.scene.remove( avatar.root ); });
+	// 	App.avatars = undefined;
+	// 	Events.init();
+	// }
 
 	static add_animations() {
 
@@ -147,7 +153,6 @@ class App {
 	}
 
 	static add_gui_elements() {
-
 		App.gui = new List();
 		App.gui.add( new EditBox( 'EditBox0', '', [], 1, 10, 60 ) );
 		App.gui.add( new EditBox( 'EditBox1', '', undefined, -1, 0, 10 ) );
@@ -167,13 +172,19 @@ class App {
 		//for( let i = 0; i < App.avatars.items.length; i++) App.avatars.items[i].update();
 		//log( App.avatars );
 
-		if( App.avatars != undefined ) {
-			let current_avatar = App.avatars.item();
-			if( current_avatar != undefined ) {
-				current_avatar.update();
-				App.camera.update( current_avatar.root );
-			}
-		} else App.camera.update( { position: V(0, 0.8, 0) } );
+		// if( App.avatars != undefined ) {
+		// 	let current_avatar = App.avatars.item();
+		// 	if( current_avatar != undefined ) {
+		// 		current_avatar.update();
+		// 		App.camera.update( current_avatar.root );
+		// 	}
+		// } else App.camera.update( { position: V(0, 0.8, 0) } );
+
+		if( App.avatar != undefined ) {
+			App.avatar.update();
+			App.camera.update( App.avatar.root );
+		} else 
+			App.camera.update( { position: V(0, 0.8, 0) } );
 
 		//App.physics.update();
 
@@ -189,6 +200,7 @@ class App {
 	static input( cmd ) {
 		
 		if( App.hub.state == 'logout' ) {
+			if( App.debug ) log( 'auto login as ' + cmd );
 			App.hub.name = cmd;
 			App.hub.send( { type: 'login', name: App.hub.name, pass: undefined } );
 			App.gui.item(0).shift();

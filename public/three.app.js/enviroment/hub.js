@@ -23,42 +23,117 @@ class Hub {
 				case 'message':
 					App.gui.item(0).add( data.name + ': ' + data.text );
 					break;
-
+				
 				case 'id':	
 					if( App.id == undefined ) {
 						App.id = data.id;
+						document.title = App.id;
 						App.hub.send( { type: 'id', text: 'new' } );
+
+						// Auto login in debug mode 
+						if( App.debug ) App.input( ("00" + ri(0, 999)).slice(-2) );
+
 					} else {
 						let _id = App.id;
 						App.id = data.id;
 						App.hub.send( { type: 'id', text: 'update', _id: _id } );
-						if(App.hub.state == 'login' ) {
-							App.kill_avatars();
+						if( App.hub.state == 'login' ) {
+							App.world.scene.remove( App.avatar.root );
+							App.avatar = undefined;
 							App.hub.send( { type: 'login', name: App.hub.name } );
 						}
 					}
+					
+					document.title = 'logout';
 					log( 'ID = ' + App.id );
+
+					if( data.room != undefined ) {
+						log(data.room, false);
+						App.avatars.clear();
+						data.room.forEach( member => {
+							let avatar = new Avatar( member.name )
+							App.avatars.add( avatar );
+							App.world.scene.add( avatar.root );
+						});
+					}
+
 					break;
 				
-				case 'ping':
+				case 'ping': {
 					App.hub.send( { type: 'pong' } );
 					break;
+				}
 				
-				case 'login':
-					App.hub.state = 'login';
-					App.add_avatars();
-					break;
-				
-				case 'logout':
-					App.hub.state = 'logout';
-					App.hub.name = undefined;
-					App.kill_avatars();
-					break;
+				case 'login': {
+					//log( 'debug login: ' + App.hub.name + ' ??? ' + data.name);
+					if( App.hub.name == data.name ) {
+						App.hub.state = 'login';
+						document.title = App.hub.name;
+						App.avatar = new Avatar( App.hub.name );
+						App.avatar.root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
+						App.avatar.root.rotation.set( 0, rf(0, wPI), 0 );
+						App.world.scene.add( App.avatar.root );
+						App.avatar.save();
+					}
+					else {
+						App.gui.item(0).add( data.name + ': login' );
+						let avatar = new Avatar( data.name )
+						App.avatars.add( avatar );
+						App.world.scene.add( avatar.root );
 
-				case 'json':
-					log( data.id + ': ' + data.item + ' = ' + data.value );
-					ev( data.item + ' = ' + data.value );
+						log(App.avatars, false);
+					}
 					break;
+				}
+
+				case 'logout': {
+					//log( 'debug logout: ' + App.hub.name + ' ??? ' + data.name);
+					if( App.hub.name == data.name ) {
+						App.hub.state = 'logout';
+						App.world.scene.remove( App.avatar.root );
+						App.avatar = undefined;
+						document.title = 'logout';
+						App.hub.name = undefined;
+					} 
+					else {
+						App.gui.item(0).add( data.name + ': logout' );
+						let avatar = App.avatars.find( data.name );
+						if( avatar ) {
+							App.world.scene.remove( avatar );
+							App.avatars.del( avatar );
+						}
+
+						log(App.avatars, false);
+					}
+					break;
+				}
+
+				case 'json': {
+					
+					if( data.name == App.hub.name ) {
+						//log( 'Resore?: ' + js(data) );
+					}
+					else {
+						//let i =
+						data.item = data.item.replace( 
+							'App.avatar', 
+							'App.avatars.find("' + data.name + '")' );
+
+						
+						// let obj = ev(data.item);	
+						// log(obj, false);
+						// log( 'Update?: ' + js(data) );
+						
+					}
+					//log( data.id + ': ' + data.item + ' = ' + data.value );
+					//ev( data.item + ' = ' + data.value );
+					break;
+				}
+
+				// case 'move': {
+				// 	log( data );
+				// 	break;
+				// }
 
 				default:
 					break;
@@ -73,20 +148,21 @@ class Hub {
 			this.socket.emit( 'fromcli', data );
 		};
 
-		this.send_item = function( item ) {
+		this.send_item = function( item, broadcast ) {
 			
+			if( App.hub.name == undefined ) { log('Send item error: cant send item in logout mode '); return; }
 			let obj = eval( item );
 			let keys = Object.keys( obj );
 
 			if( keys.length == 0 ) {
-				if( js( obj ) ) App.hub.send( { item: item, value: js( obj ), type: 'json' } ); 
+				if( js( obj ) ) App.hub.send( { type: 'json', name: App.hub.name, broadcast: broadcast, item: item, value: js( obj ) } ); 
 				return;
 			}
 
 			keys.forEach( k => { 
 				if( k.startsWith('_') ) k = k.substr(1);
 				try { 
-					this.send_item( item + '.' + k ); 
+					this.send_item( item + '.' + k, broadcast ); 
 				} catch( e ) {}
 			});
 		}

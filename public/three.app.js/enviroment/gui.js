@@ -55,7 +55,6 @@ class EditBox extends GUIElement {
 		if( this.tabIndex == -1 ) { document.body.focus(); return; } 
 		Keyboard.enabled = false;
 		this.style.opacity = '0.80';
-		
 	}
 
 	onblur( event ) { 

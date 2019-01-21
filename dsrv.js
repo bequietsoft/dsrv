@@ -116,9 +116,12 @@ function rk( length = 4 ) {
 	return r;
 }
 
-function log( message = undefined ) {
-	if ( message == undefined ) message = '';
-	console.log( ts() + '  ' + message );
+function log( message = undefined, timestamp = true ) {
+	if( message == undefined ) message = '';
+	if( timestamp ) 
+		console.log( ts() + '  ' + message );
+	else
+		console.log( message );
 }
 
 function now() {
@@ -272,27 +275,49 @@ function update() {
 io( server ).on( 'connection', function( socket ) { 
 
 	log( 'open connection ' + socket.id );
+	
+	let items = db_get_items( connections_path );
+	let room = [];
+	if( items != undefined ) {
+		for( let i = 0; i < items.length; i++ )
+			if( items[i].state == 'login')
+				room.push( { name: items[i].name } );
+	} else room = undefined;
+	//log(items, false);
+	//log(room, false);
+
 	sockets.push( socket );
-	socket.emit( 'tocli', { type: 'id', id: socket.id } );
+	socket.emit( 'tocli', { type: 'id', id: socket.id, room: room } );
 	
 	socket.on( 'fromcli', function ( data ) {
 		
 		let connection = db_get_item_by_id( connections_path, data.id );
-		
+		//if( connection == undefined ) return;
+
 		switch( data.type ) {
 
 			case 'login': {
 				if( connection != undefined )
 					if( connection.id == socket.id && connection.state == 'logout' )
 						if( data.id == socket.id && data.name != undefined ) {
-							let message = { type: 'message', name: data.name, text: 'login' };
+							let message = { type: 'login', name: data.name, text: 'login' };
 							connection.state = 'login';
 							connection.name = data.name;
 							connection.time = now();
 							db_rewrite( connections_path, connection.id, connection );
 							socket_broadcast( connection.id, 'tocli', message );
-							socket_send( connection.id, 'tocli', { type: 'login' } );
-							log( data.name + ': ' + message.text );
+							socket_send( connection.id, 'tocli', message );//{ type: 'login' } );
+							log( data.name + ': login' );
+
+							// let exist_connections = db_get_items( connections_path );
+							// exist_connections.forEach( exist_connection => {
+							// 	if( exist_connection.state == 'login' )
+							// 		if (exist_connection.id != connection.id) {
+							// 			let message = message = { type: 'login', name: data.name, text: 'login' };
+							// 			socket_send( connection.id, 'tocli', message );
+							// 		}
+							// });
+						
 						}
 				break;
 			}
@@ -301,14 +326,15 @@ io( server ).on( 'connection', function( socket ) {
 				if( connection != undefined )
 					if( connection.id == socket.id && connection.state == 'login' )
 						if( data.id == socket.id && data.name != undefined ) {
-							let message = { type: 'message', name: data.name, text: 'logout' };
+							let message = { type: 'logout', name: data.name, text: 'logout' };
 							connection.state = 'logout';
 							connection.name = 'anonimous';
+							connection.storage = [];
 							connection.time = now();
 							db_rewrite( connections_path, connection.id, connection );
 							socket_broadcast( connection.id, 'tocli', message );
-							socket_send( connection.id, 'tocli', { type: 'logout' } );
-							log( data.name + ': ' + message.text );
+							socket_send( connection.id, 'tocli', message );//{ type: 'logout' } );
+							log( data.name + ': logout' );
 						}
 				break;
 			}
@@ -364,6 +390,10 @@ io( server ).on( 'connection', function( socket ) {
 						//log( connection.name + ': ' + data.item + ' create');
 					}
 					db_rewrite( connections_path, data.id, connection );
+
+					if( data.broadcast == 'all' ) {
+						socket_broadcast( connection.id, 'tocli', data );
+					}
 				}
 			}
 

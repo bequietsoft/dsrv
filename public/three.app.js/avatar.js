@@ -3,7 +3,7 @@ class Avatar {
     constructor( name = 'default_name' ) {
 
 		//log( 'Create ' + name );
-
+		this.name = name;
 		this.root = new THREE.Object3D();
 		this.root.name = name;
 		this.root.position.set ( 0, 0.8, 0 );
@@ -20,7 +20,7 @@ class Avatar {
 		//this.joints.debug_info = true;
 
 		//this.add_helpers();
-		App.world.scene.add ( this.root );
+		//App.world.scene.add ( this.root );
 		
 		//log( this.root );
     }
@@ -264,6 +264,8 @@ class Avatar {
 	// controls:
 	update_mouse() {
 
+		//log(this, false);
+
 		if( Keyboard.ctrl[0] == false ) {
 			
 			// rotate camera
@@ -275,10 +277,8 @@ class Avatar {
 			// wheel
 			if( Mouse.wheel != 0 ) {
 				
-				this.active_joint = App.avatars.item().joints.item();
-				
+				this.active_joint = this.joints.item();
 				let joints_edit = false;
-
 				if( this.active_joint != undefined ) {
 					if( Keyboard.key_time('X') > 0 ) { this.active_joint.x += Mouse.wheel / 500; joints_edit = true; }
 					if( Keyboard.key_time('Y') > 0 ) { this.active_joint.y += Mouse.wheel / 500; joints_edit = true; }
@@ -301,8 +301,9 @@ class Avatar {
 	}
 
 	save() {
-		App.hub.send_item( 'App.avatars.item().root.position' );
-		App.hub.send_item( 'App.avatars.item().root.rotation.y' );
+		//log(this, false);
+		App.hub.send_item( 'App.avatar.root.position', 'all' );
+		App.hub.send_item( 'App.avatar.root.rotation.y', 'all' );
 	}
 
     update () {

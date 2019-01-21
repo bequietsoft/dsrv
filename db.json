@@ -1,3 +1,52 @@
 {
-    "connections": []
+    "connections": [
+        {
+            "time": "Mon Jan 21 2019 16:58:11 GMT+0700 (GMT+07:00)",
+            "id": "cWzOS31C57jBjxnOAAAD",
+            "name": "66",
+            "state": "login",
+            "storage": [
+                {
+                    "item": "App.avatar.root.position.x",
+                    "value": "4.96269061547059"
+                },
+                {
+                    "item": "App.avatar.root.position.y",
+                    "value": "0.8"
+                },
+                {
+                    "item": "App.avatar.root.position.z",
+                    "value": "-2.3672098677990294"
+                },
+                {
+                    "item": "App.avatar.root.rotation.y",
+                    "value": "2.887224325370248"
+                }
+            ]
+        },
+        {
+            "time": "Mon Jan 21 2019 16:58:11 GMT+0700 (GMT+07:00)",
+            "id": "Hlv5_0o3E6fss_L1AAAC",
+            "name": "90",
+            "state": "login",
+            "storage": [
+                {
+                    "item": "App.avatar.root.position.x",
+                    "value": "-4.10990510773364"
+                },
+                {
+                    "item": "App.avatar.root.position.y",
+                    "value": "0.8"
+                },
+                {
+                    "item": "App.avatar.root.position.z",
+                    "value": "3.932601920593566"
+                },
+                {
+                    "item": "App.avatar.root.rotation.y",
+                    "value": "0.539410640685136"
+                }
+            ]
+        }
+    ]
 }

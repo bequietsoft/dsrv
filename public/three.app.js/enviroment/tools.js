@@ -1,9 +1,9 @@
 // loging
-function log( message = undefined, ts = true ) {
+function log( message = undefined, timestamp = true ) {
 	if( !App.debug ) return;
 	if( message == undefined ) message = '';
 	
-	if( ts ) 
+	if( timestamp ) 
 		console.log( ts() + '  ' + message );
 	else 
 		console.log( message );
@@ -110,17 +110,17 @@ function r2d( rad ) {
 	return rad * 180 / Math.PI;
 }
 
-// random float value 0..1
-function r1() { 
-	return getRandomFloor( 0, 1 ); 
-}
+// // random float value 0..1
+// function r1() { 
+// 	return rf( 0, 1 ); 
+// }
 
 // random floor value
 function rf( min = 0, max = 1 ) {
     return Math.random() * ( max - min ) + min;
 }
 
-// random float value
+// random integer value
 function ri( min = 0, max = 1 ) {
   return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
 }
