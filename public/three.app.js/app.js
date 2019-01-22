@@ -12,8 +12,7 @@ class App {
 			App.fov = 50;
 			App.far = 100;
 			App.fog = 0.2;
-			//App.avatar = undefined;
-			//App.avatars = new List('App.avatars');
+			App.avatar = undefined;
 		}
 		
 		Actions.init();
@@ -32,12 +31,7 @@ class App {
 
 		App.camera = new Camera();
 		App.camera.target.rotateZ( -Math.PI/10 );
-		//App.world.scene.add( App.camera.tank );
-		//this.picker = new Picker();
-		/////App.mouse._onmove = App.pick;
-	
-		//App.add_avatars();
-		//App.add_animations();
+		
 		App.add_gui_elements();
 	
 		resize();

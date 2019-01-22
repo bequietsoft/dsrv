@@ -10,19 +10,21 @@ class Hub {
 		this.socket.io._reconnectionDelay = 5000;
 		this.socket.on( 'connect_error', function (data) {
 			log( 'connection error ' + js(data) );
-		});
+		} );
 	
 		this.socket.on( 'tocli', function ( data ) {
 			
-			if( this.debug ) log( 'data: ' + js(data) );
+			if( this.debug && data.type != 'ping' ) log( 'data: ' + js(data) );
 
 			switch( data.type ) {
 				
-				case 'message':
+				case 'message': {
 					App.gui.item(0).add( data.name + ': ' + data.text );
 					break;
+				}
 				
-				case 'id':	
+				case 'id': {
+
 					if( App.id == undefined ) {	
 						App.id = data.id;
 						document.title = App.id;
@@ -31,26 +33,23 @@ class Hub {
 						// Auto login in debug mode 
 						if( App.debug ) App.input( ("00" + ri(0, 999)).slice(-2) );
 
-						
 					} else {
 						let _id = App.id;
 						App.id = data.id;
 						App.hub.send( { type: 'id', text: 'update', _id: _id } );
 					}
 					
-					document.title = 'logout';
+					document.title = 'anonimous';
 					log( 'ID = ' + App.id );
 					
-					//App.avatars.clear();
-					
-					if( data.room != undefined ) {
-						log( data.room, false );
-						log( 'content: ', false );
-						log( App.world.content.items, false );
-						log();
-					}
+					if( data.room != undefined ) 
+						if( data.room.length > 0 ) {
+							log( 'id: room = ' + js(data.room) );
+							log( 'id: content = ' + js(App.world.content.names) );
+						}
 
 					break;
+				}
 				
 				case 'ping': {
 					App.hub.send( { type: 'pong' } );
@@ -58,12 +57,23 @@ class Hub {
 				}
 				
 				case 'login': {
-				
-					if( App.world.add( new Avatar( data.name ) ) ) 
-						log( data.name + ': login' );
+					
+					let avatar = new Avatar( data.name );
+					App.world.add( avatar );
+					log( data.name + ': login' );
+					avatar.root.position.set( rf(-5, 5), 0, rf(-5, 5) );
+
+					if( data.room != undefined ) {
+						//log( data.room, false );
+						data.room.forEach( item => {
+							log( item.name + ': present' );
+							App.world.add( new Avatar( item.name ) );
+						});
+					}
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'login';
+						App.avatar = avatar;
 						document.title = App.hub.name;
 					}
 					break;
@@ -71,16 +81,35 @@ class Hub {
 
 				case 'logout': {
 					
+					log( data.name + ': logout' );
+
 					if( App.world.del( data.name ) ) log( data.name + ': logout' );
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'logout';
 						document.title = 'logout';
+						App.world.del( data.name );
+						App.avatar = undefined;
 						App.hub.name = undefined;
 					} 
 					break;
 				}
 
+				case 'vector': {
+					log( data.name + ': ' + data.path + ' = ' + js(data.vector) );
+					try {
+						let item = App.world.content.find( data.name );
+						//log( js(item) + '.' + data.path, false );
+						let item_vector = eval( item[ data.path ] );
+						log( item[ data.path ], false );
+						log( item_vector, false );
+						//log( v, false ); 
+						//log();
+					} catch( error ) { log( error ); }
+					break;
+				}
+
+				{
 				// case 'json': {
 					
 				// 	if( data.name == App.hub.name ) {
@@ -107,9 +136,9 @@ class Hub {
 				
 				// 	break;
 				// }
+				}
 
-				default:
-					break;
+				default: break;
 			}
 
 		});
@@ -118,14 +147,13 @@ class Hub {
 			if( App.id == undefined ) { log('Send error: app ID is undefined'); return; }
 			data.id = App.id;
 			this.socket.emit( 'fromcli', data );
-			// if( data.item != undefined )
-			// 	if( data.item.includes('rotation.y') ) log( 'send: ' + data.value );
 		};
 
-		this.send_vector = function( name, path, vector ) {
-			App.hub.send( { type: 'vector', name: name, path: path, vector: vector } );
+		this.send_vector = function( name, path, vector, sharing ) {
+			App.hub.send( { type: 'vector', name: name, path: path, vector: vector, sharing: sharing } );
 		}
 
+		{
 		// this.send_item = function( item, broadcast ) {
 			
 		// 	if( App.hub.name == undefined ) 
@@ -146,6 +174,7 @@ class Hub {
 		// 		} catch( e ) {}
 		// 	});
 		// }
+		}
 		
 	}
 }

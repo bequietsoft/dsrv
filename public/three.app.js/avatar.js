@@ -25,7 +25,6 @@ class Avatar {
 		//log( this.root );
     }
 
-
 	add_helpers () {
 		this.box = box( V( 0.4, 1.6, 0.7 ), V0, V0, mat( 'wire', this.color ), false );
 		this.root.add( this.box );
@@ -306,12 +305,12 @@ class Avatar {
 		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save( 'all' ); }		
 	}
 
-	save( broadcast ) {
+	save( sharing ) {
 		//log( 'value: ' + App.avatar.root.rotation.y );
 		// App.hub.send_item( 'App.avatar.root.position', broadcast );
 		// App.hub.send_item( 'App.avatar.root.rotation.y', broadcast );
-		//App.hub.send_vector( App.hub.name, 'root.position', App.avatar.root.position );
-		App.hub.send_vector( App.hub.name, 'root.rotation', App.avatar.root.rotation );
+		App.hub.send_vector( App.hub.name, 'root.position', App.avatar.root.position, sharing );
+		App.hub.send_vector( App.hub.name, 'root.rotation', App.avatar.root.rotation, sharing );
 	}
 
     update () {

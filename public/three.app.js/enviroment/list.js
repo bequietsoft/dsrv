@@ -62,7 +62,20 @@ class List {
 	}
 
 	item( index = this.current ) {
+		if( index == -1 ) return undefined;
 		return this.items[ index ];
+	}
+
+	get current_item() {
+		if( this.current == -1 ) return undefined;
+		return this.items[ this.current ];
+	}
+
+	get names() {
+		let result = [];
+		for( let i = 0; i < this.items.length; i++ ) 
+			result.push( items[i].name );
+		return result;
 	}
 	
 }

@@ -1,5 +1,6 @@
 function load() {
 	App.init();
+	document.title = 'anonimous';
 	document.addEventListener( "contextmenu", function(e) { e.preventDefault(); }, false );
 }
 

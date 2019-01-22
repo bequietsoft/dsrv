@@ -119,7 +119,7 @@ server.listen( port, function () {
 	log( 'development server listening on port ' + port + ':' );
 	db_update_path( connections_path );
 	
-	//setInterval( update_connections, 15000 );
+	setInterval( update_connections, 5000 );
 });
 
 function update_connections() {
@@ -152,7 +152,7 @@ function get_login_connections() {
 	let items = db_get_items( connections_path );
 	let room = [];
 	if( items != undefined ) {
-		log( 'items.length = ' +  items.length );
+		//log( 'items.length = ' +  items.length );
 		for( let i = 0; i < items.length; i++ )
 			if( items[i].state == 'login') room.push( { name: items[i].name } );
 	}
@@ -176,7 +176,7 @@ io( server ).on( 'connection', function( socket ) {
 				if( connection != undefined )
 					if( connection.id == socket.id && connection.state == 'logout' )
 						if( data.id == socket.id && data.name != undefined ) {
-							let message = { type: 'login', name: data.name };
+							let message = { type: 'login', name: data.name, room: get_login_connections() };
 							connection.state = 'login';
 							connection.name = data.name;
 							connection.time = now();
@@ -208,13 +208,7 @@ io( server ).on( 'connection', function( socket ) {
 			case 'id': {
  
 				if( connection == undefined ) {
-					let connection = { 
-						time: now(), 
-						id: socket.id, 
-						name: 'anonimous', 
-						state: 'logout', 
-						//storage: [] 
-					};
+					let connection = { time: now(), id: socket.id, name: 'anonimous', state: 'logout' };
 					db_add_item( connections_path, connection );
 				} 
 
@@ -243,48 +237,24 @@ io( server ).on( 'connection', function( socket ) {
 			}
 
 			case 'vector': {
-				log( js(data) );
-				socket_broadcast( connection.id, data );
+				if( data.sharing == 'all' ) socket_broadcast( connection.id, data );
 				break;
 			}
 
-			// case 'json': {
-				
-			// 	if( connection != undefined ) {
-			// 		let update = false;
-			// 		connection.storage.forEach( element => {
-			// 			if( element.item == data.item ) {
-			// 				element.value = data.value;
-			// 				//log( connection.name + ': ' + data.item + ' update');
-			// 				update = true;
-			// 			} 
-			// 		});
-			// 		if( !update ) {
-			// 			connection.storage.push( { item: data.item, value: data.value } ); 
-			// 			//log( connection.name + ': ' + data.item + ' create');
-			// 		}
-			// 		db_rewrite( connections_path, data.id, connection );
-
-			// 		if( data.broadcast == 'all' ) {
-			// 			//log( js(data) );
-			// 			socket_broadcast( connection.id, 'tocli', data );
-			// 		}
-			// 	}
-			// }
-
-			default: {
-				//log( socket.id + ': ' + js(data) );
-				break;
-			}
+			default: break;
 		}
 		
 	});
 
 	socket.on( 'disconnect', function( data ) {
 		log( 'close connection ' + socket.id + ': ' + js(data) );
-		let message = { type: 'logout', name: data.name };
-		socket_broadcast( socket.id, 'tocli', message );
-		db_del_item_by_id( connections_path, socket.id );
+		let connection = db_get_item_by_id( connections_path, socket.id );
+		if( connection != undefined ) {
+			//log( js(connection), false );
+			let message = { type: 'logout', name: connection.name };
+			socket_broadcast( socket.id, message );
+			db_del_item_by_id( connections_path, socket.id );
+		}
 	});
 
 });
