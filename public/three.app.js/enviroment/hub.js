@@ -5,19 +5,17 @@ class Hub {
 		this.socket = io();
 		this.state = 'logout';
 		this.name = undefined;
+		this.debug = true;
 
-		//this.socket.io._reconnection = false;
 		this.socket.io._reconnectionDelay = 5000;
-		// log( this.socket );
-
-		// this.socket.on( 'connect_error', function (data) {
-		// 	log( 'connection error ' + js(data) );// + ' delay = ' + 
-		// 	//App.hub.socket.io._reconnectionDelay );
-		// });
+		this.socket.on( 'connect_error', function (data) {
+			log( 'connection error ' + js(data) );
+		});
 	
 		this.socket.on( 'tocli', function ( data ) {
 			
-			//log( data );
+			if( this.debug ) log( 'data: ' + js(data) );
+
 			switch( data.type ) {
 				
 				case 'message':
@@ -25,7 +23,7 @@ class Hub {
 					break;
 				
 				case 'id':	
-					if( App.id == undefined ) {
+					if( App.id == undefined ) {	
 						App.id = data.id;
 						document.title = App.id;
 						App.hub.send( { type: 'id', text: 'new' } );
@@ -33,15 +31,11 @@ class Hub {
 						// Auto login in debug mode 
 						if( App.debug ) App.input( ("00" + ri(0, 999)).slice(-2) );
 
+						
 					} else {
 						let _id = App.id;
 						App.id = data.id;
 						App.hub.send( { type: 'id', text: 'update', _id: _id } );
-						if( App.hub.state == 'login' ) {
-							App.world.scene.remove( App.avatar.root );
-							App.avatar = undefined;
-							App.hub.send( { type: 'login', name: App.hub.name } );
-						}
 					}
 					
 					document.title = 'logout';
@@ -49,16 +43,12 @@ class Hub {
 					
 					//App.avatars.clear();
 					
-					// if( data.room != undefined ) {
-					// 	//log(data.room, false);
-					// 	App.avatars.clear();
-					// 	data.room.forEach( member => {
-					// 		let avatar = new Avatar( member.name )
-					// 		App.avatars.add( avatar );
-					// 		App.world.scene.add( avatar.root );
-					// 		App.gui.item(0).add( member.name + ': already in room' );
-					// 	});
-					// }
+					if( data.room != undefined ) {
+						log( data.room, false );
+						log( 'content: ', false );
+						log( App.world.content.items, false );
+						log();
+					}
 
 					break;
 				
@@ -68,69 +58,55 @@ class Hub {
 				}
 				
 				case 'login': {
-					//log( 'debug login: ' + App.hub.name + ' ??? ' + data.name);
+				
+					if( App.world.add( new Avatar( data.name ) ) ) 
+						log( data.name + ': login' );
+
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'login';
 						document.title = App.hub.name;
-						App.avatar = new Avatar( App.hub.name );
-						App.avatar.root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
-						//App.avatar.root.rotation.set( 0, rf(0, wPI), 0 );
-						App.world.scene.add( App.avatar.root );
-						App.avatar.save( 'all' );
-					}
-					else {
-						App.gui.item(0).add( data.name + ': login' );
-						let avatar = new Avatar( data.name )
-						App.avatars.add( avatar );
-						App.world.scene.add( avatar.root );
-
-						log( data.name + ' login avatars =' +  App.avatars.items.length );
 					}
 					break;
 				}
 
 				case 'logout': {
-					//log( 'debug logout: ' + App.hub.name + ' ??? ' + data.name);
+					
+					if( App.world.del( data.name ) ) log( data.name + ': logout' );
+
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'logout';
-						App.world.scene.remove( App.avatar.root );
-						App.avatar = undefined;
 						document.title = 'logout';
 						App.hub.name = undefined;
 					} 
-					else {
-						App.gui.item(0).add( data.name + ': logout' );
-						let avatar = App.avatars.find( data.name );
-						if( avatar ) {
-							App.world.scene.remove( avatar );
-							App.avatars.del( avatar );
-						}
-
-						log( data.name + ' logout avatars =' +  App.avatars.items.length );
-					}
 					break;
 				}
 
-				case 'json': {
+				// case 'json': {
 					
-					// log( data, false );
+				// 	if( data.name == App.hub.name ) {
+				// 		// restore data 
+				// 	}
+				// 	else {
 
-					if( data.name == App.hub.name ) {
-						//log( 'Resore?: ' + js(data) );
-					}
-					else {
+				// 		data.item = data.item.replace( 
+				// 			'App.avatar', 
+				// 			'App.avatars.find("' + data.name + '")' );
+						
+						
 
-						data.item = data.item.replace( 
-							'App.avatar', 
-							'App.avatars.find("' + data.name + '")' );
-						ev( data.item + ' = ' + data.value );
-						// if ( ev( data.item + ' = ' + data.value ) )
-						// 	log( data.name + ' moving' );
-					}
-					//log( data.id + ': ' + data.item + ' = ' + data.value );
-					//ev( data.item + ' = ' + data.value );
-					break;
-				}
+				// 		//ev( data.item + ' = ' + data.value );
+						
+				// 		if( data.item.includes('rotation.y') ) {
+				// 			log( 'recive1: ' + data.value + ' --- ' + target.rotation.y );
+				// 			let target = App.avatars.find(data.name).root;
+				// 			target.rotation.set( 0, eval(data.value), 0 );
+				// 			log( 'recive2: ' + data.value + ' --- ' + target.rotation.y );
+				// 		} 
+				// 		else ev( data.item + ' = ' + data.value );
+				// 	}
+				
+				// 	break;
+				// }
 
 				default:
 					break;
@@ -139,33 +115,37 @@ class Hub {
 		});
 
 		this.send = function( data ) {
-			if( App.id == undefined ) 
-			{ log('Send error: app ID is undefined'); return; }
+			if( App.id == undefined ) { log('Send error: app ID is undefined'); return; }
 			data.id = App.id;
-			//if( data.broadcast != undefined ) log('btoadcast send: ' + js(data) );
 			this.socket.emit( 'fromcli', data );
+			// if( data.item != undefined )
+			// 	if( data.item.includes('rotation.y') ) log( 'send: ' + data.value );
 		};
 
-		this.send_item = function( item, broadcast ) {
-			
-			if( App.hub.name == undefined ) 
-			{ log('Send item error: cant send item in logout mode '); return; }
-			let obj = eval( item );
-			let keys = Object.keys( obj );
-
-			if( keys.length == 0 ) {
-				if( js( obj ) ) 
-					App.hub.send( { type: 'json', name: App.hub.name, broadcast: broadcast, item: item, value: js( obj ) } ); 
-				return;
-			}
-
-			keys.forEach( k => { 
-				if( k.startsWith('_') ) k = k.substr(1);
-				try { 
-					this.send_item( item + '.' + k, broadcast ); 
-				} catch( e ) {}
-			});
+		this.send_vector = function( name, path, vector ) {
+			App.hub.send( { type: 'vector', name: name, path: path, vector: vector } );
 		}
+
+		// this.send_item = function( item, broadcast ) {
+			
+		// 	if( App.hub.name == undefined ) 
+		// 	{ log('Send item error: cant send item in logout mode '); return; }
+		// 	let obj = eval( item );
+		// 	let keys = Object.keys( obj );
+
+		// 	if( keys.length == 0 ) {
+		// 		if( js( obj ) ) 
+		// 			App.hub.send( { type: 'json', name: App.hub.name, broadcast: broadcast, item: item, value: js( obj ) } ); 
+		// 		return;
+		// 	}
+
+		// 	keys.forEach( k => { 
+		// 		if( k.startsWith('_') ) k = k.substr(1);
+		// 		try { 
+		// 			this.send_item( item + '.' + k, broadcast ); 
+		// 		} catch( e ) {}
+		// 	});
+		// }
 		
 	}
 }

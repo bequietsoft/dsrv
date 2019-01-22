@@ -12,10 +12,10 @@ class Avatar {
 		this.joints = new List( name + 'joints' );
 		this.joints.add( this.root.rotation, 'root' );
 		
-		//this.test_minimum_cinc();
+		this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		this.simple_men();
+		//this.simple_men();
 		
 		//this.joints.debug_info = true;
 
@@ -33,13 +33,19 @@ class Avatar {
 
 	test_minimum_cinc() {
 		let data = Object.assign( {}, default_cincture_data );
-		data.scale = 0.5;
+		data.nodes = [	
+			0.60,	0.40,	0.40,	0.40,
+			0.60,	0.40,	0.40,	0.40
+		];
+		//data.scale = 0.5;
 		//data.material = tmat('images/test00.jpg');
         let cinc = new Cincture ( data );	
 		this.root.add( cinc.mesh );
 		
 		this.test = cinc;
 		this.add_bones_to_joints_list( this.test );
+
+		this.root.position.set ( 0, 0, 0 );
 	}
 
 	test_head_cinc() {
@@ -301,9 +307,11 @@ class Avatar {
 	}
 
 	save( broadcast ) {
-		//log( his, false );
-		App.hub.send_item( 'App.avatar.root.position', broadcast );
-		App.hub.send_item( 'App.avatar.root.rotation.y', broadcast );
+		//log( 'value: ' + App.avatar.root.rotation.y );
+		// App.hub.send_item( 'App.avatar.root.position', broadcast );
+		// App.hub.send_item( 'App.avatar.root.rotation.y', broadcast );
+		//App.hub.send_vector( App.hub.name, 'root.position', App.avatar.root.position );
+		App.hub.send_vector( App.hub.name, 'root.rotation', App.avatar.root.rotation );
 	}
 
     update () {

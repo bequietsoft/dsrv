@@ -1,7 +1,8 @@
 // loging
 function log( message = undefined, timestamp = true ) {
+	
 	if( !App.debug ) return;
-	if( message == undefined ) message = '';
+	if( message == undefined ) { message = ''; timestamp = false; }
 	
 	if( timestamp ) 
 		console.log( ts() + '  ' + message );

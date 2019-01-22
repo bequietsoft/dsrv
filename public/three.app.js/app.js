@@ -12,8 +12,8 @@ class App {
 			App.fov = 50;
 			App.far = 100;
 			App.fog = 0.2;
-			App.avatar = undefined;
-			App.avatars = new List('App.avatars');
+			//App.avatar = undefined;
+			//App.avatars = new List('App.avatars');
 		}
 		
 		Actions.init();
@@ -24,10 +24,10 @@ class App {
 		Renderer.init();
 		
 		App.hub = new Hub();
-		//App.audio = new Audio();
 		App.fps = new Fps();
 		App.world = new World();
 		App.lights = new Lights();
+		//App.audio = new Audio();
 		//App.physics = new Physics();
 
 		App.camera = new Camera();
@@ -40,9 +40,6 @@ class App {
 		//App.add_animations();
 		App.add_gui_elements();
 	
-	//	App.world.scene.add( box( 1, V(0, 1, 0), V0, mat('basic'), true ) );
-		
-		
 		resize();
 		App.update();
 		
@@ -166,33 +163,19 @@ class App {
 
 		Mouse.update();
 		Actions.update();	
-		//App.audio.update();
 		App.fps.update();
-		
-		//for( let i = 0; i < App.avatars.items.length; i++) App.avatars.items[i].update();
-		//log( App.avatars );
-
-		// if( App.avatars != undefined ) {
-		// 	let current_avatar = App.avatars.item();
-		// 	if( current_avatar != undefined ) {
-		// 		current_avatar.update();
-		// 		App.camera.update( current_avatar.root );
-		// 	}
-		// } else App.camera.update( { position: V(0, 0.8, 0) } );
+		//App.audio.update();
+		//App.physics.update();
 
 		if( App.avatar != undefined ) {
 			App.avatar.update();
 			App.camera.update( App.avatar.root );
 		} else 
 			App.camera.update( { position: V(0, 0.8, 0) } );
-
-		//App.physics.update();
-
+		
 		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
 		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
 		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
-
-		//log(App.avatars.item().root.rotation.y);
 
 		Renderer.update();
 	}

@@ -3,7 +3,7 @@ class World {
 	constructor() {
 		
 		this.scene = new THREE.Scene();
-		this.content = [];
+		this.content = new List( 'content', true );
 
 		this.root = new THREE.Object3D();
 		//this.root.pickable = false;
@@ -37,10 +37,21 @@ class World {
 			this.root.add( grid );
 	}
 
-	add( mesh, name, pickable ) {
-		mesh.name = name;
-		mesh.pickable = pickable;
-		App.world.content.push( mesh );
+	add( item ) {
+		log( this, false );
+		let item = this.content.find( item.name );
+		if( item != undefined ) return false;
+		this.content.add( item );
+		//log( this.content );
+		return true;
+	}
+
+	del( name ) {
+		let item = this.content.find( name );
+		if( item == undefined ) return false;
+		this.content.del( item );
+		//log( this.content );
+		return true;
 	}
 }
 

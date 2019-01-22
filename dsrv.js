@@ -4,10 +4,11 @@ var io = require( 'socket.io' );
 var path = require( 'path' ); 
 var fs = require( 'fs' );
 
-var jsondb = require( 'node-json-db' );
-var db = new jsondb( "db", true, true );
+require('./server/tools.js')();
+require('./server/db.js')();
 
 var debug = true;
+var send_show = false;
 
 var port = 3000;
 var root = __dirname;
@@ -20,7 +21,6 @@ var sockets = [];
 // #region send
 
 function sendFile( file ) {
-	//var stat = fs.statSync( file );
     this.writeHead( 200 );
 	fs.createReadStream( file ).pipe( this );
 }
@@ -33,15 +33,12 @@ function sendData( data ) {
 
 var sfiles = [];
 function scanDir( dir ) {
-	//console.log('dir: ' + dir);
 	fs.readdirSync( dir ).forEach( function( file ) {
 		var stat = fs.statSync( "" + dir + "\\" + file );
 		if( stat.isDirectory() )
 			return scanDir( "" + dir + "\\" + file );
-		else {
-			//console.log( '\t' + "" + dir + "\\" + file );
+		else 
 			return sfiles.push( "" + dir + "\\" + file );
-		}
 	});
 }
 
@@ -49,7 +46,7 @@ function send( item, response ) {
 	fs.stat( item, function( err, stat ) {
 		if( err == null ) {
 			if( stat.isFile() ) {
-				console.log( 'send file: ' + path.basename(item) );
+				if( send_show ) log( 'send file: ' + path.basename(item) );
 				response.sendFile( item );
 			} else {
 				let t = Date.now();
@@ -66,82 +63,16 @@ function send( item, response ) {
 							data += fs.readFileSync( file, "utf8" ) + '\n\n';
 				}
 				let dt = ( Date.now() - t ) / 1000;
-				console.log( 'send dir: ' + path.basename( item ) + ' (build time ' + dt + 
+				if( send_show ) log( 'send dir: ' + path.basename( item ) + ' (build time ' + dt + 
 					' sec., used part-files ' + ( sfiles.length - ignored ) + '/' + sfiles.length + ')' );
 				response.sendData( data );
 			}
 		} else { 
-			console.log( err.message );
+			log( err.message );
 			response.send( '' );
 		}
 	});
 }
-
-// #endregion
-
-// #region tools
-
-function mkdir( path ) {
-	try {
-		if( fs.existsSync( path ) ) return false;
-		fs.mkdirSync( path );
-		return true;
-	} catch( err ) { return false; } 
-}
-
-// JSON stingify 
-function js( obj ) {
-	return JSON.stringify( obj );
-}
-
-// JSON parse
-function jp( obj ) {
-	return JSON.parse( obj );
-}
-
-// JSON copy
-function jc( obj ) {
-	return JSON.parse( JSON.stringify( obj ) );
-}
-
-// random float value
-function ri( min = 0, max = 1 ) {
-	return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
-}
-
-// random string of digits (key)
-function rk( length = 4 ) {
-	let r = '';
-	for( let i=0; i<length; i++ ) r += ri( 0, 9 );
-	return r;
-}
-
-function log( message = undefined, timestamp = true ) {
-	if( message == undefined ) message = '';
-	if( timestamp ) 
-		console.log( ts() + '  ' + message );
-	else
-		console.log( message );
-}
-
-function now() {
-	let now = Date(Date.now());
-	return now;//now.Hours + ':' + now.Minutes + ':' + now.Seconds;
-}
-
-function ts() {
-	var d = new Date();
-	var h = ("0" + d.getHours()).slice(-2);
-	var m = ("0" + d.getMinutes()).slice(-2);
-	var s = ("0" + d.getSeconds()).slice(-2);
-	var ms = ("000" + d.getMilliseconds()).slice(-3);
-	return h + ':' + m + ':' + s + '.' + ms;
-}
-
-function sleep( ms ) {
-	ms += new Date().getTime();
-	while (new Date() < ms) {}
-} 
 
 // #endregion
 
@@ -152,77 +83,19 @@ function get_socket_index_by_id( id ) {
 	return -1;
 }
 
-function socket_send( id, event, data ) {
+function socket_send( id, data ) {
 	let index = get_socket_index_by_id( id );
 	if( index == -1 ) return;
-	sockets[ index ].emit( event, data );
+	sockets[ index ].emit( 'tocli', data );
 }
 
-function socket_broadcast( id, event, data ) {
+function socket_broadcast( id, data ) {
 	let index = get_socket_index_by_id( id );
 	if( index == -1 ) return;
-	sockets[ index ].broadcast.emit( event, data );
+	sockets[ index ].broadcast.emit( 'tocli', data );
 }
 
 // #endregion
-
-// #region db
-
-function db_get_items( path ) {
-	try { return  db.getData( path ); } catch (error) {}
-	return undefined;
-}
-
-function db_get_item_by_id( path, id ) {
-	let items = db_get_items( path );
-	let result = undefined;
-	items.forEach( item => { if( item.id == id ) result = item; } );
-	return result;
-}
-
-function db_clear( path ) {
-	let items = db_get_items( path );
-	if( Array.isArray( items ) ) 
-		for( let i = 0; i < items.length; i++ ) db.delete( path + '[-1]' );
-	else 
-		db.delete( path );
-}
- 
-function db_add_item( path, data ) {
-	let item = db_get_item_by_id( path, data.id );
-	//log( '   find exist item = ' + js(item) );
-	if( item != undefined ) { 
-		log( 'item with id ' + id + ' already exist: ' + js( item ) );
-		return false; 
-	}
-	db.push( path + '[]', data );
-	//log('ADD ' + now() );
-	return true; 
-}
- 
-function db_del_item_by_id( path, id ) {
-	let items = db_get_items( path );
-	for( let i = 0; i < items.length; i++ )
-		if( items[i].id == id ) {
-			db.delete( path + '[' + i + ']' );
-			return true;
-		}
-	return false;
-}
-
-function db_rewrite( path, id, data ) {
-	db_del_item_by_id( path, id );
-	db_add_item( path, data );
-}
-
-function db_update_path( path ) {
-	if( db_get_items( path ) == undefined ) 
-		db.push( path, [] );
-	else 
-		db_clear( path );
-}
-
-// #endregion  
 
 var server = http.createServer( function ( request, response ) {
 	
@@ -245,12 +118,12 @@ var server = http.createServer( function ( request, response ) {
 server.listen( port, function () {
 	log( 'development server listening on port ' + port + ':' );
 	db_update_path( connections_path );
-	setInterval( update_connections, 5000 );
+	
+	//setInterval( update_connections, 15000 );
 });
 
 function update_connections() {
-	
-	//log( 'update ' + now() );
+
 	let connections = db_get_items( connections_path );
 	if( connections != undefined ) 
 		if( connections.length != undefined ) 
@@ -267,7 +140,8 @@ function update_connections() {
 				
 				if( dt > 30000 ) {
 					log( 'kill connection ' + connection.id + ' by timeout' );
-					db.delete( connections_path + '[' + i + ']' );
+					//db.delete( connections_path + '[' + i + ']' );
+					db_del_item_by_id( connections_path, connection.id );
 					break;
 				}
 			}
@@ -295,7 +169,7 @@ io( server ).on( 'connection', function( socket ) {
 	socket.on( 'fromcli', function ( data ) {
 		
 		let connection = db_get_item_by_id( connections_path, data.id );
-		//if( connection == undefined ) return;
+		
 		switch( data.type ) {
 
 			case 'login': {
@@ -307,8 +181,8 @@ io( server ).on( 'connection', function( socket ) {
 							connection.name = data.name;
 							connection.time = now();
 							db_rewrite( connections_path, connection.id, connection );
-							socket_broadcast( connection.id, 'tocli', message );
-							socket_send( connection.id, 'tocli', message );
+							socket_broadcast( connection.id, message );
+							socket_send( connection.id, message );
 							log( data.name + ': login' );
 						}
 				break;
@@ -321,11 +195,11 @@ io( server ).on( 'connection', function( socket ) {
 							let message = { type: 'logout', name: data.name };
 							connection.state = 'logout';
 							connection.name = 'anonimous';
-							connection.storage = [];
+							//connection.storage = [];
 							connection.time = now();
 							db_rewrite( connections_path, connection.id, connection );
-							socket_broadcast( connection.id, 'tocli', message );
-							socket_send( connection.id, 'tocli', message );
+							socket_broadcast( connection.id, message );
+							socket_send( connection.id, message );
 							log( data.name + ': logout' );
 						}
 				break;
@@ -339,21 +213,22 @@ io( server ).on( 'connection', function( socket ) {
 						id: socket.id, 
 						name: 'anonimous', 
 						state: 'logout', 
-						storage: [] 
+						//storage: [] 
 					};
 					db_add_item( connections_path, connection );
 				} 
 
-				if( data.text == 'update' ) 
+				if( data.text == 'update' ) {
+					socket_broadcast( socket.id, { type: 'logout', name: data.name } );
 					db_del_item_by_id( connections_path, data._id );
+				}
 
 				break;
 			}
 
 			case 'pong': {
-				//let connection = db_get_item_by_id( connections_path, data.id );
 				connection.time = now();
-				db_rewrite( connections_path, data.id, connection );
+				db_rewrite( connections_path, data.id, connection ); // update time
 				break;
 			}
 
@@ -361,35 +236,41 @@ io( server ).on( 'connection', function( socket ) {
 				if( connection != undefined ) {
 					log( connection.name + ': ' + data.text );
 					let message = { type: 'message', name: connection.name, text: data.text };
-					socket_broadcast( connection.id, 'tocli', message );
-					socket_send( connection.id, 'tocli', message );
+					socket_broadcast( connection.id, message );
+					socket_send( connection.id, message );
 				}
 				break; 
 			}
 
-			case 'json': {
-				
-				if( connection != undefined ) {
-					let update = false;
-					connection.storage.forEach( element => {
-						if( element.item == data.item ) {
-							element.value = data.value;
-							//log( connection.name + ': ' + data.item + ' update');
-							update = true;
-						} 
-					});
-					if( !update ) {
-						connection.storage.push( { item: data.item, value: data.value } ); 
-						//log( connection.name + ': ' + data.item + ' create');
-					}
-					db_rewrite( connections_path, data.id, connection );
-
-					if( data.broadcast == 'all' ) {
-						//log( js(data) );
-						socket_broadcast( connection.id, 'tocli', data );
-					}
-				}
+			case 'vector': {
+				log( js(data) );
+				socket_broadcast( connection.id, data );
+				break;
 			}
+
+			// case 'json': {
+				
+			// 	if( connection != undefined ) {
+			// 		let update = false;
+			// 		connection.storage.forEach( element => {
+			// 			if( element.item == data.item ) {
+			// 				element.value = data.value;
+			// 				//log( connection.name + ': ' + data.item + ' update');
+			// 				update = true;
+			// 			} 
+			// 		});
+			// 		if( !update ) {
+			// 			connection.storage.push( { item: data.item, value: data.value } ); 
+			// 			//log( connection.name + ': ' + data.item + ' create');
+			// 		}
+			// 		db_rewrite( connections_path, data.id, connection );
+
+			// 		if( data.broadcast == 'all' ) {
+			// 			//log( js(data) );
+			// 			socket_broadcast( connection.id, 'tocli', data );
+			// 		}
+			// 	}
+			// }
 
 			default: {
 				//log( socket.id + ': ' + js(data) );
