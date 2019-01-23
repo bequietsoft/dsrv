@@ -299,16 +299,13 @@ class Avatar {
 	}
 
 	update_keyboard() {
-		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save( 'all' ); }
-		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save( 'all' ); }
-		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save( 'all' ); }
-		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save( 'all' ); }		
+		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
+		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
+		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }		
 	}
 
-	save( sharing ) {
-		//log( 'value: ' + App.avatar.root.rotation.y );
-		// App.hub.send_item( 'App.avatar.root.position', broadcast );
-		// App.hub.send_item( 'App.avatar.root.rotation.y', broadcast );
+	save( sharing = 'all' ) {
 		App.hub.send_vector( App.hub.name, 'root.position', App.avatar.root.position, sharing );
 		App.hub.send_vector( App.hub.name, 'root.rotation', App.avatar.root.rotation, sharing );
 	}

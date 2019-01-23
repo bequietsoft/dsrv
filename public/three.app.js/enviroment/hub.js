@@ -5,48 +5,55 @@ class Hub {
 		this.socket = io();
 		this.state = 'logout';
 		this.name = undefined;
-		this.debug = true;
+		this.debug = false;
 
 		this.socket.io._reconnectionDelay = 5000;
 		this.socket.on( 'connect_error', function (data) {
-			log( 'connection error ' + js(data) );
+			if( App.hub.debug ) log( 'connection error: ' + js(data) );
 		} );
 	
 		this.socket.on( 'tocli', function ( data ) {
 			
-			if( this.debug && data.type != 'ping' ) log( 'data: ' + js(data) );
+			if( App.hub.debug && data.type != 'ping' ) log( 'incoming data: ' + js(data) );
 
 			switch( data.type ) {
 				
 				case 'message': {
-					App.gui.item(0).add( data.name + ': ' + data.text );
+					App.log( data.name + ': ' + data.text );
 					break;
 				}
 				
 				case 'id': {
 
+					document.title = 'anonimous';
+
 					if( App.id == undefined ) {	
+						log( 'ID: ' + data.id );
 						App.id = data.id;
-						document.title = App.id;
 						App.hub.send( { type: 'id', text: 'new' } );
 
 						// Auto login in debug mode 
 						if( App.debug ) App.input( ("00" + ri(0, 999)).slice(-2) );
-
-					} else {
-						let _id = App.id;
-						App.id = data.id;
-						App.hub.send( { type: 'id', text: 'update', _id: _id } );
 					}
-					
-					document.title = 'anonimous';
-					log( 'ID = ' + App.id );
-					
-					if( data.room != undefined ) 
-						if( data.room.length > 0 ) {
-							log( 'id: room = ' + js(data.room) );
-							log( 'id: content = ' + js(App.world.content.names) );
+
+					if( App.id != undefined ) 
+						if( App.id != data.id ) {	
+							log( 'ID: ' + App.id + ' > ' + data.id );
+							let _id = App.id;
+							App.id = data.id;
+							// App.hub.send( { type: 'id', text: 'update', _id: _id } );
+							// App.input( App.hub.name );
+							App.hub.send( { type: 'login', name: App.hub.name, pass: undefined, _id: _id } );
 						}
+					
+					if( data.room != undefined ) {
+						data.room.forEach( item => {
+							if( item.name != App.hub.name ) {
+								App.log( item.name + ': in room' );
+								App.world.add( new Avatar( item.name ) );
+							}
+						});
+					}
 
 					break;
 				}
@@ -60,30 +67,29 @@ class Hub {
 					
 					let avatar = new Avatar( data.name );
 					App.world.add( avatar );
-					log( data.name + ': login' );
-					avatar.root.position.set( rf(-5, 5), 0, rf(-5, 5) );
-
-					if( data.room != undefined ) {
-						//log( data.room, false );
-						data.room.forEach( item => {
-							log( item.name + ': present' );
-							App.world.add( new Avatar( item.name ) );
-						});
-					}
+					App.log( data.name + ': login' );
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'login';
 						App.avatar = avatar;
+						avatar.root.position.set( rf(-5, 5), 0, rf(-5, 5) );
+						avatar.root.rotation.set( 0, rf(0, wPI), 0 );
+						App.avatar.save();
 						document.title = App.hub.name;
 					}
+
+					if( App.hub.name != data.name ) {
+						//App.log( 'Hello ' + data.name );
+						if( App.avatar != undefined ) App.avatar.save();
+					}
+
 					break;
 				}
 
 				case 'logout': {
 					
-					log( data.name + ': logout' );
-
-					if( App.world.del( data.name ) ) log( data.name + ': logout' );
+					App.log( data.name + ': logout' );
+					App.world.del( data.name );
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'logout';
@@ -96,16 +102,12 @@ class Hub {
 				}
 
 				case 'vector': {
-					log( data.name + ': ' + data.path + ' = ' + js(data.vector) );
 					try {
-						let item = App.world.content.find( data.name );
-						//log( js(item) + '.' + data.path, false );
-						let item_vector = eval( item[ data.path ] );
-						log( item[ data.path ], false );
-						log( item_vector, false );
-						//log( v, false ); 
-						//log();
-					} catch( error ) { log( error ); }
+						let vector = App.world.content.find( data.name );
+						let path = data.path.split('.');
+						for( let i = 0; i < path.length; i++) vector = vector[ path[i] ];
+						vector.set( data.vector.x, data.vector.y, data.vector.z );
+					} catch( error ) { if( App.hub.debug ) log('hub vector error: ' + js(error) ); }
 					break;
 				}
 
@@ -146,11 +148,13 @@ class Hub {
 		this.send = function( data ) {
 			if( App.id == undefined ) { log('Send error: app ID is undefined'); return; }
 			data.id = App.id;
+			if( App.hub.debug && data.type != 'pong' ) log( 'outcoming data: ' + js(data) );
 			this.socket.emit( 'fromcli', data );
 		};
 
 		this.send_vector = function( name, path, vector, sharing ) {
-			App.hub.send( { type: 'vector', name: name, path: path, vector: vector, sharing: sharing } );
+			let _vector = new THREE.Vector3( vector.x, vector.y, vector.z );
+			App.hub.send( { type: 'vector', name: name, path: path, vector: _vector, sharing: sharing } );
 		}
 
 		{

@@ -11,9 +11,9 @@ var debug = true;
 var send_show = false;
 
 var port = 3000;
-var root = __dirname;
-var public_dir = 'public';
-var index = 'index.html';
+var main_root = __dirname;
+var client_root = 'public';
+var default_page = 'index.html';
 var connections_path = '/connections';
 
 var sockets = [];
@@ -31,7 +31,7 @@ function sendData( data ) {
 	this.end( data );
 }
 
-var sfiles = [];
+var sfiles = []; // ?...
 function scanDir( dir ) {
 	fs.readdirSync( dir ).forEach( function( file ) {
 		var stat = fs.statSync( "" + dir + "\\" + file );
@@ -111,8 +111,8 @@ var server = http.createServer( function ( request, response ) {
 			}
 	}
 		
-	if( request.url == '/' ) request.url += index;
-	send( path.join( root, public_dir, request.url ), response );
+	if( request.url == '/' ) request.url += default_page;
+	send( path.join( main_root, client_root, request.url ), response );
 });
  
 server.listen( port, function () {
@@ -140,7 +140,6 @@ function update_connections() {
 				
 				if( dt > 30000 ) {
 					log( 'kill connection ' + connection.id + ' by timeout' );
-					//db.delete( connections_path + '[' + i + ']' );
 					db_del_item_by_id( connections_path, connection.id );
 					break;
 				}
@@ -173,7 +172,9 @@ io( server ).on( 'connection', function( socket ) {
 		switch( data.type ) {
 
 			case 'login': {
-				if( connection != undefined )
+				// log( js(connection), false );
+				// log( js(data), false );
+				if( connection != undefined ) {
 					if( connection.id == socket.id && connection.state == 'logout' )
 						if( data.id == socket.id && data.name != undefined ) {
 							let message = { type: 'login', name: data.name, room: get_login_connections() };
@@ -185,6 +186,25 @@ io( server ).on( 'connection', function( socket ) {
 							socket_send( connection.id, message );
 							log( data.name + ': login' );
 						}
+						
+				} else {
+					
+					//log( 'update1\n' + js(data) );
+					if(data._id != undefined) {
+						connection = db_get_item_by_id( connections_path, data._id );
+						if( connection != undefined ) {
+							log( 'update2\n' + js(connection) );
+							//let message = { type: 'login', name: data.name, room: get_login_connections() };
+							connection.state = 'login';
+							connection.name = data.name;
+							connection.time = now();
+							db_rewrite( connections_path, connection.id, connection );
+							// socket_broadcast( connection.id, message );
+							// socket_send( connection.id, message );
+							log( data.name + ': login update' );
+						}
+					}
+				}
 				break;
 			}
 
@@ -237,7 +257,15 @@ io( server ).on( 'connection', function( socket ) {
 			}
 
 			case 'vector': {
-				if( data.sharing == 'all' ) socket_broadcast( connection.id, data );
+
+				// if( connection == undefined ) 
+				// 	connection = db_get_item_by_id( connections_path, socket.id );
+					
+				if( connection != undefined ) {
+					//log('vector ' + js(connection));
+					if( data.sharing == 'all' ) socket_broadcast( connection.id, data );
+				}
+				
 				break;
 			}
 
@@ -247,7 +275,7 @@ io( server ).on( 'connection', function( socket ) {
 	});
 
 	socket.on( 'disconnect', function( data ) {
-		log( 'close connection ' + socket.id + ': ' + js(data) );
+		log( 'close connection ' + socket.id );// + ': ' + js(data) );
 		let connection = db_get_item_by_id( connections_path, socket.id );
 		if( connection != undefined ) {
 			//log( js(connection), false );

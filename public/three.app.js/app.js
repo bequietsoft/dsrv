@@ -30,13 +30,12 @@ class App {
 		//App.physics = new Physics();
 
 		App.camera = new Camera();
-		App.camera.target.rotateZ( -Math.PI/10 );
+		App.camera.target.rotateZ( -Math.PI/10 ); 
 		
 		App.add_gui_elements();
 	
 		resize();
 		App.update();
-		
 	}
 
 	// static add_avatars() {
@@ -145,33 +144,10 @@ class App {
 
 	static add_gui_elements() {
 		App.gui = new List();
-		App.gui.add( new EditBox( 'EditBox0', '', [], 1, 10, 60 ) );
-		App.gui.add( new EditBox( 'EditBox1', '', undefined, -1, 0, 10 ) );
+		App.gui.add( new EditBox( 'EditBox0', '', [], 2, 1, 10, 60 ) );
+		App.gui.add( new EditBox( 'EditBox1', '', undefined, 0, -1, 0, 10 ) );
 		App.gui.item(0).element.onenter = App.input;
 		App.gui.item(0).element.focus();
-	}
-
-	static update() {
-
-		requestAnimationFrame( App.update );
-
-		Mouse.update();
-		Actions.update();	
-		App.fps.update();
-		//App.audio.update();
-		//App.physics.update();
-
-		if( App.avatar != undefined ) {
-			App.avatar.update();
-			App.camera.update( App.avatar.root );
-		} else 
-			App.camera.update( { position: V(0, 0.8, 0) } );
-		
-		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
-		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
-		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
-
-		Renderer.update();
 	}
 
 	static input( cmd ) {
@@ -200,5 +176,33 @@ class App {
 				}
 			}
 
+	}
+
+	static log( message ) {
+		if( App.debug ) log( message );
+		App.gui.item(0).add( message );
+	}
+
+	static update() {
+
+		requestAnimationFrame( App.update );
+
+		Mouse.update();
+		Actions.update();	
+		App.fps.update();
+		//App.audio.update();
+		//App.physics.update();
+
+		if( App.avatar != undefined ) {
+			App.avatar.update();
+			App.camera.update( App.avatar.root );
+		} else 
+			App.camera.update( { position: V(0, 0.8, 0) } );
+		
+		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
+		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
+		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
+
+		Renderer.update();
 	}
 }

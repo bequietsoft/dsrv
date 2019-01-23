@@ -27,7 +27,7 @@ class GUIElement {
 
 class EditBox extends GUIElement {
 	
-	constructor( id, cmd, list, tabindex, left, top, width = undefined, height = undefined ) {
+	constructor( id, cmd, list, list_max, tabindex, left, top, width = undefined, height = undefined ) {
 
 		super( 'div', id, tabindex, left, top, width = 100, height );
 
@@ -35,7 +35,7 @@ class EditBox extends GUIElement {
 		if( cmd != undefined ) this.element.cmd = cmd;
 		if( list != undefined ) this.element.list = list;
 		
-		this.element.max = 5;
+		this.element.max = list_max;
 		
 		if( tabindex != -1 ) this.element.innerHTML = '<b>_</b>';
 
