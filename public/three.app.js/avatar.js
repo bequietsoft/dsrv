@@ -12,10 +12,10 @@ class Avatar {
 		this.joints = new List( name + 'joints' );
 		this.joints.add( this.root.rotation, 'root' );
 		
-		this.test_minimum_cinc();
+		//this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		//this.simple_men();
+		this.simple_men();
 		
 		//this.joints.debug_info = true;
 

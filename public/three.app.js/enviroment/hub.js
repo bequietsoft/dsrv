@@ -72,7 +72,9 @@ class Hub {
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'login';
 						App.avatar = avatar;
-						avatar.root.position.set( rf(-5, 5), 0, rf(-5, 5) );
+						//avatar.root.position.set( rf(-5, 5), 0, rf(-5, 5) );
+						avatar.root.position.x = rf(-5, 5);
+						avatar.root.position.z = rf(-5, 5);
 						avatar.root.rotation.set( 0, rf(0, wPI), 0 );
 						App.avatar.save();
 						document.title = App.hub.name;

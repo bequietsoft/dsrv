@@ -8,6 +8,7 @@ require('./server/tools.js')();
 require('./server/db.js')();
 
 var debug = true;
+var only_localhost = false;
 var send_show = false;
 
 var port = 3000;
@@ -102,7 +103,7 @@ var server = http.createServer( function ( request, response ) {
 	response.sendFile = sendFile;
 	response.sendData = sendData;
 	
-	if( debug ) {
+	if( only_localhost ) {
 		// lock only for local host clients
 		if(	request.connection.remoteAddress != '::1' &&
 			request.connection.remoteAddress != '::ffff:127.0.0.1') {

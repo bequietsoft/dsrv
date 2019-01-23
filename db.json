@@ -1,16 +1,3 @@
 {
-    "connections": [
-        {
-            "time": "Wed Jan 23 2019 14:46:23 GMT+0700 (GMT+07:00)",
-            "id": "MhwsAAJIHK_PirzfAAAE",
-            "name": "16",
-            "state": "login"
-        },
-        {
-            "time": "Wed Jan 23 2019 14:46:23 GMT+0700 (GMT+07:00)",
-            "id": "paEp8SZmx_A9dos-AAAF",
-            "name": "23",
-            "state": "login"
-        }
-    ]
+    "connections": []
 }
