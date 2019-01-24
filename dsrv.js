@@ -8,8 +8,9 @@ require('./server/tools.js')();
 require('./server/db.js')();
 
 var debug = true;
-var only_localhost = false;
-var send_show = false;
+var only_localhost = true;
+var show_send_log = false;
+var show_conn_log = false;
 
 var port = 3000;
 var main_root = __dirname;
@@ -47,7 +48,7 @@ function send( item, response ) {
 	fs.stat( item, function( err, stat ) {
 		if( err == null ) {
 			if( stat.isFile() ) {
-				if( send_show ) log( 'send file: ' + path.basename(item) );
+				if( show_send_log ) log( 'send file: ' + path.basename(item) );
 				response.sendFile( item );
 			} else {
 				let t = Date.now();
@@ -64,7 +65,7 @@ function send( item, response ) {
 							data += fs.readFileSync( file, "utf8" ) + '\n\n';
 				}
 				let dt = ( Date.now() - t ) / 1000;
-				if( send_show ) log( 'send dir: ' + path.basename( item ) + ' (build time ' + dt + 
+				if( show_send_log ) log( 'send dir: ' + path.basename( item ) + ' (build time ' + dt + 
 					' sec., used part-files ' + ( sfiles.length - ignored ) + '/' + sfiles.length + ')' );
 				response.sendData( data );
 			}
@@ -162,7 +163,7 @@ function get_login_connections() {
 
 io( server ).on( 'connection', function( socket ) { 
 
-	log( 'open connection ' + socket.id );
+	if( show_conn_log ) log( 'open connection ' + socket.id );
 	socket.emit( 'tocli', { type: 'id', id: socket.id, room: get_login_connections() } );
 	sockets.push( socket );
 
@@ -276,7 +277,7 @@ io( server ).on( 'connection', function( socket ) {
 	});
 
 	socket.on( 'disconnect', function( data ) {
-		log( 'close connection ' + socket.id );// + ': ' + js(data) );
+		if( show_conn_log ) log( 'close connection ' + socket.id );// + ': ' + js(data) );
 		let connection = db_get_item_by_id( connections_path, socket.id );
 		if( connection != undefined ) {
 			//log( js(connection), false );

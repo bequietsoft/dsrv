@@ -7,10 +7,47 @@ class Avatar {
 		this.root = new THREE.Object3D();
 		this.root.name = name;
 		this.root.position.set ( 0, 0.8, 0 );
-		this.active_joint = undefined;
+		
+		this.joints = {
+			
+			active: undefined,	// активный узел
+			
+			root: undefined,	// центр
 
-		this.joints = new List( name + 'joints' );
-		this.joints.add( this.root.rotation, 'root' );
+			head: undefined,	// голова
+			chin: undefined,	// подбородок
+			body: undefined,	// таз
+			neck: undefined,	// шея
+			
+			rarm: undefined,	// правая рука
+			larm: undefined,	// левая рука
+			
+			rleg: undefined,	// правая нога
+			lleg: undefined,	// левая нога
+
+			rfin0: undefined,	// большой палец
+			rfin1: undefined,	// указательный палец
+			rfin2: undefined,	// средний палец
+			rfin3: undefined,	// безымянный палец
+			rfin4: undefined,	// мизинец
+
+			lfin0: undefined,	// большой палец
+			lfin1: undefined,	// указательный палец
+			lfin2: undefined,	// средний палец
+			lfin3: undefined,	// безымянный палец
+			lfin4: undefined,	// мизинец
+
+			length: { 
+				body:	3,
+				arm: 	3,
+				leg:	3,
+				fin:	3
+			}
+		};
+
+		//this.active_joint = undefined;
+		this.joints = new List( 'joints' );
+		this.joints.add( { item: this.root, name: 'root' } );
 		
 		//this.test_minimum_cinc();
 		//this.test_head_cinc();
