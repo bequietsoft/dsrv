@@ -12,6 +12,7 @@ class Keyboard {
 
 		document.addEventListener( "keydown", Keyboard.onkeydown.bind( this ) );
 		document.addEventListener( "keyup", Keyboard.onkeyup.bind( this ) );
+		//document.addEventListener( "keypress", Keyboard.onkeypress.bind( this ) );
 	}
 
 	static key_time( key ) {
@@ -20,6 +21,11 @@ class Keyboard {
 		if ( this.keys[ keyCode ][0] == true ) return Date.now() - this.keys[keyCode][1];
 		return 0;
 	}
+
+	// static onkeypress( event ) {
+	// 	if( !Keyboard.enabled ) return;
+
+	// }
 
 	static onkeydown ( event ) {
 		if( !Keyboard.enabled ) return;

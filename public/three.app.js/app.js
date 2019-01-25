@@ -33,44 +33,32 @@ class App {
 		App.camera.target.rotateZ( -Math.PI/10 ); 
 		
 		App.add_gui_elements();
+		App.add_key_binds();
 	
 		resize();
 		App.update();
 	}
 
-	// static add_avatars() {
+	static log( message ) {
+		if( App.debug ) log( message );
+		App.gui.item(0).add( message );
+	}
+	
+	static add_key_binds() {
 		
-	// 	App.avatar = undefined;
+		let avatar = 'App.avatar.';
+			Events.bind( 'keydown', ['b'], avatar + 'joints.prev', undefined, undefined );
+			Events.bind( 'keydown', ['n'], avatar + 'joints.next', undefined, undefined );
+			Events.bind( 'keydown', ['l'], avatar + 'joints.print', undefined, undefined );
+			Events.bind( 'keydown', ['1'], avatar + 'get_joints_state', 'App.state1', undefined );
+			Events.bind( 'keydown', ['2'], avatar + 'get_joints_state', 'App.state2', undefined );
+			Events.bind( 'keydown', ['o'], avatar + 'set_joints_state', undefined, 'App.state1' );
+			Events.bind( 'keydown', ['p'], avatar + 'set_joints_state', undefined, 'App.state2' );
 
-	// 	App.avatars = new List();
-	// 	for( let i = 0; i < 1; i++ ) {
-	// 		App.avatars.add( new Avatar('avatar' + i ) );
-	// 		//if( i > 0 ) 
-	// 		{
-	// 			App.avatars.item().root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
-	// 			App.avatars.item().root.rotation.set(0, rf(0, wPI), 0);
-	// 		}
-	// 	}
-
-	// 	App.avatars.current = 0;
-
-	// 	Events.bind( 'keydown', 'App.avatars.next', ['m'] );
-	// 	Events.bind( 'keydown', 'App.avatars.item().joints.prev', ['b'] );
-	// 	Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
-
-	// 	//Events.debug_info = true;
-	// 		Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
-	// 	//Events.debug_info = false;
-	// }
-
-	// static kill_avatars() {
-	// 	App.avatars.items.forEach( avatar => { App.world.scene.remove( avatar.root ); });
-	// 	App.avatars = undefined;
-	// 	Events.init();
-	// }
-
-	static add_animations() {
-
+			Events.bind( 'keydown', ['g'], avatar + 'switch_edit', undefined, undefined );
+		
+		return;
+		{
 		let avatar = App.avatars.item();
 		Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
 		App.joints = new List( 'joints' );
@@ -140,6 +128,7 @@ class App {
 
 		let data2 = { sequence: [ 0, 1, 0 ], temps: [ 20, 20, 20 ], index: 0, root: 'App.avatars.item(2).root' };
 		Events.bind( 'keydown', Keyframes.play, 'u', data2 );
+		}
 	}
 
 	static add_gui_elements() {
@@ -178,11 +167,6 @@ class App {
 
 	}
 
-	static log( message ) {
-		if( App.debug ) log( message );
-		App.gui.item(0).add( message );
-	}
-
 	static update() {
 
 		requestAnimationFrame( App.update );
@@ -206,3 +190,38 @@ class App {
 		Renderer.update();
 	}
 }
+
+
+
+
+// static add_avatars() {
+		
+	// 	App.avatar = undefined;
+
+	// 	App.avatars = new List();
+	// 	for( let i = 0; i < 1; i++ ) {
+	// 		App.avatars.add( new Avatar('avatar' + i ) );
+	// 		//if( i > 0 ) 
+	// 		{
+	// 			App.avatars.item().root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
+	// 			App.avatars.item().root.rotation.set(0, rf(0, wPI), 0);
+	// 		}
+	// 	}
+
+	// 	App.avatars.current = 0;
+
+	// 	Events.bind( 'keydown', 'App.avatars.next', ['m'] );
+	// 	Events.bind( 'keydown', 'App.avatars.item().joints.prev', ['b'] );
+	// 	Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
+
+	// 	//Events.debug_info = true;
+	// 		Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
+	// 	//Events.debug_info = false;
+	// }
+
+	// static kill_avatars() {
+	// 	App.avatars.items.forEach( avatar => { App.world.scene.remove( avatar.root ); });
+	// 	App.avatars = undefined;
+	// 	Events.init();
+	// }
+

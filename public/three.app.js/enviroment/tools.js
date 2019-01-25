@@ -65,20 +65,6 @@ function jc( obj ) {
 	return JSON.parse( JSON.stringify( obj ) );
 }
 
-// // objects 1-st level properties values copy
-// function ovc( src, dst ) {
-
-// 	let src_keys = Object.keys( jp(src) );
-// 	let dst_keys = Object.keys( eval(dst) );	
-
-// 	if( src_keys.length == 0 ) { eval( dst + '=' + src ); return; }
-
-// 	for( let si = 0; si < src_keys.length; si++ )
-// 		for( let di = 0; di < dst_keys.length; di++ ) 
-// 			if( src_keys[si] == dst_keys[di] ) 
-// 				eval(dst)[ dst_keys[di] ] = jp(src)[ src_keys[si] ]; 
-// }
-
 // validation code for evaluation 
 function ev( code ) {
 	try {
@@ -110,11 +96,6 @@ function d2r( deg ) {
 function r2d( rad ) {
 	return rad * 180 / Math.PI;
 }
-
-// // random float value 0..1
-// function r1() { 
-// 	return rf( 0, 1 ); 
-// }
 
 // random floor value
 function rf( min = 0, max = 1 ) {
@@ -155,37 +136,3 @@ function da( a, b ) {
 	for( let i = a; i <= b; i++ ) r.push( i );
 	return r;
 }
-
-// // 2D and 3D objects to string
-// function p2s( a ) {
-// 	let r = crop(a.x) + ', ' + crop(a.y);
-// 	if ( a.z != undefined ) r += ', ' + crop(a.z);
-// 	return '{ ' + r + ' }';
-// }
-
-// // array to string
-// function a2s( a ) {
-// 	let r = '';
-	
-// 	if ( a == undefined ) return 'undefined';
-// 	if ( !Array.isArray( a ) ) return a;
-// 	if ( a.length == 0 ) return '[]';
-
-// 	for ( let i = 0; i < a.length; i++) {
-
-// 		//log(a[i] );
-
-// 		if ( Array.isArray( a[ i ] ) ) 
-// 			r += a2s( a[i] );// + ', ';
-// 		else 
-// 			if ( a[ i ].x != undefined && a[ i ].y != undefined ) 
-// 				r += p2s( a[ i ] );
-// 			else 
-// 				r += a[ i ];
-		
-// 		if ( i < a.length - 1) r += ', ';
-		
-// 	}
-
-// 	return '[ ' + r + ' ]';
-// }

@@ -5,7 +5,7 @@ class Events {
 		Events.debug_info = false;
 	}
 
-	static bind( type, action, keys = undefined, object = undefined ) {
+	static bind( type, keys, action, result, parameters ) {
 		
 		if( Events.debug_info ) log( js( action ) );
 
@@ -28,7 +28,8 @@ class Events {
 			action: action,
 			func: func,
 			context: context,
-			object: object
+			result: result,
+			parameters: parameters
 		};
 
 		Events.items.push ( event );
@@ -45,9 +46,12 @@ class Events {
 						Events.items[i].keys == undefined ) {
 						if( Events.debug_info ) log( 'run event ' + js( event ) );
 						if( Events.items[i].action == undefined ) {
-							let action = eval( Events.items[i].func ).bind( eval( Events.items[i].context ) );
-							action( Events.items[i].object );
-
+							let func = Events.items[i].func;
+							let result = Events.items[i].result + ' = ';
+							let parameters = Events.items[i].parameters;
+							if( result == undefined + ' = ' ) result = '';
+							if( parameters == undefined ) parameters = '';
+							ev( result + func + '(' + parameters + ')' );
 						} else 
 							Events.items[i].action( Events.items[i].object );
 					}

@@ -37,12 +37,14 @@ class List {
 	}
 
 	print() {
-		if( this.name != undefined ) log( this.name + ':' );
+		//console.clear();
+		if( this.name != undefined ) log( this.name + ':', false );
 		for( let i = 0; i < this.items.length; i++ ) {
 			let current_tag = ' ';
 			let item_string = this.items[i];
 			if( i == this.current ) current_tag = '>';
-			log( i + ' ' + current_tag + '\t' + js(item_string) );
+			//log( i + ' ' + current_tag + '\t' + js(item_string) );
+			log( '\t' + i + ' ' + current_tag + '\t' + this.items[i].name + '\t(' + js(item_string).length + ' bytes)', false );
 		}
 		log();
 	}

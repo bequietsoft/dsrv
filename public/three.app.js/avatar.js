@@ -5,68 +5,44 @@ class Avatar {
 		//log( 'Create ' + name );
 		this.name = name;
 		this.root = new THREE.Object3D();
-		this.root.name = name;
+		this.root.name = 'root';
 		this.root.position.set ( 0, 0.8, 0 );
-		
-		this.joints = {
-			
-			active: undefined,	// активный узел
-			
-			root: undefined,	// центр
-
-			head: undefined,	// голова
-			chin: undefined,	// подбородок
-			body: undefined,	// таз
-			neck: undefined,	// шея
-			
-			rarm: undefined,	// правая рука
-			larm: undefined,	// левая рука
-			
-			rleg: undefined,	// правая нога
-			lleg: undefined,	// левая нога
-
-			rfin0: undefined,	// большой палец
-			rfin1: undefined,	// указательный палец
-			rfin2: undefined,	// средний палец
-			rfin3: undefined,	// безымянный палец
-			rfin4: undefined,	// мизинец
-
-			lfin0: undefined,	// большой палец
-			lfin1: undefined,	// указательный палец
-			lfin2: undefined,	// средний палец
-			lfin3: undefined,	// безымянный палец
-			lfin4: undefined,	// мизинец
-
-			length: { 
-				body:	3,
-				arm: 	3,
-				leg:	3,
-				fin:	3
-			}
-		};
+		this.edit = true;
 
 		//this.active_joint = undefined;
-		this.joints = new List( 'joints' );
-		this.joints.add( { item: this.root, name: 'root' } );
-		
-		//this.test_minimum_cinc();
+		this.joints = new List( name + '_joints' );
+		this.joints.add( this.root );
+		this.joints_states =  new List( name + '_joints_states' );
+
+		this.test_minimum_cinc();
 		//this.test_head_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		this.simple_men();
+		//this.simple_men();
 		
-		//this.joints.debug_info = true;
-
+		this.joints.debug_info = true;
 		//this.add_helpers();
-		//App.world.scene.add ( this.root );
+
 		
-		//log( this.root );
     }
+
+	switch_edit() {
+		
+		this.edit = !this.edit;
+		
+		if( this.edit ) {
+			this.bone_helper = new THREE.SkeletonHelper( this.joints.item );
+			App.world.scene.add( this.bone_helper );
+		} else {
+			App.world.scene.remove( this.bone_helper );
+			this.bone_helper = undefined;
+		}
+	}
 
 	add_helpers () {
 		this.box = box( V( 0.4, 1.6, 0.7 ), V0, V0, mat( 'wire', this.color ), false );
 		this.root.add( this.box );
 	}
-
+	
 	test_minimum_cinc() {
 		let data = Object.assign( {}, default_cincture_data );
 		data.nodes = [	
@@ -79,7 +55,11 @@ class Avatar {
 		this.root.add( cinc.mesh );
 		
 		this.test = cinc;
-		this.add_bones_to_joints_list( this.test );
+
+		log( 'test bones len = ' + this.test.data.bones.length );
+		this.test.data.bones[0].name = 'bone0';
+		this.test.data.bones[1].name = 'bone1';
+		this.add_named_bones_to_joints_list( this.test.data.bones );
 
 		this.root.position.set ( 0, 0, 0 );
 	}
@@ -289,24 +269,67 @@ class Avatar {
 		this.torso.last_bone().add( this.r_arm.mesh );
 
 		//
-		this.add_bones_to_joints_list( this.torso );
-		this.add_bones_to_joints_list( this.head );
-		this.add_bones_to_joints_list( this.l_arm );
-		this.add_bones_to_joints_list( this.r_arm );
-		this.add_bones_to_joints_list( this.l_leg );
-		this.add_bones_to_joints_list( this.r_leg );
+		log( 'torso bones len = ' + this.torso.data.bones.length );
+		this.torso.data.bones[0] = 'torso_bone0';
+		this.torso.data.bones[1] = 'torso_bone1';
+		this.torso.data.bones[2] = 'torso_bone2';
+		
+		this.add_named_bones_to_joints_list( this.torso.data.bones );
+		this.add_named_bones_to_joints_list( this.head.data.bones );
+		this.add_named_bones_to_joints_list( this.l_arm.data.bones );
+		this.add_named_bones_to_joints_list( this.r_arm.data.bones );
+		this.add_named_bones_to_joints_list( this.l_leg.data.bones );
+		this.add_named_bones_to_joints_list( this.r_leg.data.bones );
 	}
 
-	add_bones_to_joints_list( item ) {
-		//log(item);
-		for( let i=0; i<item.data.bones.length; i++ )
-			this.joints.add( item.data.bones[i].rotation, item.data.name + '_bone' + i );
+	add_named_bones_to_joints_list( bones ) {
+		for( let i = 0; i < bones.length; i++ ) 
+			if( bones[i].name != undefined ) 
+				if( bones[i].name.length > 0 ) this.joints.add( bones[i] );
+		this.joints.print();
 	}	
+
+	// joints:
+	get_joints_state() {
+		
+		if( this.joints.items.length == 0 ) { log( 'No joints to get' ); return; }
+		
+		let state = [];
+		this.joints.items.forEach( joint => {
+			let joint_state = {	
+				name: joint.name, 
+				rotation: new THREE.Vector3( joint.rotation.x, joint.rotation.y, joint.rotation.z )
+			};
+			log( js(joint_state), false );
+			state.push( joint_state );
+		});
+		log();
+		return state;
+	}
+
+	set_joints_state( state ) {
+		
+		if( state.length == 0 ) { log( 'No state records found' ); return; }
+		if( this.joints.items.length == 0 ) { log( 'No joints to set' ); return; }
+		
+		state.forEach( item => {
+			let joint = this.joints.find( item.name );
+			if( joint != undefined ) {
+				//log( item.name + ' joint restored');
+				joint.rotation.set( item.rotation.x, item.rotation.y, item.rotation.z );
+			}
+			//else log( item.name + ' joint not found');
+		});
+	}
+
+	show_joint( name ) {
+		this.joints.items.forEach( joint => {
+			if( joint.name == name ) joint.re
+		});
+	}
 
 	// controls:
 	update_mouse() {
-
-		//log(this, false);
 
 		if( Keyboard.ctrl[0] == false ) {
 			
@@ -318,16 +341,15 @@ class Avatar {
 
 			// wheel
 			if( Mouse.wheel != 0 ) {
-				
-				this.active_joint = this.joints.item();
-				let joints_edit = false;
-				if( this.active_joint != undefined ) {
-					if( Keyboard.key_time('X') > 0 ) { this.active_joint.x += Mouse.wheel / 500; joints_edit = true; }
-					if( Keyboard.key_time('Y') > 0 ) { this.active_joint.y += Mouse.wheel / 500; joints_edit = true; }
-					if( Keyboard.key_time('Z') > 0 ) { this.active_joint.z += Mouse.wheel / 500; joints_edit = true; }
+				let aj = this.joints.item();
+				let jef = false;
+				if( aj != undefined ) {
+					if( Keyboard.key_time('X') > 0 ) { aj.rotation.x += Mouse.wheel / 500; jef = true; }
+					if( Keyboard.key_time('Y') > 0 ) { aj.rotation.y += Mouse.wheel / 500; jef = true; }
+					if( Keyboard.key_time('Z') > 0 ) { aj.rotation.z += Mouse.wheel / 500; jef = true; }
 				}
 				
-				if( joints_edit == false ) {
+				if( jef == false ) {
 					App.camera.position.x += Mouse.wheel / 10;
 					if( App.camera.position.x > -1 ) App.camera.position.x = -1;
 				}
@@ -339,7 +361,7 @@ class Avatar {
 		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
 		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
 		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
-		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }		
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }	
 	}
 
 	save( sharing = 'all' ) {
