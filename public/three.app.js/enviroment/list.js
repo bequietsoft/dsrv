@@ -8,6 +8,12 @@ class List {
 		if ( this.debug_info ) this.print();
 	}
 
+	static add_named_items( items, list ) {
+		for( let i = 0; i < items.length; i++ ) 
+			if( items[i].name != undefined ) 
+				if( items[i].name.length > 0 ) list.add( items[i] );
+	}
+
 	clear() {
 		this.items = [];
 		this.names = [];

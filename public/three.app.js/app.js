@@ -8,6 +8,8 @@ class App {
 			App.smooth = 0;
 			App.ambient_color = rgb(240, 240, 220);
 			App.fog_color = rgb(240, 240, 220);
+			App.shadow_map_size = 1024;
+			App.shadow_camera_size = 20;
 			App.near = 0.1;
 			App.fov = 50;
 			App.far = 100;
@@ -50,8 +52,8 @@ class App {
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev', undefined, undefined );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next', undefined, undefined );
 			Events.bind( 'keydown', ['l'], avatar + 'joints.print', undefined, undefined );
-			Events.bind( 'keydown', ['1'], avatar + 'get_joints_state', 'App.state1', undefined );
-			Events.bind( 'keydown', ['2'], avatar + 'get_joints_state', 'App.state2', undefined );
+			Events.bind( 'keydown', ['1'], avatar + 'get_joints_state', 'App.state1', 'new Vector3(+1,1,1)' );
+			Events.bind( 'keydown', ['2'], avatar + 'get_joints_state', 'App.state2', 'new Vector3(-1,1,1)' );
 			Events.bind( 'keydown', ['o'], avatar + 'set_joints_state', undefined, 'App.state1' );
 			Events.bind( 'keydown', ['p'], avatar + 'set_joints_state', undefined, 'App.state2' );
 

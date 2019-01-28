@@ -9,9 +9,7 @@ class Avatar {
 		this.root.position.set ( 0, 0.8, 0 );
 		this.edit = true;
 
-		//this.active_joint = undefined;
 		this.joints = new List( name + '_joints' );
-		this.joints.add( this.root );
 		this.joints_states =  new List( name + '_joints_states' );
 
 		this.test_minimum_cinc();
@@ -22,20 +20,31 @@ class Avatar {
 		this.joints.debug_info = true;
 		//this.add_helpers();
 
-		
+		this.update_edit();
     }
 
 	switch_edit() {
-		
 		this.edit = !this.edit;
+		this.update_edit();
+	}
+
+	update_edit() {
 		
-		if( this.edit ) {
-			this.bone_helper = new THREE.SkeletonHelper( this.joints.item );
-			App.world.scene.add( this.bone_helper );
-		} else {
-			App.world.scene.remove( this.bone_helper );
+		if( this.bone_helper != undefined) {
+			this.root.remove( this.bone_helper );
 			this.bone_helper = undefined;
 		}
+
+		if( this.edit ) {
+			if( this.joints.current_item != undefined) {
+				this.bone_helper = new THREE.SkeletonHelper( this.joints.current_item );
+				this.root.add( this.bone_helper );
+				log('avatar ' + this.name + ' edit mode on');
+				return;
+			}
+		} 
+
+		log('avatar ' + this.name + ' edit mode off');
 	}
 
 	add_helpers () {
@@ -59,7 +68,8 @@ class Avatar {
 		log( 'test bones len = ' + this.test.data.bones.length );
 		this.test.data.bones[0].name = 'bone0';
 		this.test.data.bones[1].name = 'bone1';
-		this.add_named_bones_to_joints_list( this.test.data.bones );
+		List.add_named_items( this.test.data.bones, this.joints );
+		this.joints.print();
 
 		this.root.position.set ( 0, 0, 0 );
 	}
@@ -270,27 +280,21 @@ class Avatar {
 
 		//
 		log( 'torso bones len = ' + this.torso.data.bones.length );
-		this.torso.data.bones[0] = 'torso_bone0';
-		this.torso.data.bones[1] = 'torso_bone1';
-		this.torso.data.bones[2] = 'torso_bone2';
-		
-		this.add_named_bones_to_joints_list( this.torso.data.bones );
-		this.add_named_bones_to_joints_list( this.head.data.bones );
-		this.add_named_bones_to_joints_list( this.l_arm.data.bones );
-		this.add_named_bones_to_joints_list( this.r_arm.data.bones );
-		this.add_named_bones_to_joints_list( this.l_leg.data.bones );
-		this.add_named_bones_to_joints_list( this.r_leg.data.bones );
+		this.torso.data.bones[0].name = 'torso_bone0';
+		this.torso.data.bones[1].name = 'torso_bone1';
+		this.torso.data.bones[2].name = 'torso_bone2';
+		this.head.data.bones[0].name = 'head_bone0';
+		List.add_named_items( this.torso.data.bones, this.joints );
+		List.add_named_items( this.head.data.bones, this.joints );
+		List.add_named_items( this.l_arm.data.bones, this.joints );
+		List.add_named_items( this.r_arm.data.bones, this.joints );
+		List.add_named_items( this.l_leg.data.bones, this.joints );
+		List.add_named_items( this.r_leg.data.bones, this.joints );
+		this.joints.print();
 	}
 
-	add_named_bones_to_joints_list( bones ) {
-		for( let i = 0; i < bones.length; i++ ) 
-			if( bones[i].name != undefined ) 
-				if( bones[i].name.length > 0 ) this.joints.add( bones[i] );
-		this.joints.print();
-	}	
-
 	// joints:
-	get_joints_state() {
+	get_joints_state( k = new Vector3( 1, 1, 1 ) ) {
 		
 		if( this.joints.items.length == 0 ) { log( 'No joints to get' ); return; }
 		
@@ -298,7 +302,7 @@ class Avatar {
 		this.joints.items.forEach( joint => {
 			let joint_state = {	
 				name: joint.name, 
-				rotation: new THREE.Vector3( joint.rotation.x, joint.rotation.y, joint.rotation.z )
+				rotation: new THREE.Vector3( k.x * joint.rotation.x, k.y * joint.rotation.y, k.z * joint.rotation.z )
 			};
 			log( js(joint_state), false );
 			state.push( joint_state );
