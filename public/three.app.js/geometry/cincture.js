@@ -272,9 +272,9 @@ class Cincture {
         for ( let ci = 0; ci < this.cincs_count; ci++ ) {
 
 			let offset = V( this.data.offsets[ fti + 0 ], this.data.offsets[ fti + 1 ], mirror * this.data.offsets[ fti + 2 ] );
-			let scale_offset = MV( offset, this.data.scale );
+			let scaled_offset = MV( offset, this.data.scale );
 			total_rotation.add( V( mirror * this.data.rotates[ fti + 0 ], mirror * this.data.rotates[ fti + 1 ], this.data.rotates[ fti + 2 ] ) );
-			total_position.add( RV ( scale_offset, total_rotation) );
+			total_position.add( RV ( scaled_offset, total_rotation) );
 
 			let angle0 = mirror * d2r( this.data.start_angle );
 			let node0;

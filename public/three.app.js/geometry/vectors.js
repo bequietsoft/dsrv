@@ -71,4 +71,22 @@ function GV( n ) {
 	return r;
 }
 
+function GRP( root, obj ) {
+	let path = [];
+		while( obj != root ) {
+			//log( obj, false );
+			path.push( obj );
+			obj = obj.parent;
+		}
+
+	let tr = V( root.rotation.x, root.rotation.y, root.rotation.z );
+	let tp = V( root.position.x, root.position.y, root.position.z );
+	for( let i = path.length - 1; i >= 0 ; i-- ) {
+		tr.add( path[i].rotation );
+		tp.add( RV (path[i].position, tr ) );
+	}
+
+	return { position: tp, rotation: tr };
+}
+
 

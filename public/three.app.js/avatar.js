@@ -11,6 +11,8 @@ class Avatar {
 
 		this.joints = new List( name + '_joints' );
 		this.joints_states =  new List( name + '_joints_states' );
+		
+		this.markers = [];
 
 		this.test_minimum_cinc();
 		//this.test_head_cinc();
@@ -19,9 +21,27 @@ class Avatar {
 		
 		this.joints.debug_info = true;
 		//this.add_helpers();
-
+	
 		this.update_edit();
     }
+
+	new_marker( root, target, size = 0.05, color = rgb( 0, 200, 0 ) ) {
+		let material = mat( 'lambert', color );
+		let marker = sphere( size, V0, V0, material, false, 4 );
+			marker.renderOrder = 999;
+			marker.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
+			marker.target = target;
+		root.add( marker );
+
+		this.markers.push( marker );
+	}
+
+	update_markers_positions() {
+		this.markers.forEach( marker => {
+			let grp = GRP( marker.parent, marker.target ); 
+			marker.position.set( grp.position.x, grp.position.y, grp.position.z );
+		});
+	}
 
 	switch_edit() {
 		this.edit = !this.edit;
@@ -29,22 +49,23 @@ class Avatar {
 	}
 
 	update_edit() {
-		
-		if( this.bone_helper != undefined) {
-			this.root.remove( this.bone_helper );
-			this.bone_helper = undefined;
-		}
-
 		if( this.edit ) {
 			if( this.joints.current_item != undefined) {
-				this.bone_helper = new THREE.SkeletonHelper( this.joints.current_item );
-				this.root.add( this.bone_helper );
+				this.markers.forEach(marker => {
+					marker.visible = true;
+				});
+				this.update_markers_positions();
 				log('avatar ' + this.name + ' edit mode on');
 				return;
 			}
 		} 
 
-		log('avatar ' + this.name + ' edit mode off');
+		if( !this.edit ) {
+			this.markers.forEach(marker => {
+				marker.visible = false;
+			});
+			log('avatar ' + this.name + ' edit mode off');
+		}
 	}
 
 	add_helpers () {
@@ -70,6 +91,9 @@ class Avatar {
 		this.test.data.bones[1].name = 'bone1';
 		List.add_named_items( this.test.data.bones, this.joints );
 		this.joints.print();
+
+		this.new_marker( this.test.mesh, this.test.data.bones[0] );
+		this.new_marker( this.test.mesh, this.test.data.bones[1] );
 
 		this.root.position.set ( 0, 0, 0 );
 	}
@@ -353,6 +377,8 @@ class Avatar {
 					if( Keyboard.key_time('Z') > 0 ) { aj.rotation.z += Mouse.wheel / 500; jef = true; }
 				}
 				
+				if( jef == true ) this.update_markers_positions();
+
 				if( jef == false ) {
 					App.camera.position.x += Mouse.wheel / 10;
 					if( App.camera.position.x > -1 ) App.camera.position.x = -1;
@@ -376,6 +402,7 @@ class Avatar {
     update () {
 		this.update_mouse();
 		this.update_keyboard();
+		//this.update_markers( this.test.data.bones[1] );
     }
 
 	torso_rotate( step = V0 ) {

@@ -12,6 +12,10 @@ function log( message = undefined, timestamp = true ) {
 	if( App.log_gui != undefined ) App.log_gui.add( message );
 }
 
+// function frm( ) {
+
+// }
+
 function ts() {
 	var d = new Date();
 	var h = ("0" + d.getHours()).slice(-2);
