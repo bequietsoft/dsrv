@@ -52,8 +52,8 @@ class App {
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev', undefined, undefined );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next', undefined, undefined );
 			Events.bind( 'keydown', ['l'], avatar + 'joints.print', undefined, undefined );
-			Events.bind( 'keydown', ['1'], avatar + 'get_joints_state', 'App.state1', 'new Vector3(+1,1,1)' );
-			Events.bind( 'keydown', ['2'], avatar + 'get_joints_state', 'App.state2', 'new Vector3(-1,1,1)' );
+			Events.bind( 'keydown', ['1'], avatar + 'get_joints_state', 'App.state1', undefined );
+			Events.bind( 'keydown', ['2'], avatar + 'get_joints_state', 'App.state2', undefined );
 			Events.bind( 'keydown', ['o'], avatar + 'set_joints_state', undefined, 'App.state1' );
 			Events.bind( 'keydown', ['p'], avatar + 'set_joints_state', undefined, 'App.state2' );
 

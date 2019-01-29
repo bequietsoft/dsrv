@@ -1,3 +1,5 @@
+let ud = undefined;
+
 // loging
 function log( message = undefined, timestamp = true ) {
 	
@@ -11,10 +13,6 @@ function log( message = undefined, timestamp = true ) {
 
 	if( App.log_gui != undefined ) App.log_gui.add( message );
 }
-
-// function frm( ) {
-
-// }
 
 function ts() {
 	var d = new Date();
@@ -71,6 +69,7 @@ function jc( obj ) {
 
 // validation code for evaluation 
 function ev( code ) {
+	//log( 'eval code: ' + code, false );
 	try {
 		eval( code ); 
 		return true;

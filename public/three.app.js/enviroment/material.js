@@ -1,7 +1,12 @@
-function rgb(red, green = -1, blue = -1) {
-	if(green + blue == -2)
-		return rgb(red, red, red);
-	return new THREE.Color(blue | (green << 8) | (red << 16));
+let black = rgb( 0, 0, 0 );
+let white = rgb( 255, 255, 255 );
+let red = rgb( 255, 0, 0 );
+let green = rgb( 0, 255, 0 );
+let blue = rgb( 0, 0, 255 );
+
+function rgb( red, green = -1, blue = -1 ) {
+	if( green + blue == -2 ) return rgb( red, red, red );
+	return new THREE.Color( blue | ( green << 8 ) | ( red << 16 ));
 }
 
 function mat( type = 'basic', color = 'white', skinning = true ) {
@@ -53,6 +58,7 @@ function mat( type = 'basic', color = 'white', skinning = true ) {
 		return new THREE.MeshLambertMaterial(
 		{ 
 			color: color, 
+			//wireframe: false,
 			skinning: skinning,
 			//side: THREE.DoubleSide 
 		});
