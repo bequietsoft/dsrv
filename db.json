@@ -1,12 +1,5 @@
 {
-    "connections": [
-        {
-            "time": "Wed Jan 30 2019 15:49:26 GMT+0700 (GMT+07:00)",
-            "id": "Hzjg7HBj7h0LSqwxAAAE",
-            "name": "05",
-            "state": "login"
-        }
-    ],
+    "connections": [],
     "states": [
         {
             "items": [

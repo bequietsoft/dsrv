@@ -189,6 +189,13 @@ io( server ).on( 'connection', function( socket ) {
 							socket_broadcast( connection.id, message );
 							socket_send( connection.id, message );
 							log( data.name + ': login' );
+
+							let items = db_get_items( states_path );
+							if( items != undefined ) {
+								log( connection.name + ': restore states' );
+								let message = { type: 'states', states: items[0] };
+								socket_send( connection.id, message );
+							}
 						}
 						
 				} else {
@@ -279,11 +286,12 @@ io( server ).on( 'connection', function( socket ) {
 
 			case 'restore states': {
 				if( connection != undefined ) {
-					log( connection.name + ': restore states' );
 					let items = db_get_items( states_path );
-					//log( items, false );
-					let message = { type: 'states', states: items[0] };
-					socket_send( connection.id, message );
+					if( items != undefined ) {
+						log( connection.name + ': restore states' );
+						let message = { type: 'states', states: items[0] };
+						socket_send( connection.id, message );
+					}
 				}
 				break;
 			}

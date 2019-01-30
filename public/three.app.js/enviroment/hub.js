@@ -115,9 +115,11 @@ class Hub {
 
 				case 'states': {
 					try {
-						log( data, false );
-						App.avatar.joints.states = data.states.states;
-						log( data, false );
+						App.avatar.joints.states = new List();
+						App.avatar.joints.states.items = data.states.items;
+						App.avatar.joints.states.debug_info = data.states.debug_info;
+						App.avatar.joints.states.current = data.states.current;
+						log( 'restore states' );
 					} catch( error ) { if( App.hub.debug ) log('hub state recive error: ' + js(error) ); }
 					break;
 				}
