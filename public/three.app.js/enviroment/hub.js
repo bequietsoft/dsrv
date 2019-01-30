@@ -19,7 +19,7 @@ class Hub {
 			switch( data.type ) {
 				
 				case 'message': {
-					App.log( data.name + ': ' + data.text );
+					App.gui_log( data.name + ': ' + data.text );
 					break;
 				}
 				
@@ -49,7 +49,7 @@ class Hub {
 					if( data.room != undefined ) {
 						data.room.forEach( item => {
 							if( item.name != App.hub.name ) {
-								App.log( item.name + ': in room' );
+								App.gui_log( item.name + ': in room' );
 								App.world.add( new Avatar( item.name ) );
 							}
 						});
@@ -67,7 +67,7 @@ class Hub {
 					
 					let avatar = new Avatar( data.name );
 					App.world.add( avatar );
-					App.log( data.name + ': login' );
+					App.gui_log( data.name + ': login' );
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'login';
@@ -81,7 +81,7 @@ class Hub {
 					}
 
 					if( App.hub.name != data.name ) {
-						//App.log( 'Hello ' + data.name );
+						//App.gui_log( 'Hello ' + data.name );
 						if( App.avatar != undefined ) App.avatar.save();
 					}
 
@@ -90,7 +90,7 @@ class Hub {
 
 				case 'logout': {
 					
-					App.log( data.name + ': logout' );
+					App.gui_log( data.name + ': logout' );
 					App.world.del( data.name );
 
 					if( App.hub.name == data.name ) {
@@ -109,7 +109,16 @@ class Hub {
 						let path = data.path.split('.');
 						for( let i = 0; i < path.length; i++) vector = vector[ path[i] ];
 						vector.set( data.vector.x, data.vector.y, data.vector.z );
-					} catch( error ) { if( App.hub.debug ) log('hub vector error: ' + js(error) ); }
+					} catch( error ) { if( App.hub.debug ) log('hub vector recive error: ' + js(error) ); }
+					break;
+				}
+
+				case 'states': {
+					try {
+						log( data, false );
+						App.avatar.joints.states = data.states.states;
+						log( data, false );
+					} catch( error ) { if( App.hub.debug ) log('hub state recive error: ' + js(error) ); }
 					break;
 				}
 

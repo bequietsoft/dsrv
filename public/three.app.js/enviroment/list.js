@@ -85,5 +85,9 @@ class List {
 			result.push( items[i].name );
 		return result;
 	}
+
+	// get length() {
+	// 	return items.length;
+	// }
 	
 }

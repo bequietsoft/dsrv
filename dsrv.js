@@ -17,6 +17,7 @@ var main_root = __dirname;
 var client_root = 'public';
 var default_page = 'index.html';
 var connections_path = '/connections';
+var states_path = '/states';
 
 var sockets = [];
 
@@ -119,7 +120,8 @@ var server = http.createServer( function ( request, response ) {
  
 server.listen( port, function () {
 	log( 'development server listening on port ' + port + ':' );
-	db_update_path( connections_path );
+	db_update_path( connections_path, [], true );
+	db_update_path( states_path, undefined, false );
 	
 	setInterval( update_connections, 5000 );
 });
@@ -259,15 +261,30 @@ io( server ).on( 'connection', function( socket ) {
 			}
 
 			case 'vector': {
-
-				// if( connection == undefined ) 
-				// 	connection = db_get_item_by_id( connections_path, socket.id );
-					
 				if( connection != undefined ) {
 					//log('vector ' + js(connection));
 					if( data.sharing == 'all' ) socket_broadcast( connection.id, data );
 				}
-				
+				break;
+			}
+
+			case 'save states': {
+				if( connection != undefined ) {
+					log( connection.name + ': save states' );
+					db_clear( states_path );
+					db_add_item( states_path, data.states );
+				}
+				break;
+			}
+
+			case 'restore states': {
+				if( connection != undefined ) {
+					log( connection.name + ': restore states' );
+					let items = db_get_items( states_path );
+					//log( items, false );
+					let message = { type: 'states', states: items[0] };
+					socket_send( connection.id, message );
+				}
 				break;
 			}
 

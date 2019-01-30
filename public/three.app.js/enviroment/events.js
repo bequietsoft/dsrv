@@ -5,7 +5,7 @@ class Events {
 		Events.debug_info = false;
 	}
 
-	static bind( type, keys, action, result, parameters ) {
+	static bind( type, keys, action, parameters = undefined, result = undefined ) {
 		
 		if( Events.debug_info ) log( js( action ) );
 

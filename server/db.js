@@ -29,7 +29,7 @@ module.exports = function() {
 		let item = db_get_item_by_id( path, data.id );
 		//log( '   find exist item = ' + js(item) );
 		if( item != undefined ) { 
-			log( 'item with id ' + id + ' already exist: ' + js( item ) );
+			log( 'item with id ' + data.id + ' already exist: ' + js( item ) );
 			return false; 
 		}
 		db.push( path + '[]', data );
@@ -52,10 +52,10 @@ module.exports = function() {
 		db_add_item( path, data );
 	}
 
-	this.db_update_path = function( path ) {
+	this.db_update_path = function( path, value, clear ) {
 		if( db_get_items( path ) == undefined ) 
-			db.push( path, [] );
+			db.push( path, value );
 		else 
-			db_clear( path );
+			if( clear ) db_clear( path );
 	}
 }

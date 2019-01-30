@@ -74,17 +74,18 @@ function ev( code ) {
 		eval( code ); 
 		return true;
 	} catch ( error ) {
-		if ( error instanceof SyntaxError ) 
-			log( 'Code evaluation syntax error: ' + error.message);
-		else 
-			log( 'Code evaluation undefined error.' );
+		if( App.debug )
+			if ( error instanceof SyntaxError ) 
+				log( 'Code evaluation syntax error: ' + error.message);
+			else 
+				log( 'Code evaluation undefined error.' );
 		return false;
 	}
 }
 
-// run function from string with bind context
+// run function from string with bind context - UNUSED?
 function run( func, context = undefined ) {
-	try{
+	try {
 		if(context == undefined) context = get_context_path( func );
 		eval( func ).bind( context ); 
 	} catch ( err ) { log( err ); }
@@ -117,21 +118,21 @@ function rk( length = 4 ) {
 	return r;
 }
 
-// insert array a and b values in string s to $A and $B
-function ex( s, a, b ) {
+// // insert array a and b values in string s to $A and $B
+// function ex( s, a, b ) {
 
-	let r = [];
-	for( let ai = 0; ai < a.length; ai++ ) {
-		let t = s.replace('$A', a[ai] );
-		for( let bi = 0; bi < b.length; bi++ ) {
-			let h = t;
-			h = h.replace('$B', b[bi] );
-			r.push( h );
-		}
-	}
+// 	let r = [];
+// 	for( let ai = 0; ai < a.length; ai++ ) {
+// 		let t = s.replace('$A', a[ai] );
+// 		for( let bi = 0; bi < b.length; bi++ ) {
+// 			let h = t;
+// 			h = h.replace('$B', b[bi] );
+// 			r.push( h );
+// 		}
+// 	}
 
-	return r;
-}
+// 	return r;
+// }
 
 // array from a to b
 function da( a, b ) {

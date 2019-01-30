@@ -40,24 +40,34 @@ class App {
 		resize();
 		App.update();
 	}
-
-	static log( message ) {
-		if( App.debug ) log( message );
-		App.gui.item(0).add( message );
-	}
 	
+	static add_gui_elements() {
+		
+		App.gui = new List();
+		App.gui.add( new EditBox( 'EditBox0', '', [], 2, 1, 10, 60 ) );
+		App.gui.add( new EditBox( 'EditBox1', '', undefined, 0, -1, 0, 10 ) );
+		App.gui.item(0).element.onenter = App.input;
+		App.gui.item(0).element.focus();
+
+		App.gui_log = function( message ) {
+			if( App.debug ) log( message );
+			App.gui.item(0).add( message );
+		}
+
+	}
+
 	static add_key_binds() {
 		
 		let avatar = 'App.avatar.';
-			Events.bind( 'keydown', ['b'], avatar + 'joints.prev', undefined, undefined );
-			Events.bind( 'keydown', ['n'], avatar + 'joints.next', undefined, undefined );
-			Events.bind( 'keydown', ['l'], avatar + 'joints.print', undefined, undefined );
-			Events.bind( 'keydown', ['1'], avatar + 'get_joints_state', 'App.state1', undefined );
-			Events.bind( 'keydown', ['2'], avatar + 'get_joints_state', 'App.state2', undefined );
-			Events.bind( 'keydown', ['o'], avatar + 'set_joints_state', undefined, 'App.state1' );
-			Events.bind( 'keydown', ['p'], avatar + 'set_joints_state', undefined, 'App.state2' );
+			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
+			Events.bind( 'keydown', ['n'], avatar + 'joints.next' );
+			Events.bind( 'keydown', ['l'], avatar + 'joints.print' );
+			Events.bind( 'keydown', ['1'], avatar + 'joints.savestate', '"state1"' );
+			Events.bind( 'keydown', ['2'], avatar + 'joints.savestate', '"state2"' );
+			Events.bind( 'keydown', ['o'], avatar + 'joints.loadstate', '"state1", true, false' );
+			Events.bind( 'keydown', ['p'], avatar + 'joints.loadstate', '"state2", true, false' );
 
-			Events.bind( 'keydown', ['g'], avatar + 'switch_edit', undefined, undefined );
+			Events.bind( 'keydown', ['g'], avatar + 'switch_edit' );
 		
 		return;
 		{
@@ -133,15 +143,8 @@ class App {
 		}
 	}
 
-	static add_gui_elements() {
-		App.gui = new List();
-		App.gui.add( new EditBox( 'EditBox0', '', [], 2, 1, 10, 60 ) );
-		App.gui.add( new EditBox( 'EditBox1', '', undefined, 0, -1, 0, 10 ) );
-		App.gui.item(0).element.onenter = App.input;
-		App.gui.item(0).element.focus();
-	}
-
 	static input( cmd ) {
+		
 		
 		if( App.hub.state == 'logout' ) {
 			if( App.debug ) log( 'auto login as ' + cmd );
@@ -150,13 +153,28 @@ class App {
 			App.gui.item(0).shift();
 		}
 		
-		if( App.hub.state == 'login' ) 
-			
-		switch( cmd ) {
+		if( App.hub.state == 'login' ) {
+	
+			if( cmd == 'ss') cmd = 'save states'; 
+			if( cmd == 'rs') cmd = 'restore states'; 
+
+			switch( cmd ) {
 				
 				case App.hub.name: {
 					App.hub.send( { type: 'logout', name: App.hub.name } );
 					App.gui.item(0).shift();
+					break;
+				}
+
+				case 'save states': {
+					App.hub.send( { type: 'save states', states: App.avatar.joints.states } );
+					//App.gui.item(0).shift();
+					break;
+				}
+
+				case 'restore states': {
+					App.hub.send( { type: 'restore states' } );
+					//App.gui.item(0).shift();
 					break;
 				}
 
@@ -166,6 +184,7 @@ class App {
 					break;
 				}
 			}
+		}
 
 	}
 
@@ -192,38 +211,4 @@ class App {
 		Renderer.update();
 	}
 }
-
-
-
-
-// static add_avatars() {
-		
-	// 	App.avatar = undefined;
-
-	// 	App.avatars = new List();
-	// 	for( let i = 0; i < 1; i++ ) {
-	// 		App.avatars.add( new Avatar('avatar' + i ) );
-	// 		//if( i > 0 ) 
-	// 		{
-	// 			App.avatars.item().root.position.set( rf(-5, 5), 0.8, rf(-5, 5) );
-	// 			App.avatars.item().root.rotation.set(0, rf(0, wPI), 0);
-	// 		}
-	// 	}
-
-	// 	App.avatars.current = 0;
-
-	// 	Events.bind( 'keydown', 'App.avatars.next', ['m'] );
-	// 	Events.bind( 'keydown', 'App.avatars.item().joints.prev', ['b'] );
-	// 	Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
-
-	// 	//Events.debug_info = true;
-	// 		Events.bind( 'keydown', 'Keyframes.add', ['k'], App.avatars.item().joints );
-	// 	//Events.debug_info = false;
-	// }
-
-	// static kill_avatars() {
-	// 	App.avatars.items.forEach( avatar => { App.world.scene.remove( avatar.root ); });
-	// 	App.avatars = undefined;
-	// 	Events.init();
-	// }
 
