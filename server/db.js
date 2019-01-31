@@ -29,8 +29,18 @@ module.exports = function() {
 		let item = db_get_item_by_id( path, data.id );
 		//log( '   find exist item = ' + js(item) );
 		if( item != undefined ) { 
-			log( 'item with id ' + data.id + ' already exist: ' + js( item ) );
-			return false; 
+			
+			if( item.id != undefined && data.id != undefined )
+				if( item.id == data.id ) {
+					log( 'item with id ' + data.id + ' already exist' );
+					return false; 
+				}
+
+			if( item.name != undefined && data.name != undefined )
+				if( item.name == data.name ) {
+					log( 'item with name ' + data.name + ' already exist' );
+					return false; 
+				}
 		}
 		db.push( path + '[]', data );
 		//log('ADD ' + now() );
@@ -42,7 +52,21 @@ module.exports = function() {
 		for( let i = 0; i < items.length; i++ )
 			if( items[i].id == id ) {
 				db.delete( path + '[' + i + ']' );
-				return true;
+				i--;
+				//return true;
+			}
+		return false;
+	}
+
+	this.db_del_item_by_name = function( path, name ) {
+		let items = db_get_items( path );
+		//log( items, false );
+		for( let i = 0; i < items.length; i++ )
+			if( items[i].name == name ) {
+				//log('del ' + js(items[i]));
+				db.delete( path + '[' + i + ']' );
+				i--;
+				//return true;
 			}
 		return false;
 	}

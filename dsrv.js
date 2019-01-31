@@ -17,7 +17,7 @@ var main_root = __dirname;
 var client_root = 'public';
 var default_page = 'index.html';
 var connections_path = '/connections';
-var states_path = '/states';
+var objects_path = '/objects';
 
 var sockets = [];
 
@@ -98,6 +98,18 @@ function socket_broadcast( id, data ) {
 	sockets[ index ].broadcast.emit( 'tocli', data );
 }
 
+function socket_send_objects( id, name ) {
+	
+	let items = db_get_items( objects_path ).
+		filter( function( item ) { return item.name = name; });
+	
+	items.forEach( item => {
+		socket_send( id, { type: 'object', name: name, object: item.object } );
+	});
+
+	if( items.length > 0 ) log( 'send ' + items.length + ' objects' ); 
+}
+
 // #endregion
 
 var server = http.createServer( function ( request, response ) {
@@ -119,9 +131,10 @@ var server = http.createServer( function ( request, response ) {
 });
  
 server.listen( port, function () {
-	log( 'development server listening on port ' + port + ':' );
+	log( 'server listening on port ' + port + ':' );
+	
 	db_update_path( connections_path, [], true );
-	db_update_path( states_path, undefined, false );
+	db_update_path( objects_path, [], false );
 	
 	setInterval( update_connections, 5000 );
 });
@@ -176,8 +189,7 @@ io( server ).on( 'connection', function( socket ) {
 		switch( data.type ) {
 
 			case 'login': {
-				// log( js(connection), false );
-				// log( js(data), false );
+
 				if( connection != undefined ) {
 					if( connection.id == socket.id && connection.state == 'logout' )
 						if( data.id == socket.id && data.name != undefined ) {
@@ -188,34 +200,23 @@ io( server ).on( 'connection', function( socket ) {
 							db_rewrite( connections_path, connection.id, connection );
 							socket_broadcast( connection.id, message );
 							socket_send( connection.id, message );
+							socket_send_objects( connection.id, 'states' );
 							log( data.name + ': login' );
-
-							let items = db_get_items( states_path );
-							if( items != undefined ) {
-								log( connection.name + ': restore states' );
-								let message = { type: 'states', states: items[0] };
-								socket_send( connection.id, message );
-							}
 						}
 						
 				} else {
-					
-					//log( 'update1\n' + js(data) );
-					if(data._id != undefined) {
-						connection = db_get_item_by_id( connections_path, data._id );
-						if( connection != undefined ) {
-							log( 'update2\n' + js(connection) );
-							//let message = { type: 'login', name: data.name, room: get_login_connections() };
-							connection.state = 'login';
-							connection.name = data.name;
-							connection.time = now();
+					if( connection == undefined )
+						if( data._id != undefined ) {
+							connection = { id: data.id, state: 'login', name: data.name, time: now() };
+							let message = { type: 'login', name: data.name, room: get_login_connections() };
 							db_rewrite( connections_path, connection.id, connection );
-							// socket_broadcast( connection.id, message );
-							// socket_send( connection.id, message );
-							log( data.name + ': login update' );
+							socket_broadcast( connection.id, message );
+							socket_send( connection.id, message );
+							socket_send_objects( connection.id, 'states' );
+							log( data.name + ': relogin' );
 						}
-					}
 				}
+
 				break;
 			}
 
@@ -275,23 +276,27 @@ io( server ).on( 'connection', function( socket ) {
 				break;
 			}
 
-			case 'save states': {
+			case 'set': {
 				if( connection != undefined ) {
-					log( connection.name + ': save states' );
-					db_clear( states_path );
-					db_add_item( states_path, data.states );
+					log( connection.name + ': set ' + data.object.name );
+					//db_del_item_by_name( objects_path, data.object.name );
+					db_add_item( objects_path, data.object );
 				}
 				break;
 			}
 
-			case 'restore states': {
+			case 'get': {
 				if( connection != undefined ) {
-					let items = db_get_items( states_path );
-					if( items != undefined ) {
-						log( connection.name + ': restore states' );
-						let message = { type: 'states', states: items[0] };
-						socket_send( connection.id, message );
-					}
+					log( connection.name + ': get ' + data.name );
+					socket_send_objects( connection.id, data.name );
+				}
+				break;
+			}
+
+			case 'del': {
+				if( connection != undefined ) {
+					log( connection.name + ': del ' + data.name );
+					db_del_item_by_name( objects_path, data.name );
 				}
 				break;
 			}

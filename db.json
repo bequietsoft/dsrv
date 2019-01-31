@@ -1,6 +1,13 @@
 {
-    "connections": [],
-    "states": [
+    "connections": [
+        {
+            "id": "HMyinF8SM7euziN3AAAA",
+            "state": "login",
+            "name": "7",
+            "time": "Thu Jan 31 2019 17:20:29 GMT+0700 (GMT+07:00)"
+        }
+    ],
+    "objects": [
         {
             "items": [
                 {
@@ -10,7 +17,7 @@
                             "name": "torso0",
                             "rotation": {
                                 "x": 0,
-                                "y": 0.7907813951323416,
+                                "y": 0,
                                 "z": 0
                             },
                             "position": {
@@ -75,7 +82,7 @@
                             "name": "torso5",
                             "rotation": {
                                 "x": 0,
-                                "y": 0,
+                                "y": -0.3883292634354028,
                                 "z": 0
                             },
                             "position": {
@@ -322,7 +329,7 @@
                             "name": "r_leg2",
                             "rotation": {
                                 "x": 0,
-                                "y": 0,
+                                "y": -0.07856408704883998,
                                 "z": 0
                             },
                             "position": {
@@ -340,7 +347,7 @@
                             "name": "torso0",
                             "rotation": {
                                 "x": 0,
-                                "y": -0.7393285097655349,
+                                "y": 0,
                                 "z": 0
                             },
                             "position": {
@@ -405,7 +412,7 @@
                             "name": "torso5",
                             "rotation": {
                                 "x": 0,
-                                "y": 0,
+                                "y": 0.4862557386623155,
                                 "z": 0
                             },
                             "position": {
@@ -652,7 +659,7 @@
                             "name": "r_leg2",
                             "rotation": {
                                 "x": 0,
-                                "y": 0,
+                                "y": -0.07856408704883998,
                                 "z": 0
                             },
                             "position": {
@@ -664,6 +671,7 @@
                     ]
                 }
             ],
+            "name": "states",
             "current": 1,
             "debug_info": false
         }

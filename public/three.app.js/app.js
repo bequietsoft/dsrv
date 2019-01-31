@@ -145,47 +145,61 @@ class App {
 
 	static input( cmd ) {
 		
-		
-		if( App.hub.state == 'logout' ) {
-			if( App.debug ) log( 'auto login as ' + cmd );
-			App.hub.name = cmd;
-			App.hub.send( { type: 'login', name: App.hub.name, pass: undefined } );
+		if( cmd == 'ss') cmd = 'set states'; 
+		if( cmd == 'gs') cmd = 'get states'; 
+		if( cmd == 'ds') cmd = 'del states';
+
+		let _cmd = cmd.split(' ');
+		if( _cmd.length == 0 ) return;
+
+		if( App.hub.state == 'logout' && _cmd.length == 1 ) {
+			if( App.debug ) log( 'auto login as ' + cmd[0] );
+			App.hub.name = cmd[0];
+			App.hub.send( { type: 'login', name: App.hub.name } );
 			App.gui.item(0).shift();
+			return;
 		}
 		
-		if( App.hub.state == 'login' ) {
-	
-			if( cmd == 'ss') cmd = 'save states'; 
-			if( cmd == 'rs') cmd = 'restore states'; 
-
-			switch( cmd ) {
-				
-				case App.hub.name: {
-					App.hub.send( { type: 'logout', name: App.hub.name } );
-					App.gui.item(0).shift();
-					break;
-				}
-
-				case 'save states': {
-					App.hub.send( { type: 'save states', states: App.avatar.joints.states } );
-					//App.gui.item(0).shift();
-					break;
-				}
-
-				case 'restore states': {
-					App.hub.send( { type: 'restore states' } );
-					//App.gui.item(0).shift();
-					break;
-				}
-
-				default: {
-					App.hub.send( { type: 'message', text: cmd } );
-					App.gui.item(0).shift();
-					break;
-				}
+		if( App.hub.state == 'login' && _cmd.length == 1 ) {
+			if( App.hub.name == cmd ) {
+				App.hub.send( { type: 'logout', name: App.hub.name } );
+				App.gui.item(0).shift();
+				return;
 			}
 		}
 
+		if( App.hub.state == 'login' && _cmd.length == 2 ) {
+
+			switch( _cmd[0] ) {
+				
+				case 'set': {
+					let object = App.world.content.find( _cmd[1] );
+					if( object != undefined ) 
+					 	App.hub.send( { type: 'set', object: object } );
+					else 
+						App.hub.send( { type: 'set', object: { name: _cmd[1], testdata: _cmd[1] } } );
+					break;
+				}
+
+				case 'get': {
+					App.hub.send( { type: 'get', name: _cmd[1] } );
+					break;
+				}
+
+				case 'del': {
+					App.hub.send( { type: 'del', name: _cmd[1] } );
+					break;
+				}
+
+			}
+
+			return;
+		}
+
+		if( App.hub.state == 'login' ) {
+			App.hub.send( { type: 'message', text: cmd } );
+			App.gui.item(0).shift();
+		}
 	}
 
 	static update() {

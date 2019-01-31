@@ -41,9 +41,7 @@ class Hub {
 							log( 'ID: ' + App.id + ' > ' + data.id );
 							let _id = App.id;
 							App.id = data.id;
-							// App.hub.send( { type: 'id', text: 'update', _id: _id } );
-							// App.input( App.hub.name );
-							App.hub.send( { type: 'login', name: App.hub.name, pass: undefined, _id: _id } );
+							App.hub.send( { type: 'login', name: App.hub.name, _id: _id } );
 						}
 					
 					if( data.room != undefined ) {
@@ -67,17 +65,27 @@ class Hub {
 					
 					let avatar = new Avatar( data.name );
 					App.world.add( avatar );
-					App.gui_log( data.name + ': login' );
+					
 
 					if( App.hub.name == data.name ) {
-						App.hub.state = 'login';
-						App.avatar = avatar;
-						//avatar.root.position.set( rf(-5, 5), 0, rf(-5, 5) );
-						avatar.root.position.x = rf(-5, 5);
-						avatar.root.position.z = rf(-5, 5);
-						avatar.root.rotation.set( 0, rf(0, wPI), 0 );
-						App.avatar.save();
-						document.title = App.hub.name;
+						if( App.hub.state == 'logout' ) {
+
+							App.gui_log( data.name + ': login' );
+
+							App.hub.state = 'login';
+							App.avatar = avatar;
+							avatar.root.position.x = rf(-5, 5);
+							avatar.root.position.z = rf(-5, 5);
+							avatar.root.rotation.set( 0, rf(0, wPI), 0 );
+							App.avatar.save();
+
+							App.avatar.joints.states.name = 'states';
+							App.world.add( App.avatar.joints.states );
+
+							document.title = App.hub.name;
+
+						} else
+							App.gui_log( data.name + ': relogin' );
 					}
 
 					if( App.hub.name != data.name ) {
@@ -97,6 +105,7 @@ class Hub {
 						App.hub.state = 'logout';
 						document.title = 'logout';
 						App.world.del( data.name );
+						App.world.del( 'states' );
 						App.avatar = undefined;
 						App.hub.name = undefined;
 					} 
@@ -113,14 +122,15 @@ class Hub {
 					break;
 				}
 
-				case 'states': {
+				case 'object': {
 					try {
-						App.avatar.joints.states = new List();
-						App.avatar.joints.states.items = data.states.items;
-						App.avatar.joints.states.debug_info = data.states.debug_info;
-						App.avatar.joints.states.current = data.states.current;
-						log( 'restore states' );
-					} catch( error ) { if( App.hub.debug ) log('hub state recive error: ' + js(error) ); }
+						let object = App.world.content.find( data.name );
+						if( object != undefined )
+							Object.keys( data.object ).forEach( key => {
+								if( object.hasOwnProperty( key ) ) 
+									object[ key ] = data.object[ key ];
+							});
+					} catch( error ) { if( App.hub.debug ) log('hub object recive error: ' + js(error) ); }
 					break;
 				}
 

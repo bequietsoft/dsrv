@@ -2,7 +2,6 @@ class Avatar {
 
     constructor( name = 'default_name' ) {
 
-		//log( 'Create ' + name );
 		this.name = name;
 		this.root = new THREE.Object3D();
 		this.root.name = 'root';
@@ -628,50 +627,50 @@ class Avatar {
 	
 	//#region update
 	
-		update_mouse() {
+	update_mouse() {
 
-			if( Keyboard.ctrl[0] == false ) {
-				
-				// rotate camera
-				if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-					App.camera.target.rotation.y -= Mouse.mdx / App.fps.fps;
-					App.camera.target.rotation.z -= Mouse.mdy / App.fps.fps;
+		if( Keyboard.ctrl[0] == false ) {
+			
+			// rotate camera
+			if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
+				App.camera.target.rotation.y -= Mouse.mdx / App.fps.fps;
+				App.camera.target.rotation.z -= Mouse.mdy / App.fps.fps;
+			}
+
+			// wheel
+			if( Mouse.wheel != 0 ) {
+				let node = this.joints.nodes.item();
+				let edit_flag = false;
+				if( node != undefined ) {
+					if( Keyboard.key_time('X') > 0 ) { node.rotation.x += Mouse.wheel / 500; edit_flag = true; }
+					if( Keyboard.key_time('Y') > 0 ) { node.rotation.y += Mouse.wheel / 500; edit_flag = true; }
+					if( Keyboard.key_time('Z') > 0 ) { node.rotation.z += Mouse.wheel / 500; edit_flag = true; }
 				}
-
-				// wheel
-				if( Mouse.wheel != 0 ) {
-					let node = this.joints.nodes.item();
-					let ef = false;
-					if( node != undefined ) {
-						if( Keyboard.key_time('X') > 0 ) { node.rotation.x += Mouse.wheel / 500; ef = true; }
-						if( Keyboard.key_time('Y') > 0 ) { node.rotation.y += Mouse.wheel / 500; ef = true; }
-						if( Keyboard.key_time('Z') > 0 ) { node.rotation.z += Mouse.wheel / 500; ef = true; }
-					}
-					
-					if( ef == false ) {
-						App.camera.position.x += Mouse.wheel / 10;
-						if( App.camera.position.x > -1 ) App.camera.position.x = -1;
-					}
+				
+				if( edit_flag == false ) {
+					App.camera.position.x += Mouse.wheel / 10;
+					if( App.camera.position.x > -1 ) App.camera.position.x = -1;
 				}
 			}
 		}
+	}
 
-		update_keyboard() {
-			if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
-			if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
-			if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
-			if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }	
-		}
-		
-		save( sharing = 'all' ) {
-			App.hub.send_vector( App.hub.name, 'root.position', App.avatar.root.position, sharing );
-			App.hub.send_vector( App.hub.name, 'root.rotation', App.avatar.root.rotation, sharing );
-		}
+	update_keyboard() {
+		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
+		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
+		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }	
+	}
+	
+	save( sharing = 'all' ) {
+		App.hub.send_vector( App.hub.name, 'root.position', App.avatar.root.position, sharing );
+		App.hub.send_vector( App.hub.name, 'root.rotation', App.avatar.root.rotation, sharing );
+	}
 
-		update () {
-			this.update_mouse();
-			this.update_keyboard();
-		}
+	update () {
+		this.update_mouse();
+		this.update_keyboard();
+	}
 	
 	//#endregion update
 }
