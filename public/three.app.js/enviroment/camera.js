@@ -14,8 +14,8 @@ class Camera extends THREE.PerspectiveCamera {
 		this.tank.add( this.target );
 		this.target.add( this );
 		
-		this.tank.add( helper( 1.1, 1.1, 1.1, 'red') );
-		this.target.add( helper( 1.11, 1.11, 1.11, 'green') );
+		this.tank.add( helper( 0.5, 0.5, 0.5, 'red') );
+		this.target.add( helper( 0.51, 0.51, 0.51, 'green') );
 
 		this.control_position = true;
 		// this.control_horizontal_rotation = true;
@@ -45,6 +45,7 @@ class Camera extends THREE.PerspectiveCamera {
 		}
 
 		if( this.control_view ) 
+			//App.camera.lookAt( App.camera.target.position.x, App.camera.target.position.y, App.camera.target.position.z );
 			App.camera.lookAt( object.position.x, object.position.y, object.position.z );
 
 		

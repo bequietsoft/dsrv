@@ -640,8 +640,8 @@ class Avatar {
 
 		// translate camera
 		if( Keyboard.ctrl[0] == true && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-			App.camera.target.position.z = Mouse.mdx / App.fps.fps;
-			App.camera.target.position.y = Mouse.mdy / App.fps.fps;
+			App.camera.target.position.z += Mouse.mdx / App.fps.fps;
+			App.camera.target.position.y -= Mouse.mdy / App.fps.fps;
 			//log( p2s(App.camera.target.position) );
 		}
 
