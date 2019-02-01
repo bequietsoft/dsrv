@@ -1,3 +1,8 @@
+function helper( width = 0.5, height = 0.5, length = 0.5, color = undefined ) {
+	if( color == undefined ) color = rgb( ri(0, 255), ri(0, 255), ri(0, 255) );
+	let material = mat( 'wire', color, false );
+	return box( new THREE.Vector3(width, height, length), V0, V0, material, false );
+}
 
 function box(size, position, rotation, material, shadow = false) {
 	var geometry = new THREE.BoxGeometry(size.x, size.y, size.z);

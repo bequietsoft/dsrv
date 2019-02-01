@@ -8,10 +8,15 @@ require('./server/tools.js')();
 require('./server/db.js')();
 
 var debug = true;
-var only_localhost = true;
+var show_msg_log = true;
+var show_db_log = true;
 var show_send_log = false;
 var show_conn_log = false;
 
+var ping_timeout = 5000;
+var kill_timeout = 30000;
+
+var only_localhost = true;
 var port = 3000;
 var main_root = __dirname;
 var client_root = 'public';
@@ -84,7 +89,7 @@ function send( item, response ) {
 function get_socket_index_by_id( id ) {
 	for( let i = 0; i < sockets.length; i++) if( sockets[i].id == id ) return i;
 	return -1;
-}
+} 
 
 function socket_send( id, data ) {
 	let index = get_socket_index_by_id( id );
@@ -100,14 +105,53 @@ function socket_broadcast( id, data ) {
 
 function socket_send_objects( id, name ) {
 	
-	let items = db_get_items( objects_path ).
-		filter( function( item ) { return item.name = name; });
-	
+	let items = db_get_items_by_key( objects_path, "name", name );
 	items.forEach( item => {
-		socket_send( id, { type: 'object', name: name, object: item.object } );
+		socket_send( id, { type: 'object', name: name, object: item } );
 	});
 
 	if( items.length > 0 ) log( 'send ' + items.length + ' objects' ); 
+}
+
+// #endregion
+
+// #region connections
+
+function update_connections() {
+
+	let connections = db_get_items( connections_path );
+	if( connections != undefined ) 
+		if( connections.length != undefined ) 
+			for ( let i = 0; i < connections.length; i++ ) {
+				
+				let connection = connections[i];
+				let dt = Date.now() - Date.parse( connection.time );
+				
+				if( dt > ping_timeout ) {
+					let si = get_socket_index_by_id( connection.id );
+					if( si != -1 ) 
+						sockets[si].emit( 'tocli', 
+						{ type: 'ping', id: connection.id } );
+				}
+				
+				if( dt > kill_timeout ) {
+					if( show_conn_log ) 
+						log( 'kill connection ' + connection.id + ' by timeout' );
+					db_del_item_by_id( connections_path, connection.id );
+					break;
+				}
+			}
+}
+
+function get_login_connections() {
+	let items = db_get_items( connections_path );
+	let room = [];
+	if( items != undefined ) 
+		for( let i = 0; i < items.length; i++ )
+			if( items[i].state == 'login') room.push( { name: items[i].name } );
+	else 
+		room = undefined;
+	return room;
 }
 
 // #endregion
@@ -137,44 +181,7 @@ server.listen( port, function () {
 	db_update_path( objects_path, [], false );
 	
 	setInterval( update_connections, 5000 );
-});
-
-function update_connections() {
-
-	let connections = db_get_items( connections_path );
-	if( connections != undefined ) 
-		if( connections.length != undefined ) 
-			for ( let i = 0; i < connections.length; i++ ) {
-				let connection = connections[i];
-				let dt = Date.now() - Date.parse( connection.time );
-				
-				if( dt > 5000 ) {
-					let si = get_socket_index_by_id( connection.id );
-					if( si != -1 ) 
-						sockets[si].emit( 'tocli', 
-						{ type: 'ping', id: connection.id } );
-				}
-				
-				if( dt > 30000 ) {
-					log( 'kill connection ' + connection.id + ' by timeout' );
-					db_del_item_by_id( connections_path, connection.id );
-					break;
-				}
-			}
-		
-}
-
-function get_login_connections() {
-	let items = db_get_items( connections_path );
-	let room = [];
-	if( items != undefined ) {
-		//log( 'items.length = ' +  items.length );
-		for( let i = 0; i < items.length; i++ )
-			if( items[i].state == 'login') room.push( { name: items[i].name } );
-	}
-	else room = undefined;
-	return room;
-}
+}); 
 
 io( server ).on( 'connection', function( socket ) { 
 
@@ -259,8 +266,10 @@ io( server ).on( 'connection', function( socket ) {
 			}
 
 			case 'message': {
+
 				if( connection != undefined ) {
-					log( connection.name + ': ' + data.text );
+					if( show_msg_log ) 
+						log( connection.name + ': ' + data.text );
 					let message = { type: 'message', name: connection.name, text: data.text };
 					socket_broadcast( connection.id, message );
 					socket_send( connection.id, message );
@@ -278,8 +287,8 @@ io( server ).on( 'connection', function( socket ) {
 
 			case 'set': {
 				if( connection != undefined ) {
-					log( connection.name + ': set ' + data.object.name );
-					//db_del_item_by_name( objects_path, data.object.name );
+					if( show_db_log ) 
+						log( connection.name + ': set ' + data.object.name );
 					db_add_item( objects_path, data.object );
 				}
 				break;
@@ -287,7 +296,8 @@ io( server ).on( 'connection', function( socket ) {
 
 			case 'get': {
 				if( connection != undefined ) {
-					log( connection.name + ': get ' + data.name );
+					if( show_db_log ) 
+						log( connection.name + ': get ' + data.name );
 					socket_send_objects( connection.id, data.name );
 				}
 				break;
@@ -295,7 +305,8 @@ io( server ).on( 'connection', function( socket ) {
 
 			case 'del': {
 				if( connection != undefined ) {
-					log( connection.name + ': del ' + data.name );
+					if( show_db_log ) 
+						log( connection.name + ': del ' + data.name );
 					db_del_item_by_name( objects_path, data.name );
 				}
 				break;
@@ -307,10 +318,10 @@ io( server ).on( 'connection', function( socket ) {
 	});
 
 	socket.on( 'disconnect', function( data ) {
-		if( show_conn_log ) log( 'close connection ' + socket.id );// + ': ' + js(data) );
 		let connection = db_get_item_by_id( connections_path, socket.id );
 		if( connection != undefined ) {
-			//log( js(connection), false );
+			if( show_conn_log ) 
+				log( 'close connection ' + socket.id + ' with name ' + connection.name );
 			let message = { type: 'logout', name: connection.name };
 			socket_broadcast( socket.id, message );
 			db_del_item_by_id( connections_path, socket.id );

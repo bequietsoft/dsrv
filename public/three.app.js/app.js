@@ -32,7 +32,7 @@ class App {
 		//App.physics = new Physics();
 
 		App.camera = new Camera();
-		App.camera.target.rotateZ( -Math.PI/10 ); 
+		App.camera.tank.rotateZ( -Math.PI/10 ); 
 		
 		App.add_gui_elements();
 		App.add_key_binds();
@@ -153,7 +153,6 @@ class App {
 		if( _cmd.length == 0 ) return;
 
 		if( App.hub.state == 'logout' && _cmd.length == 1 ) {
-			if( App.debug ) log( 'auto login as ' + cmd[0] );
 			App.hub.name = cmd[0];
 			App.hub.send( { type: 'login', name: App.hub.name } );
 			App.gui.item(0).shift();

@@ -8,24 +8,29 @@ class Camera extends THREE.PerspectiveCamera {
 		this.position.x = -distance;
 		//this.translateX( -distance );
 		
-		//this.tank = new THREE.Object3D();
+		this.tank = new THREE.Object3D();
 		this.target = new THREE.Object3D();
 		
-		//this.tank.add( this.target );
+		this.tank.add( this.target );
 		this.target.add( this );
 		
+		this.tank.add( helper( 1.1, 1.1, 1.1, 'red') );
+		this.target.add( helper( 1.11, 1.11, 1.11, 'green') );
+
 		this.control_position = true;
 		// this.control_horizontal_rotation = true;
 		// this.control_vertical_rotation = false;
 		this.control_view = true;
 
-		App.world.scene.add( this.target );
+		//App.world.scene.add( this.target );
+		App.world.scene.add( this.tank );
 	}
 
 	update( object ) {
 		
 		if( this.control_position ) 
-			App.camera.target.position.set( object.position.x, object.position.y, object.position.z );
+			//App.camera.target.position.set( object.position.x, object.position.y, object.position.z );
+			App.camera.tank.position.set( object.position.x, object.position.y, object.position.z );
 
 		// if( this.control_rotation && this._object_rotation != undefined ) {
 		// 	App.camera.tank.rotateX( object.rotation.x - this._object_rotation.x );

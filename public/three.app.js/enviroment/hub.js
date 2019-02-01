@@ -28,17 +28,18 @@ class Hub {
 					document.title = 'anonimous';
 
 					if( App.id == undefined ) {	
-						log( 'ID: ' + data.id );
+						if( App.hub.debug ) log( 'ID: ' + data.id );
 						App.id = data.id;
 						App.hub.send( { type: 'id', text: 'new' } );
 
 						// Auto login in debug mode 
-						if( App.debug ) App.input( ("00" + ri(0, 999)).slice(-2) );
+						if( App.debug ) 
+							App.input( ("00" + ri(0, 999)).slice(-2) );
 					}
 
 					if( App.id != undefined ) 
 						if( App.id != data.id ) {	
-							log( 'ID: ' + App.id + ' > ' + data.id );
+							if( App.hub.debug ) log( 'ID: ' + App.id + ' > ' + data.id );
 							let _id = App.id;
 							App.id = data.id;
 							App.hub.send( { type: 'login', name: App.hub.name, _id: _id } );
@@ -71,7 +72,6 @@ class Hub {
 						if( App.hub.state == 'logout' ) {
 
 							App.gui_log( data.name + ': login' );
-
 							App.hub.state = 'login';
 							App.avatar = avatar;
 							avatar.root.position.x = rf(-5, 5);
@@ -84,12 +84,13 @@ class Hub {
 
 							document.title = App.hub.name;
 
-						} else
+						} else {
 							App.gui_log( data.name + ': relogin' );
+							document.title = App.hub.name;
+						}
 					}
 
 					if( App.hub.name != data.name ) {
-						//App.gui_log( 'Hello ' + data.name );
 						if( App.avatar != undefined ) App.avatar.save();
 					}
 
@@ -118,49 +119,25 @@ class Hub {
 						let path = data.path.split('.');
 						for( let i = 0; i < path.length; i++) vector = vector[ path[i] ];
 						vector.set( data.vector.x, data.vector.y, data.vector.z );
-					} catch( error ) { if( App.hub.debug ) log('hub vector recive error: ' + js(error) ); }
+					} catch( error ) { 
+						if( App.hub.debug ) log('hub vector recive error: ' + js(error) ); 
+					}
 					break;
 				}
 
 				case 'object': {
 					try {
 						let object = App.world.content.find( data.name );
-						if( object != undefined )
+						if( object != undefined ) {
 							Object.keys( data.object ).forEach( key => {
 								if( object.hasOwnProperty( key ) ) 
 									object[ key ] = data.object[ key ];
-							});
-					} catch( error ) { if( App.hub.debug ) log('hub object recive error: ' + js(error) ); }
+							} );
+						}
+					} catch( error ) { 
+						if( App.hub.debug ) log('hub object recive error: ' + js(error) ); 
+					}
 					break;
-				}
-
-				{
-				// case 'json': {
-					
-				// 	if( data.name == App.hub.name ) {
-				// 		// restore data 
-				// 	}
-				// 	else {
-
-				// 		data.item = data.item.replace( 
-				// 			'App.avatar', 
-				// 			'App.avatars.find("' + data.name + '")' );
-						
-						
-
-				// 		//ev( data.item + ' = ' + data.value );
-						
-				// 		if( data.item.includes('rotation.y') ) {
-				// 			log( 'recive1: ' + data.value + ' --- ' + target.rotation.y );
-				// 			let target = App.avatars.find(data.name).root;
-				// 			target.rotation.set( 0, eval(data.value), 0 );
-				// 			log( 'recive2: ' + data.value + ' --- ' + target.rotation.y );
-				// 		} 
-				// 		else ev( data.item + ' = ' + data.value );
-				// 	}
-				
-				// 	break;
-				// }
 				}
 
 				default: break;
@@ -178,29 +155,6 @@ class Hub {
 		this.send_vector = function( name, path, vector, sharing ) {
 			let _vector = new THREE.Vector3( vector.x, vector.y, vector.z );
 			App.hub.send( { type: 'vector', name: name, path: path, vector: _vector, sharing: sharing } );
-		}
-
-		{
-		// this.send_item = function( item, broadcast ) {
-			
-		// 	if( App.hub.name == undefined ) 
-		// 	{ log('Send item error: cant send item in logout mode '); return; }
-		// 	let obj = eval( item );
-		// 	let keys = Object.keys( obj );
-
-		// 	if( keys.length == 0 ) {
-		// 		if( js( obj ) ) 
-		// 			App.hub.send( { type: 'json', name: App.hub.name, broadcast: broadcast, item: item, value: js( obj ) } ); 
-		// 		return;
-		// 	}
-
-		// 	keys.forEach( k => { 
-		// 		if( k.startsWith('_') ) k = k.substr(1);
-		// 		try { 
-		// 			this.send_item( item + '.' + k, broadcast ); 
-		// 		} catch( e ) {}
-		// 	});
-		// }
 		}
 		
 	}

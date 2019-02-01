@@ -1,8 +1,6 @@
 var jsondb = require( 'node-json-db' );
 var db = new jsondb( "db", true, true );
 
-// #region db
-
 module.exports = function() {
 
 	this.db_get_items = function( path ) {
@@ -17,6 +15,19 @@ module.exports = function() {
 		return result;
 	}
 
+	this.db_get_items_by_key = function( path, key, value = undefined ) {
+		let items = db_get_items( path ).
+		filter( function( item ) { 
+			if( item.hasOwnProperty( key ) )
+				if( value == undefined ) 
+					return item;
+				else 
+					if( item[ key ] == value ) return item;
+			//return;
+		});
+		return items;
+	}
+
 	this.db_clear = function( path ) {
 		let items = db_get_items( path );
 		if( Array.isArray( items ) ) 
@@ -27,23 +38,23 @@ module.exports = function() {
 	
 	this.db_add_item = function( path, data ) {
 		let item = db_get_item_by_id( path, data.id );
-		//log( '   find exist item = ' + js(item) );
 		if( item != undefined ) { 
 			
 			if( item.id != undefined && data.id != undefined )
 				if( item.id == data.id ) {
-					log( 'item with id ' + data.id + ' already exist' );
+					if( show_db_log ) 
+						log( 'db_add_item: item with id ' + data.id + ' already exist' );
 					return false; 
 				}
 
 			if( item.name != undefined && data.name != undefined )
 				if( item.name == data.name ) {
-					log( 'item with name ' + data.name + ' already exist' );
+					if( show_db_log ) 
+						log( 'db_add_item: item with name ' + data.name + ' already exist' );
 					return false; 
 				}
 		}
 		db.push( path + '[]', data );
-		//log('ADD ' + now() );
 		return true; 
 	}
 	
@@ -53,20 +64,16 @@ module.exports = function() {
 			if( items[i].id == id ) {
 				db.delete( path + '[' + i + ']' );
 				i--;
-				//return true;
 			}
 		return false;
 	}
 
 	this.db_del_item_by_name = function( path, name ) {
 		let items = db_get_items( path );
-		//log( items, false );
 		for( let i = 0; i < items.length; i++ )
 			if( items[i].name == name ) {
-				//log('del ' + js(items[i]));
 				db.delete( path + '[' + i + ']' );
 				i--;
-				//return true;
 			}
 		return false;
 	}

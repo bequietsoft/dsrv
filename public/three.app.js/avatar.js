@@ -7,6 +7,9 @@ class Avatar {
 		this.root.name = 'root';
 		this.joints = new Joints( name + '_joints' );
 
+		this.state_type = 'idle';
+		this.state_pose = 0;
+
 		//this.test_minimum_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
 		this.simple_men();
@@ -198,9 +201,9 @@ class Avatar {
 
 	torso_rotate( step = V0 ) {
 		
-		if(this.torso == undefined) return;
+		if( this.torso == undefined ) return;
 
-		if (App.act.id('up') != -1) return;
+		if( App.act.id('up') != -1 ) return;
 		App.act.add( 'up',
 			{
 				this: this,
@@ -629,28 +632,33 @@ class Avatar {
 	
 	update_mouse() {
 
-		if( Keyboard.ctrl[0] == false ) {
-			
-			// rotate camera
-			if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-				App.camera.target.rotation.y -= Mouse.mdx / App.fps.fps;
-				App.camera.target.rotation.z -= Mouse.mdy / App.fps.fps;
-			}
+		// rotate camera
+		if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
+			App.camera.tank.rotation.y -= Mouse.mdx / App.fps.fps;
+			App.camera.tank.rotation.z -= Mouse.mdy / App.fps.fps;
+		}
 
-			// wheel
-			if( Mouse.wheel != 0 ) {
-				let node = this.joints.nodes.item();
-				let edit_flag = false;
-				if( node != undefined ) {
-					if( Keyboard.key_time('X') > 0 ) { node.rotation.x += Mouse.wheel / 500; edit_flag = true; }
-					if( Keyboard.key_time('Y') > 0 ) { node.rotation.y += Mouse.wheel / 500; edit_flag = true; }
-					if( Keyboard.key_time('Z') > 0 ) { node.rotation.z += Mouse.wheel / 500; edit_flag = true; }
-				}
-				
-				if( edit_flag == false ) {
-					App.camera.position.x += Mouse.wheel / 10;
-					if( App.camera.position.x > -1 ) App.camera.position.x = -1;
-				}
+		// translate camera
+		if( Keyboard.ctrl[0] == true && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
+			App.camera.target.position.z = Mouse.mdx / App.fps.fps;
+			App.camera.target.position.y = Mouse.mdy / App.fps.fps;
+			//log( p2s(App.camera.target.position) );
+		}
+
+		// wheel
+		if( Mouse.wheel != 0 ) {
+
+			let node = this.joints.nodes.item();
+			let edit_flag = false;
+			if( node != undefined ) {
+				if( Keyboard.key_time('X') > 0 ) { node.rotation.x += Mouse.wheel / 500; edit_flag = true; }
+				if( Keyboard.key_time('Y') > 0 ) { node.rotation.y += Mouse.wheel / 500; edit_flag = true; }
+				if( Keyboard.key_time('Z') > 0 ) { node.rotation.z += Mouse.wheel / 500; edit_flag = true; }
+			}
+			
+			if( edit_flag == false ) {
+				App.camera.position.x += Mouse.wheel / 10;
+				if( App.camera.position.x > -1 ) App.camera.position.x = -1;
 			}
 		}
 	}
