@@ -40,6 +40,14 @@ class List {
 		return false;
 	}
 
+	getid( item ) {
+		for( let i = 0; i < this.items.length; i++ )
+			if( this.items[i] == item ) {
+				return i;
+			}
+		return -1;
+	}
+
 	find( name ) {
 		for( let i = 0; i < this.items.length; i++ )
 			if( this.items[i].name == name ) return this.items[i];
@@ -48,15 +56,18 @@ class List {
 
 	print() {
 		//console.clear();
-		if( this.name != undefined ) log( this.name + ':', false );
+		if( this.name != undefined && this.items.length > 0 ) log( this.name + ':', false );
 		for( let i = 0; i < this.items.length; i++ ) {
 			let current_tag = ' ';
 			let item_string = this.items[i];
 			if( i == this.current ) current_tag = '>';
 			//log( i + ' ' + current_tag + '\t' + js(item_string) );
-			log( '\t' + ("00" + i).slice(-3) + '\t' + current_tag + '\t' + this.items[i].name + '\t(' + js(item_string).length + ' bytes)', false );
+			log( 'FF \t' + ("00" + i).slice(-3) + '\t' + current_tag + '\t' + this.items[i].name + '\t(' + js(item_string).length + ' bytes)', false );
 		}
-		log();
+		if( this.name != undefined && this.items.length == 0 ) 
+			log( this.name + ': empty', false );
+		else 
+			log();
 	}
 
 	next() {
@@ -90,8 +101,4 @@ class List {
 		return result;
 	}
 
-	// get length() {
-	// 	return items.length;
-	// }
-	
 }

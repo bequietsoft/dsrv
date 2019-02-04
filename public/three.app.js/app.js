@@ -156,6 +156,12 @@ class App {
 		let _cmd = cmd.split(' ');
 		if( _cmd.length == 0 ) return;
 
+		if( _cmd[0] == 'as') cmd = 'add state' + _cmd[1];
+		if( _cmd[0] == 'ds') cmd = 'del state' + _cmd[1];
+		if( _cmd[0] == 'cs') cmd = 'del state' + _cmd[1];
+
+		_cmd = cmd.split(' ');
+
 		if( App.hub.state == 'logout' && _cmd.length == 1 ) {
 			App.hub.name = cmd[0];
 			App.hub.send( { type: 'login', name: App.hub.name } );
@@ -205,22 +211,26 @@ class App {
 		}
 
 		if( App.hub.state == 'login' && _cmd.length == 3 ) {
-			
-			if( _cmd[0] == 'del' && _cmd[1] == 'state' ) {
+			if( cmd[1] == 'state' ) {
+				log('d01');
 				let states = App.world.content.find( 'states' );
-				if( states == undefined ) return;
+				if( states == undefined ) { log('d02'); return; }
+				
 				let state = states.find( _cmd[2] );
-				if( state != undefined ) states.del( state );
-				//if( !states.debug_info ) states.print();
-			}
-
-			if( _cmd[0] == 'add' && _cmd[1] == 'state' ) {
-				let states = App.world.content.find( 'states' );
-				if( states == undefined ) return;
-				let state = states.find( _cmd[2] );
-				if( state != undefined ) states.del( state );
-				states.add( { name: _cmd[2], data: App.avatar.joints.getstatedata() } );
-				//if( !states.debug_info ) states.print();
+				if( state != undefined ) {
+					if( _cmd[0] == 'del' ) states.del( state );
+					if( _cmd[0] == 'cur' ) states.current = states.getid( state );
+					if( !states.debug_info ) states.print();
+				} else {
+					// if( _cmd[0] == 'add' ) {
+					// 	 states.add( { name: _cmd[2], data: App.avatar.joints.getstatedata() } );
+					// 	 states.print();
+					// }
+					if( _cmd[0] == 'add' ) { 
+						log( cmd );
+						App.avatar.joints.savestate( _cmd[2] );
+					}
+				}
 			}
 			return;
 		}

@@ -68,11 +68,13 @@ class Joints {
 		} );
 	}
 
-	// savestate( name ) {
-	// 	let state = this.states.find( name );
-	// 	if( state != undefined ) this.states.del( state );
-	// 	this.states.add( { name: name, data: this.getstatedata() } );
-	// }
+	savestate( name ) {
+		let state = this.states.find( name );
+		if( state != undefined ) this.states.del( state );
+		this.states.print();
+		this.states.add( { name: name, data: this.getstatedata() } );
+		this.states.print();
+	}
 
 	loadstate( name, rotation, position ) {
 		let state = this.states.find( name );

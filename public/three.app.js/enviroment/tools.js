@@ -2,8 +2,21 @@ let ud = undefined;
 
 // loging
 function log( message = undefined, timestamp = true ) {
-	
 	if( !App.debug ) return;
+
+	if( this.caller == null ) {
+		//console.log( this );
+		_log( message, timestamp )
+	}
+	else {
+		//console.log( this );
+		//console.log( this.caller );
+		_log( message, timestamp).bind( this.caller );
+	}
+}
+
+function _log( message = undefined, timestamp = true ) {
+	
 	if( message == undefined ) { message = ''; timestamp = false; }
 	
 	if( timestamp ) 

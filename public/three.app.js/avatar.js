@@ -644,7 +644,7 @@ class Avatar {
 
 		// translate camera
 		if( Keyboard.ctrl[0] == true && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-			App.camera.target.position.y += 2 * Mouse.mdy / App.fps.fps;
+			App.camera.target.position.y += Mouse.mdy / App.fps.fps / 2;
 		}
 
 		// wheel
@@ -680,6 +680,8 @@ class Avatar {
 	update () {
 		this.update_mouse();
 		this.update_keyboard();
+
+		//log( this.joints.states.cu);
 	}
 	
 	//#endregion update
