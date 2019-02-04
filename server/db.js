@@ -1,7 +1,11 @@
 var jsondb = require( 'node-json-db' );
 var db = new jsondb( "db", true, true );
 
+//var show_db_log = true;
+
 module.exports = function() {
+
+	this.show_db_log = true;
 
 	this.db_get_items = function( path ) {
 		try { return  db.getData( path ); } catch (error) {}

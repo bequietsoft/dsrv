@@ -32,7 +32,8 @@ class App {
 		//App.physics = new Physics();
 
 		App.camera = new Camera();
-		App.camera.tank.rotateZ( -Math.PI/10 ); 
+		//App.camera.tank.rotateZ( -Math.PI/10 ); 
+		App.camera.target.rotateZ( -Math.PI/10 ); 
 		
 		App.add_gui_elements();
 		App.add_key_binds();
@@ -62,10 +63,12 @@ class App {
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next' );
 			Events.bind( 'keydown', ['l'], avatar + 'joints.print' );
-			Events.bind( 'keydown', ['1'], avatar + 'joints.savestate', '"state1"' );
-			Events.bind( 'keydown', ['2'], avatar + 'joints.savestate', '"state2"' );
-			Events.bind( 'keydown', ['o'], avatar + 'joints.loadstate', '"state1", true, false' );
-			Events.bind( 'keydown', ['p'], avatar + 'joints.loadstate', '"state2", true, false' );
+			// Events.bind( 'keydown', ['1'], avatar + 'joints.savestate', '"state1"' );
+			// Events.bind( 'keydown', ['2'], avatar + 'joints.savestate', '"state2"' );
+			Events.bind( 'keydown', ['1'], avatar + 'joints.loadstate', '"state1", true, false' );
+			Events.bind( 'keydown', ['2'], avatar + 'joints.loadstate', '"state2", true, false' );
+			Events.bind( 'keydown', ['3'], avatar + 'joints.loadstate', '"state3", true, false' );
+			Events.bind( 'keydown', ['4'], avatar + 'joints.loadstate', '"state4", true, false' );
 
 			Events.bind( 'keydown', ['g'], avatar + 'switch_edit' );
 		
@@ -148,6 +151,7 @@ class App {
 		if( cmd == 'ss') cmd = 'set states'; 
 		if( cmd == 'gs') cmd = 'get states'; 
 		if( cmd == 'ds') cmd = 'del states';
+		if( cmd == 'ps') cmd = 'print states';
 
 		let _cmd = cmd.split(' ');
 		if( _cmd.length == 0 ) return;
@@ -190,8 +194,34 @@ class App {
 					break;
 				}
 
+				case 'print': {
+					let object = App.world.content.find( _cmd[1] );
+					if( object != undefined ) 
+						if( object.print != undefined ) object.print();
+				}
+
+			}
+			return;
+		}
+
+		if( App.hub.state == 'login' && _cmd.length == 3 ) {
+			
+			if( _cmd[0] == 'del' && _cmd[1] == 'state' ) {
+				let states = App.world.content.find( 'states' );
+				if( states == undefined ) return;
+				let state = states.find( _cmd[2] );
+				if( state != undefined ) states.del( state );
+				//if( !states.debug_info ) states.print();
 			}
 
+			if( _cmd[0] == 'add' && _cmd[1] == 'state' ) {
+				let states = App.world.content.find( 'states' );
+				if( states == undefined ) return;
+				let state = states.find( _cmd[2] );
+				if( state != undefined ) states.del( state );
+				states.add( { name: _cmd[2], data: App.avatar.joints.getstatedata() } );
+				//if( !states.debug_info ) states.print();
+			}
 			return;
 		}
 
@@ -215,7 +245,7 @@ class App {
 			App.avatar.update();
 			App.camera.update( App.avatar.root );
 		} else 
-			App.camera.update( { position: V(0, 0.8, 0) } );
+			App.camera.update( { position: V(0, 0, 0), rotation: V(0, 0, 0) } );
 		
 		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
 		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';

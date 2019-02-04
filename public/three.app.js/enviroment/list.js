@@ -28,12 +28,16 @@ class List {
 	}
 
 	del( item ) {
+		let deletions = 0;
 		for( let i = 0; i < this.items.length; i++ )
 			if( this.items[i] == item ) {
 				this.items.splice( i, 1);
 				this.current = this.items.length - 1;
+				deletions++;
 			}
 		if ( this.debug_info ) this.print();
+		if( deletions > 0 ) return true;
+		return false;
 	}
 
 	find( name ) {

@@ -5,7 +5,7 @@ class Camera extends THREE.PerspectiveCamera {
 		//log( 'Create camera' );
 
 		super( App.fov, window.innerWidth / window.innerHeight, App.near, App.far );
-		this.position.x = -distance;
+		
 		//this.translateX( -distance );
 		
 		this.tank = new THREE.Object3D();
@@ -14,45 +14,25 @@ class Camera extends THREE.PerspectiveCamera {
 		this.tank.add( this.target );
 		this.target.add( this );
 		
-		this.tank.add( helper( 0.5, 0.5, 0.5, 'red') );
-		this.target.add( helper( 0.51, 0.51, 0.51, 'green') );
+		// this.tank.add( helper( 0.5, 0.5, 0.5, 'red') );
+		// this.target.add( helper( 0.51, 0.51, 0.51, 'green') );
 
-		this.control_position = true;
-		// this.control_horizontal_rotation = true;
-		// this.control_vertical_rotation = false;
-		this.control_view = true;
+		this.position.x = -distance;
 
-		//App.world.scene.add( this.target );
 		App.world.scene.add( this.tank );
 	}
 
 	update( object ) {
 		
-		if( this.control_position ) 
-			//App.camera.target.position.set( object.position.x, object.position.y, object.position.z );
-			App.camera.tank.position.set( object.position.x, object.position.y, object.position.z );
+		if( object == undefined ) return;
 
-		// if( this.control_rotation && this._object_rotation != undefined ) {
-		// 	App.camera.tank.rotateX( object.rotation.x - this._object_rotation.x );
-		// 	App.camera.target.rotateY( object.rotation.y - this._object_rotation.y );
-		// 	App.camera.target.rotateZ( object.rotation.z - this._object_rotation.z );
-		// }
-	
+		// App.camera.tank.position.x = object.position.x;
+		// App.camera.tank.position.y = object.position.y;
+		// App.camera.tank.position.z = object.position.z;
+		App.camera.tank.position.set( object.position.x, object.position.y, object.position.z );
+		App.camera.tank.rotation.set( object.rotation.x, object.rotation.y, object.rotation.z );
 
-		if( this.control_horizontal_rotation ) {
-			//log(App.camera.tank.rotation.y + ' ?? ' +  object.rotation.y);
-			//App.camera.tank.rotation.y = object.rotation.y;
-		}
-
-		if( this.control_view ) 
-			//App.camera.lookAt( App.camera.target.position.x, App.camera.target.position.y, App.camera.target.position.z );
-			App.camera.lookAt( object.position.x, object.position.y, object.position.z );
-
-		
-		// //
-		// //if( this._object_position == undefined ) this._object_position = V0;
-		// if( this._object_rotation == undefined ) this._object_rotation = V0;
-		// //this._object_position.set( object.position.x, object.position.y,  object.position.z );
-		// this._object_rotation.set( object.rotation.x, object.rotation.y,  object.rotation.z );
+		let tp = AV( object.position, App.camera.target.position );
+		App.camera.lookAt( tp.x, tp.y, tp.z );
 	}
 }

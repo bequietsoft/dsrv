@@ -4,7 +4,7 @@ class Joints {
 		this.name = name;
 		this.nodes = new List();
 		this.markers = new List();
-		this.states = new List( );
+		this.states = new List();
 		this.edit = false;
 	}
 
@@ -68,11 +68,11 @@ class Joints {
 		} );
 	}
 
-	savestate( name ) {
-		let state = this.states.find( name );
-		if( state != undefined ) this.states.del( state );
-		this.states.add( { name: name, data: this.getstatedata() } );
-	}
+	// savestate( name ) {
+	// 	let state = this.states.find( name );
+	// 	if( state != undefined ) this.states.del( state );
+	// 	this.states.add( { name: name, data: this.getstatedata() } );
+	// }
 
 	loadstate( name, rotation, position ) {
 		let state = this.states.find( name );

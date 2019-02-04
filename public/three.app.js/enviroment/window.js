@@ -1,7 +1,12 @@
 function load() {
+
 	App.init();
-	//document.title = 'anonimous';
-	document.addEventListener( "contextmenu", function(e) { e.preventDefault(); }, false );
+
+	document.addEventListener( "contextmenu", function(e) { 
+		e.preventDefault(); }, false );
+
+	window.addEventListener( "mousewheel", function(e) {  
+		if ( e.ctrlKey == true ) e.preventDefault(); }, false );
 }
 
 function resize() {	

@@ -4,12 +4,13 @@ var io = require( 'socket.io' );
 var path = require( 'path' ); 
 var fs = require( 'fs' );
 
+
+
 require('./server/tools.js')();
 require('./server/db.js')();
 
 var debug = true;
 var show_msg_log = true;
-var show_db_log = true;
 var show_send_log = false;
 var show_conn_log = false;
 
@@ -110,7 +111,8 @@ function socket_send_objects( id, name ) {
 		socket_send( id, { type: 'object', name: name, object: item } );
 	});
 
-	if( items.length > 0 ) log( 'send ' + items.length + ' objects' ); 
+	if( show_send_log )
+		if( items.length > 0 ) log( 'send ' + items.length + ' objects' ); 
 }
 
 // #endregion
@@ -118,29 +120,27 @@ function socket_send_objects( id, name ) {
 // #region connections
 
 function update_connections() {
-
 	let connections = db_get_items( connections_path );
-	if( connections != undefined ) 
-		if( connections.length != undefined ) 
-			for ( let i = 0; i < connections.length; i++ ) {
-				
-				let connection = connections[i];
-				let dt = Date.now() - Date.parse( connection.time );
-				
-				if( dt > ping_timeout ) {
-					let si = get_socket_index_by_id( connection.id );
-					if( si != -1 ) 
-						sockets[si].emit( 'tocli', 
-						{ type: 'ping', id: connection.id } );
-				}
-				
-				if( dt > kill_timeout ) {
-					if( show_conn_log ) 
-						log( 'kill connection ' + connection.id + ' by timeout' );
-					db_del_item_by_id( connections_path, connection.id );
-					break;
-				}
-			}
+	if( connections == undefined ) return;
+	if( connections.length == 0 ) return;
+	
+	connections.forEach( connection => {
+	
+		let dt = Date.now() - Date.parse( connection.time );
+
+		if( dt > ping_timeout ) {
+			let si = get_socket_index_by_id( connection.id );
+			if( si != -1 ) 
+				sockets[si].emit( 'tocli', 
+				{ type: 'ping', id: connection.id } );
+		}
+		
+		if( dt > kill_timeout ) {
+			if( show_conn_log ) 
+				log( 'kill connection ' + connection.id + ' by timeout' );
+			db_del_item_by_id( connections_path, connection.id );
+		}
+	} );
 }
 
 function get_login_connections() {
@@ -208,7 +208,7 @@ io( server ).on( 'connection', function( socket ) {
 							socket_broadcast( connection.id, message );
 							socket_send( connection.id, message );
 							socket_send_objects( connection.id, 'states' );
-							log( data.name + ': login' );
+							log( data.name + ': relogin' );
 						}
 						
 				} else {

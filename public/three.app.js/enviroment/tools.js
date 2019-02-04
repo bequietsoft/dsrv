@@ -14,6 +14,7 @@ function log( message = undefined, timestamp = true ) {
 	if( App.log_gui != undefined ) App.log_gui.add( message );
 }
 
+// time-stamp
 function ts() {
 	var d = new Date();
 	var h = ("0" + d.getHours()).slice(-2);
@@ -23,11 +24,11 @@ function ts() {
 	return h + ':' + m + ':' + s + '.' + ms;
 }
 
-//
-function sleep( ms ) {
-	ms += new Date().getTime();
-	while (new Date() < ms) {}
-} 
+// //
+// function sleep( ms ) {
+// 	ms += new Date().getTime();
+// 	while (new Date() < ms) {}
+// } 
 
 // 
 function get_context_path( item ) {

@@ -51,7 +51,7 @@ class Avatar {
 		this.root.add( this.box );
 		this.root.position.set ( 0, 0, 0 );
 	}
-
+	
 	simple_men() {
 		
 		let wire_mat = mat('wire');
@@ -109,6 +109,8 @@ class Avatar {
 		this.root.add( this.box );
 		this.root.position.set ( 0, 0.8, 0 );
 	}
+
+	// #region simple parts
 
 	test_cloth_cinc( dp, dr, mirror ) {
 		
@@ -628,21 +630,21 @@ class Avatar {
 		return cinc;
 	}
 	
+	//#endregion simple
+
 	//#region update
 	
 	update_mouse() {
 
 		// rotate camera
 		if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-			App.camera.tank.rotation.y -= Mouse.mdx / App.fps.fps;
-			App.camera.tank.rotation.z -= Mouse.mdy / App.fps.fps;
+			App.camera.target.rotation.y -= Mouse.mdx / App.fps.fps;
+			App.camera.target.rotation.z -= Mouse.mdy / App.fps.fps;
 		}
 
 		// translate camera
 		if( Keyboard.ctrl[0] == true && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-			App.camera.target.position.z += Mouse.mdx / App.fps.fps;
-			App.camera.target.position.y -= Mouse.mdy / App.fps.fps;
-			//log( p2s(App.camera.target.position) );
+			App.camera.target.position.y += 2 * Mouse.mdy / App.fps.fps;
 		}
 
 		// wheel
@@ -666,8 +668,8 @@ class Avatar {
 	update_keyboard() {
 		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
 		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
-		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); this.save(); }
-		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); this.save(); }	
+		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); App.camera.target.rotation.y -= 0.1; this.save(); }
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); App.camera.target.rotation.y += 0.1; this.save(); }	
 	}
 	
 	save( sharing = 'all' ) {
