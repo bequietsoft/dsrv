@@ -681,7 +681,10 @@ class Avatar {
 		this.update_mouse();
 		this.update_keyboard();
 
-		//log( this.joints.states.cu);
+		if( this.joints == undefined ) return;
+		this.joints.ite.forEach(element => {
+			
+		});
 	}
 	
 	//#endregion update

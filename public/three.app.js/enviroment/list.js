@@ -62,7 +62,7 @@ class List {
 			let item_string = this.items[i];
 			if( i == this.current ) current_tag = '>';
 			//log( i + ' ' + current_tag + '\t' + js(item_string) );
-			log( 'FF \t' + ("00" + i).slice(-3) + '\t' + current_tag + '\t' + this.items[i].name + '\t(' + js(item_string).length + ' bytes)', false );
+			log( '\t' + ("00" + i).slice(-3) + '\t' + current_tag + '\t' + this.items[i].name + '\t(' + js(item_string).length + ' bytes)', false );
 		}
 		if( this.name != undefined && this.items.length == 0 ) 
 			log( this.name + ': empty', false );

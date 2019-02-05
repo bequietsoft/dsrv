@@ -1,6 +1,6 @@
 class Camera extends THREE.PerspectiveCamera {
 
-	constructor( distance = 5 ) {
+	constructor( distance = 15 ) {
 		
 		//log( 'Create camera' );
 

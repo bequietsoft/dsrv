@@ -63,104 +63,28 @@ class App {
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next' );
 			Events.bind( 'keydown', ['l'], avatar + 'joints.print' );
-			// Events.bind( 'keydown', ['1'], avatar + 'joints.savestate', '"state1"' );
-			// Events.bind( 'keydown', ['2'], avatar + 'joints.savestate', '"state2"' );
-			Events.bind( 'keydown', ['1'], avatar + 'joints.loadstate', '"state1", true, false' );
-			Events.bind( 'keydown', ['2'], avatar + 'joints.loadstate', '"state2", true, false' );
-			Events.bind( 'keydown', ['3'], avatar + 'joints.loadstate', '"state3", true, false' );
-			Events.bind( 'keydown', ['4'], avatar + 'joints.loadstate', '"state4", true, false' );
+			Events.bind( 'keydown', ['0'], avatar + 'joints.runstate', '"state0", true, false' );
+			Events.bind( 'keydown', ['1'], avatar + 'joints.runstate', '"state1", true, false' );
+			Events.bind( 'keydown', ['2'], avatar + 'joints.runstate', '"state2", true, false' );
+			Events.bind( 'keydown', ['3'], avatar + 'joints.runstate', '"state3", true, false' );
+			Events.bind( 'keydown', ['4'], avatar + 'joints.runstate', '"state4", true, false' );
 
 			Events.bind( 'keydown', ['g'], avatar + 'switch_edit' );
-		
-		return;
-		{
-		let avatar = App.avatars.item();
-		Events.bind( 'keydown', 'App.avatars.item().joints.next', ['n'] );
-		App.joints = new List( 'joints' );
-		App.j00 = new List( 'default joints' );
-		App.j01 = new List( 'additional joints' );
-		App.joints.add( App.j00 );
-		
-		if( avatar.root.torso != undefined ) {
-			App.j00.add( ex( '$A.$B', [ 'position', 'rotation' ], [ 'x', 'y', 'z' ] ) );
-			App.j00.add( ex( 'torso.bones[$A].position.$B', DA( 0, avatar.torso.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
-		}
-
-		if( avatar.test != undefined ) {
-			App.j00.add( ex( '$A.$B', [ 'position', 'rotation' ], [ 'x', 'y', 'z' ] ) );
-			App.j00.add( ex( 'test.bones[$A].position.$B', DA( 0, avatar.test.data.bones.length - 1 ), [ 'x', 'y', 'z' ] ) );
-		}
-		
-		App.joints.debug_info = true;
-		App.j00.debug_info = true;
-		App.j01.debug_info = true;
-
-		Events.bind( 'keydown', 'function() { console.clear(); }', 	['b', 'v', 'u', 'c', 'o', 'p'] );
-
-		Events.bind( 'keydown', 'App.joints.item().print', 			['b'] );			// b - print current joins group
-		Events.bind( 'keydown', 'App.joints.item().check_all', 		['v'] );
-		Events.bind( 'keydown', 'App.joints.item().uncheck_all', 	['u'] );
-		Events.bind( 'keydown', 'App.joints.item().check', 			['c'] );
-		Events.bind( 'keydown', 'App.joints.item().prev', 			['o'] );
-		Events.bind( 'keydown', 'App.joints.item().next', 			['p'] );
-
-		Events.bind( 'keydown', 'App.joints.prev',		 			['['] );		// [ prev joints group
-		Events.bind( 'keydown', 'App.joints.next',		 			[']'] );		// ] next joints group
-	
-		log( window['App'] );
-
-		App.avatars.item().active_joint = App.joints.item().item();
-		//Events.debug_info = false;
-
-		return;
-
-		this.collection01 = new List();
-		this.collection01.add( 'position.x' );
-		this.collection01.add( 'rotation.y' );
-		this.collection01.debug_info = true;
-
-		// create test Keyframes
-		{
-			//Keyframes.debug_info = true;
-			Keyframes.add( { id: 'position_0000', items: this.collection01.get_checked(), root: 'App.avatars.item(0).root' } );
-			App.avatars.item(0).root.position.x  = 1;
-			App.avatars.item(0).root.rotation.y  = PI;
-			Keyframes.add( { id: 'position_0001', items: this.collection01.get_checked(), root: 'App.avatars.item(0).root' } );
-			App.avatars.item(0).root.position.x  = 0;
-			App.avatars.item(0).root.rotation.y  = 0;
-		}
- 
-		Events.bind( 'keydown', this.collection01.print.bind( this.collection01 ), 'b' );
-		Events.bind( 'keydown', this.collection01.check.bind( this.collection01 ), 'c' );
-		Events.bind( 'keydown', this.collection01.next.bind( this.collection01 ), 'n' );
-		Events.bind( 'keydown', this.collection01.prev.bind( this.collection01 ), 'p' );
-
-		let data0 = { sequence: [ 0, 1, 0 ], temps: [ 20, 20, 20 ], index: 0, root: 'App.avatars.item().root' };
-		Events.bind( 'keydown', Keyframes.play, 't', data0 );
-
-		let data1 = { sequence: [ 0, 1, 0 ], temps: [ 20, 20, 20 ], index: 0, root: 'App.avatars.item(1).root' };
-		Events.bind( 'keydown', Keyframes.play, 'y', data1 );
-
-		let data2 = { sequence: [ 0, 1, 0 ], temps: [ 20, 20, 20 ], index: 0, root: 'App.avatars.item(2).root' };
-		Events.bind( 'keydown', Keyframes.play, 'u', data2 );
-		}
 	}
 
 	static input( cmd ) {
 		
-		if( cmd == 'ss') cmd = 'set states'; 
-		if( cmd == 'gs') cmd = 'get states'; 
-		if( cmd == 'ds') cmd = 'del states';
-		if( cmd == 'ps') cmd = 'print states';
+		if( cmd == 'ss' ) cmd = 'set states'; 
+		if( cmd == 'gs' ) cmd = 'get states'; 
+		if( cmd == 'ds' ) cmd = 'del states';
+		if( cmd == 'ps' ) cmd = 'print states';
+		if( cmd.startsWith('as ') )  cmd = cmd.replace( 'as ', 'add_state ' ); 
+		if( cmd.startsWith('ds ') )  cmd = cmd.replace( 'ds ', 'del_state ' );
+		if( cmd.startsWith('cs ') )  cmd = cmd.replace( 'cs ', 'cur_state ' );
+		if( cmd.startsWith('rs ') )  cmd = cmd.replace( 'rs ', 'run_state ' );
 
 		let _cmd = cmd.split(' ');
-		if( _cmd.length == 0 ) return;
-
-		if( _cmd[0] == 'as') cmd = 'add state' + _cmd[1];
-		if( _cmd[0] == 'ds') cmd = 'del state' + _cmd[1];
-		if( _cmd[0] == 'cs') cmd = 'del state' + _cmd[1];
-
-		_cmd = cmd.split(' ');
+		if( _cmd.length == 0 ) return;		
 
 		if( App.hub.state == 'logout' && _cmd.length == 1 ) {
 			App.hub.name = cmd[0];
@@ -204,33 +128,33 @@ class App {
 					let object = App.world.content.find( _cmd[1] );
 					if( object != undefined ) 
 						if( object.print != undefined ) object.print();
+					break;
 				}
 
-			}
-			return;
-		}
-
-		if( App.hub.state == 'login' && _cmd.length == 3 ) {
-			if( cmd[1] == 'state' ) {
-				log('d01');
-				let states = App.world.content.find( 'states' );
-				if( states == undefined ) { log('d02'); return; }
-				
-				let state = states.find( _cmd[2] );
-				if( state != undefined ) {
-					if( _cmd[0] == 'del' ) states.del( state );
-					if( _cmd[0] == 'cur' ) states.current = states.getid( state );
-					if( !states.debug_info ) states.print();
-				} else {
-					// if( _cmd[0] == 'add' ) {
-					// 	 states.add( { name: _cmd[2], data: App.avatar.joints.getstatedata() } );
-					// 	 states.print();
-					// }
-					if( _cmd[0] == 'add' ) { 
-						log( cmd );
-						App.avatar.joints.savestate( _cmd[2] );
-					}
+				case 'add_state': {
+					if( App.avatar == undefined ) return;
+					App.avatar.joints.addstate( _cmd[1] );
+					break;
 				}
+
+				case 'del_state': {
+					if( App.avatar == undefined ) return;
+					App.avatar.joints.delstate( _cmd[1] );
+					break;
+				}
+
+				case 'cur_state': {
+					if( App.avatar == undefined ) return;
+					App.avatar.joints.setcurstate( _cmd[1] );
+					break;
+				}
+
+				case 'run_state': {
+					if( App.avatar == undefined ) return;
+					App.avatar.joints.runstate( _cmd[1], true, false );
+					break;
+				}
+
 			}
 			return;
 		}
