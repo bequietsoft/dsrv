@@ -54,7 +54,7 @@ class Joints {
 		return statedata;
 	}
 
-	setstatedata( data, rotation, position ) {
+	setstatedata( data, k, rotation, position ) {
 		
 		if( data.length == 0 ) return;
 		if( this.nodes.items.length == 0 ) return;
@@ -62,31 +62,43 @@ class Joints {
 		data.forEach( item => {
 			let node = this.nodes.find( item.name );
 			if( node != undefined ) {
-				if( rotation ) node.rotation.set( item.rotation.x, item.rotation.y, item.rotation.z );
-				if( position ) node.position.set( item.position.x, item.position.y, item.position.z );
+				
+				if( rotation ) {
+					let r = SV( node.rotation, item.rotation, k );
+					node.rotation.set( r.x, r.y, r.z );
+				}
+				
+				if( position ) {
+					let p = SV( node.position, item.position, k );
+					node.position.set( p.x, p.y, p.z );
+				}
 			}
 		} );
 	}
 
 	delstate( name ) {
 		let state = this.states.find( name );
-		if( state != undefined ) this.states.del( state );
+		if( state == undefined ) return;
+		this.states.del( state );
 	}
 
 	addstate( name ) {
 		this.delstate( name );
-		this.states.add( { name: name, data: this.getstatedata() } );
+		let state = this.getstatedata();
+		if( state == undefined ) return;
+		this.states.add( { name: name, data: state } );
 	}
 
 	setcurstate( name ) {
 		let state = this.states.find( name );
-		if( state != undefined ) this.states.getid( state );
+		if( state == undefined ) return;
+		this.states.getid( state );
 	}
 
-	runstate( name, rotation = true, position = false ) {
+	runstate( name, k = 1, rotation = true, position = false ) {
 		let state = this.states.find( name );
-		if( state != undefined ) 
-			this.setstatedata( state.data, rotation, position );
+		if( state == undefined ) return; 
+		this.setstatedata( state.data, k, rotation, position );
 	}
 
 	prev() {

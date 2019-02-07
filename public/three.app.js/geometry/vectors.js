@@ -53,8 +53,13 @@ function LV( a ) {
 }
 
 // multiple vector
-function MV( a, m ) {
-	return new THREE.Vector3( a.x * m, a.y * m, a.z * m );
+function MV( a, k ) {
+	return new THREE.Vector3( a.x * k, a.y * k, a.z * k );
+}
+
+// step vector a to b on k
+function SV( a, b, k ) {
+	return MV( DV( b, a ), k );
 }
 
 // vector to string 

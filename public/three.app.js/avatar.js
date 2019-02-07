@@ -682,7 +682,7 @@ class Avatar {
 		this.update_keyboard();
 
 		if( this.joints == undefined ) return;
-		this.joints.ite.forEach(element => {
+		this.joints.nodes.items.forEach( item => {
 			
 		});
 	}
