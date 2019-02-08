@@ -62,13 +62,22 @@ class App {
 		let avatar = 'App.avatar.';
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next' );
-			Events.bind( 'keydown', ['l'], avatar + 'joints.print' );
-			Events.bind( 'keydown', ['0'], avatar + 'joints.runstate', '"state0", true, false' );
-			Events.bind( 'keydown', ['1'], avatar + 'joints.runstate', '"state1", true, false' );
-			Events.bind( 'keydown', ['2'], avatar + 'joints.runstate', '"state2", true, false' );
-			Events.bind( 'keydown', ['3'], avatar + 'joints.runstate', '"state3", true, false' );
-			Events.bind( 'keydown', ['4'], avatar + 'joints.runstate', '"state4", true, false' );
+			Events.bind( 'keydown', ['l'], avatar + 'joints.print' ); 
 
+			Events.bind( 'keydown', ['0'], 'function() { ' + avatar + 'targetstate = "state0"; }' );
+			Events.bind( 'keydown', ['1'], 'function() { ' + avatar + 'targetstate = "state1"; }' );
+			Events.bind( 'keydown', ['2'], 'function() { ' + avatar + 'targetstate = "state2"; }' );
+			Events.bind( 'keydown', ['3'], 'function() { ' + avatar + 'targetstate = "state3"; }' );
+			Events.bind( 'keydown', ['4'], 'function() { ' + avatar + 'targetstate = "state4"; }' );
+			Events.bind( 'keydown', ['5'], 'function() { ' + avatar + 'targetstate = "state4"; }' );
+			Events.bind( 'keydown', ['6'], 'function() { ' + avatar + 'targetstate = "state6"; }' );
+			Events.bind( 'keydown', ['7'], 'function() { ' + avatar + 'targetstate = "state7"; }' );
+			Events.bind( 'keydown', ['8'], 'function() { ' + avatar + 'targetstate = "state8"; }' );
+			Events.bind( 'keydown', ['9'], 'function() { ' + avatar + 'targetstate = "state9"; }' );
+
+			Events.bind( 'keydown', ['0'], 'function() { ' + avatar + 'targetspeed = 0.10000; }' );
+			Events.bind( 'keydown', ['1'], 'function() { ' + avatar + 'targetspeed = 0.05000; }' );
+			
 			Events.bind( 'keydown', ['g'], avatar + 'switch_edit' );
 	}
 
@@ -87,7 +96,7 @@ class App {
 		if( _cmd.length == 0 ) return;		
 
 		if( App.hub.state == 'logout' && _cmd.length == 1 ) {
-			App.hub.name = cmd[0];
+			App.hub.name = cmd;
 			App.hub.send( { type: 'login', name: App.hub.name } );
 			App.gui.item(0).shift();
 			return;
@@ -151,7 +160,7 @@ class App {
 
 				case 'run_state': {
 					if( App.avatar == undefined ) return;
-					App.avatar.joints.runstate( _cmd[1], true, false );
+					App.avatar.joints.runstate( _cmd[1], 1, true, false );
 					break;
 				}
 

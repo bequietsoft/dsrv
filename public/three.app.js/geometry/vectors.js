@@ -59,7 +59,7 @@ function MV( a, k ) {
 
 // step vector a to b on k
 function SV( a, b, k ) {
-	return MV( DV( b, a ), k );
+	return AV( a, MV( DV( b, a ), k ) );
 }
 
 // vector to string 

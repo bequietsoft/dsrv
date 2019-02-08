@@ -51,6 +51,7 @@ class Joints {
 			} );
 		} );
 
+		if( statedata.length == 0 ) return undefined;
 		return statedata;
 	}
 
@@ -85,19 +86,19 @@ class Joints {
 	addstate( name ) {
 		this.delstate( name );
 		let state = this.getstatedata();
-		if( state == undefined ) return;
+		if( state == undefined ) { log('no active nodes?'); return; }
 		this.states.add( { name: name, data: state } );
 	}
 
 	setcurstate( name ) {
 		let state = this.states.find( name );
-		if( state == undefined ) return;
+		if( state == undefined ) { log('state ' + name + ' not found'); return; }
 		this.states.getid( state );
 	}
 
 	runstate( name, k = 1, rotation = true, position = false ) {
 		let state = this.states.find( name );
-		if( state == undefined ) return; 
+		if( state == undefined ) { log('state ' + name + ' not found'); return; }
 		this.setstatedata( state.data, k, rotation, position );
 	}
 

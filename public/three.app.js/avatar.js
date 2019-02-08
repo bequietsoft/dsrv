@@ -7,8 +7,8 @@ class Avatar {
 		this.root.name = 'root';
 		this.joints = new Joints( name + '_joints' );
 
-		this.state_type = 'idle';
-		this.state_pose = 0;
+		this.targetstate = 'state0';
+		this.targetspeed = 0.1;
 
 		//this.test_minimum_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
@@ -680,11 +680,7 @@ class Avatar {
 	update () {
 		this.update_mouse();
 		this.update_keyboard();
-
-		if( this.joints == undefined ) return;
-		this.joints.nodes.items.forEach( item => {
-			
-		});
+		this.joints.runstate( this.targetstate, this.targetspeed, true, false );
 	}
 	
 	//#endregion update
