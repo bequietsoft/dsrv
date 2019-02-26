@@ -33,3 +33,12 @@ function plane(y, step, material, shadow = false) {
 	return mesh;
 }
 
+function marker( position, color, size, div, visible ) {
+	let material = mat( 'basic', color );
+	let marker = sphere( size, position, V0, material, false, div );
+		marker.renderOrder = 999;
+		marker.visible = visible;
+		marker.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
+	return marker;
+}
+

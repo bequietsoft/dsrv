@@ -16,6 +16,8 @@ class Renderer  {
 		Renderer.instance.shadowMapHeight = 1024;
 		Renderer.instance.domElement.id = 'three_canvas';
 		//Renderer.instance.setClearColor( App.ambient_color, 1 );
+		//Renderer.instance.vr.enabled = true;
+
 		document.body.appendChild( Renderer.instance.domElement );
 
 		//log(Renderer.instance);

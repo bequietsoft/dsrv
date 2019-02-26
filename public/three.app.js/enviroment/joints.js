@@ -4,6 +4,7 @@ class Joints {
 		this.name = name;
 		this.nodes = new List();
 		this.markers = new List();
+		this.vmarkers = new List();
 		this.states = new List();
 		this.edit = false;
 	}
@@ -13,28 +14,15 @@ class Joints {
 		for( let i = 0; i < names.length; i++ )	root.data.bones[i].name = names[i];
 		List.add_named_items( root.data.bones, this.nodes );
 
-		if( this.cursor == undefined ) {
-			let material = mat( 'basic', black );
-			let marker = sphere( size * 2, V0, V0, material, false, 8 );
-				marker.renderOrder = 999;
-				marker.visible = false;
-				marker.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
-			this.cursor = marker;
-		}
+		if( this.cursor == undefined )
+			this.cursor = marker( V0, rgb(0, 0, 0), size * 2, 8, false );;
 
-		let material = mat( 'basic', color );
 		for( let i = 0; i < names.length; i++ )	{
-			let _size = size;
-			let _div = 8;
-			if( names[i] == undefined ) { _size = size / 4; _div = 2; }
-			let marker = sphere( _size, V0, V0, material, false, _div );
-				marker.renderOrder = 999;
-				marker.visible = false;
-				marker.onBeforeRender = function( renderer ) { renderer.clearDepth(); };
-			root.data.bones[i].add( marker );
-			marker.add( this.cursor );
-			
-			this.markers.add( marker );
+			let m = marker( V0, color, size, 8, false );
+			if( names[i] == undefined ) m = marker( V0, color, size / 2, 2, false ); 
+			root.data.bones[i].add( m );
+			m.add( this.cursor );
+			this.markers.add( m );
 		}
 	}
 

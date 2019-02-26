@@ -26,6 +26,7 @@ class Hub {
 				case 'id': {
 
 					document.title = 'anonimous';
+					App.gui_log( '? or help for command line help', false );
 
 					if( App.id == undefined ) {	
 						if( App.hub.debug ) log( 'ID: ' + data.id );
@@ -33,8 +34,9 @@ class Hub {
 						App.hub.send( { type: 'id', text: 'new' } );
 
 						// Auto login in debug mode 
-						if( App.debug ) 
+						if( App.debug ) {
 							App.input( ("00" + ri(0, 999)).slice(-2) );
+						}
 					}
 
 					if( App.id != undefined ) 

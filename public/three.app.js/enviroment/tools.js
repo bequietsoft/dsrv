@@ -27,6 +27,10 @@ function _log( message = undefined, timestamp = true ) {
 	if( App.log_gui != undefined ) App.log_gui.add( message );
 }
 
+function dlog( message ) {
+	console.log( message );
+}
+
 // time-stamp
 function ts() {
 	var d = new Date();

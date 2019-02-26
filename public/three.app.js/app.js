@@ -50,9 +50,9 @@ class App {
 		App.gui.item(0).element.onenter = App.input;
 		App.gui.item(0).element.focus();
 
-		App.gui_log = function( message ) {
-			if( App.debug ) log( message );
-			App.gui.item(0).add( message );
+		App.gui_log = function( message, use_max ) {
+			if( App.debug ) log( message, use_max );
+			App.gui.item(0).add( message, use_max );
 		}
 
 	}
@@ -86,7 +86,9 @@ class App {
 		if( cmd == 'ss' ) cmd = 'set states'; 
 		if( cmd == 'gs' ) cmd = 'get states'; 
 		if( cmd == 'ds' ) cmd = 'del states';
-		if( cmd == 'ps' ) cmd = 'print states';
+		if( cmd == 'ps' ) cmd = 'prt states';
+		if( cmd == '?' ) cmd = 'help';
+		
 		if( cmd.startsWith('as ') )  cmd = cmd.replace( 'as ', 'add_state ' ); 
 		if( cmd.startsWith('ds ') )  cmd = cmd.replace( 'ds ', 'del_state ' );
 		if( cmd.startsWith('cs ') )  cmd = cmd.replace( 'cs ', 'cur_state ' );
@@ -95,17 +97,57 @@ class App {
 		let _cmd = cmd.split(' ');
 		if( _cmd.length == 0 ) return;		
 
+		if( cmd == 'help' ) {
+
+			App.gui_log('', false );
+
+			App.gui_log( 'login_name                         login / unlogin to / from server', false );
+			App.gui_log( 'any_message_text                   send message to all', false );
+			App.gui_log( 'lst                                objects names list', false );
+			App.gui_log( 'set object_name                    set object to server', false );
+			App.gui_log( 'get object_name                    get object from server', false );
+			App.gui_log( 'del object_name                    delete object on server', false );
+			App.gui_log( 'prt object_name                    print object to console', false );
+
+			App.gui_log('', false );
+
+			App.gui_log( 'ss    /    set states              set states to server', false );
+			App.gui_log( 'gs    /    get states              get states from server', false );
+			App.gui_log( 'ds    /    del states              del states from server', false );
+			App.gui_log( 'ps    /    prt states              print states to server', false );
+
+			App.gui_log('', false );
+
+			App.gui_log( 'as    /    add_state state_name    add state', false );
+			App.gui_log( 'ds    /    del_state state_name    delete state', false );
+			App.gui_log( 'cs    /    cur_state state_name    set current state', false );
+			App.gui_log( 'rs    /    run_state state_name    run state', false );
+			
+			return;
+		}
+
+		if( _cmd.length == 1 ) {
+			if( cmd == 'lst' ) { 
+				App.world.content.items.forEach( item => {
+					let type = item.__proto__.constructor.name;
+					App.gui_log( 'Object: ' + type + ' "' + item.name + '"', false );
+				});
+				if( App.world.content.items.length == 0 ) App.gui_log( 'no objects found in global content scope', false );
+				return; 
+			}
+		}
+
 		if( App.hub.state == 'logout' && _cmd.length == 1 ) {
 			App.hub.name = cmd;
 			App.hub.send( { type: 'login', name: App.hub.name } );
-			App.gui.item(0).shift();
+			//	App.gui.item(0).shift();
 			return;
 		}
 		
 		if( App.hub.state == 'login' && _cmd.length == 1 ) {
-			if( App.hub.name == cmd ) {
+			if( cmd == App.hub.name ) {
 				App.hub.send( { type: 'logout', name: App.hub.name } );
-				App.gui.item(0).shift();
+				//App.gui.item(0).shift();
 				return;
 			}
 		}
@@ -119,7 +161,8 @@ class App {
 					if( object != undefined ) 
 					 	App.hub.send( { type: 'set', object: object } );
 					else 
-						App.hub.send( { type: 'set', object: { name: _cmd[1], testdata: _cmd[1] } } );
+						App.gui_log( 'object ' + _cmd[1] + ' not found' );
+						//???? App.hub.send( { type: 'set', object: { name: _cmd[1], testdata: _cmd[1] } } );
 					break;
 				}
 
@@ -133,10 +176,19 @@ class App {
 					break;
 				}
 
-				case 'print': {
+				case 'prt': {
+					
 					let object = App.world.content.find( _cmd[1] );
+					let obj_type = object.__proto__.constructor.name;
 					if( object != undefined ) 
-						if( object.print != undefined ) object.print();
+						if( object.items != undefined ) {
+							object.items.forEach( item => {
+								let type = item.__proto__.constructor.name;
+								App.gui_log( obj_type + ' "' + object.name + '" item = ' + type + ' "' + item.name + '"', false );
+							});
+						} else App.gui_log( obj_type + ' "' + object.name + '"', false );
+					else 
+						App.gui_log( 'object ' + _cmd[1] + ' not found' );
 					break;
 				}
 

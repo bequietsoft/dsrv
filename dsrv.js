@@ -9,7 +9,7 @@ var fs = require( 'fs' );
 require('./server/tools.js')();
 require('./server/db.js')();
 
-var debug = false;
+var debug = true;
 var show_msg_log = true;
 var show_send_log = false;
 var show_conn_log = false;

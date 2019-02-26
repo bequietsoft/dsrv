@@ -2,6 +2,9 @@ function load() {
 
 	App.init();
 
+	// dlog( WEBVR.getVRDisplay );
+	//document.body.appendChild( WEBVR.createButton( Renderer.instance ) );
+
 	document.addEventListener( "contextmenu", function(e) { 
 		e.preventDefault(); }, false );
 

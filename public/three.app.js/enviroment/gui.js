@@ -62,7 +62,10 @@ class EditBox extends GUIElement {
 		this.style.opacity = '0.30';
 	}
 	
-	
+	blur() {
+		thie.element.blur();
+	}
+
 	onkeyup( event ) { 
 
 		var element = document.activeElement;
@@ -77,32 +80,51 @@ class EditBox extends GUIElement {
 			( keycode > 185 && keycode < 193 ) || 	// ;=,-./` (in order)
 			( keycode > 218 && keycode < 223 ) || 	// [\]' (in order)
 			keycode == 32 || 						// spacebar
+			keycode == 27 || 						// escape
 			keycode == 38 || 						// arrow UP
 			keycode == 13 ||  						// return
 			keycode == 8;   						// backspace
+		//log( keycode, false );
 		if( !valid ) return;
 		
 		if( event.ctrlKey != true && event.altKey != true ) {
 
 			switch ( event.keyCode ) {
-				case 8: // backspace
+				
+				// backspace
+				case 8: { 
 					element.cmd = element.cmd.slice(0, -1);
 					break;
-				case 13: // return
-					if( element.list != undefined ) element.list.unshift( element.cmd );
-					if( element.list.length > element.max ) element.list.pop();
-					if( element.onenter != undefined ) {
-						element.blur();
-						element.onenter( element.cmd );
-					}
-					element.cmd = '';
+				}
 
+				// return
+				case 13: { 
+						if( element.list != undefined ) element.list.unshift( element.cmd );
+						if( element.list.length > element.max ) element.list.pop();
+						if( element.onenter != undefined ) {
+							//element.blur();
+							element.onenter( element.cmd );
+						}
+						element.cmd = '';
+					
 					break;
-				case 38: // arrow UP
+				}
+
+				// escape
+				case 27: {
+					element.blur();
+					//log( element, false );
+					//document.body.focus();
+					break;
+				}
+
+				// arrow UP
+				case 38: {
 					if( element.list.length > 0 ) element.cmd = element.list[ element.list.length - 1 ];
 					break;
+				}
+
 				default:
-					//if( event.keyCode == 32 || event.keyCode > 47 ) 
 					element.cmd += event.key;
 					break;
 			}
@@ -117,11 +139,10 @@ class EditBox extends GUIElement {
 		this.element.update();
 	}
 
-	add( line ) {
+	add( line, use_max = true ) {
 		if( this.element.list == undefined ) return;
 		this.element.list.unshift( line );
-		if( this.element.list.length > this.element.max ) this.element.list.pop();
-		
+		if( use_max && this.element.list.length > this.element.max ) this.element.list.pop();
 		this.element.update();
 	}
 

@@ -48,6 +48,7 @@ class Cincture {
 
 		this.points = [];
 		this.data = data;
+		this.data.nodes_markers = [];
 
 		this.geometry = new THREE.Geometry();
 		this.geometry.faceVertexUvs[ 0 ] = [];
@@ -55,7 +56,7 @@ class Cincture {
 		this.check_data();
 		this.calc_counters();
 		this.sub_divisions();
-		this.smooth_vertices();
+		//this.smooth_vertices();
 		this.cals_angles();
 		this.build_geometry();
 		this.smooth_normals();
@@ -91,6 +92,7 @@ class Cincture {
 				let angles = this.data.angles;						
 				let _nodes = [];
 				let _angles = [];
+				let _nodes_flags = [];
 
 				for( let ci = 0; ci < this.cincs_count; ci++ ) {
 					
@@ -112,6 +114,7 @@ class Cincture {
 
 						let _node = this.catmullrom( 0.5, node0, node1, node2, node3 );						
 						_nodes.push( node1, _node );
+						_nodes_flags.push( 1, 0 );
 
 						if ( angles != undefined ) {
 							let _angle = angles[ i + ni1 ] / 2;
@@ -121,6 +124,7 @@ class Cincture {
 				}
 
 				this.data.nodes = _nodes;
+				this.data.nodes_flags = _nodes_flags;
 				if ( angles != undefined ) this.data.angles = _angles;
 
 				this.calc_counters();
@@ -133,11 +137,13 @@ class Cincture {
 				
 				let rotates = this.data.rotates;	
 				let offsets = this.data.offsets;	
-				let nodes = this.data.nodes;	
+				let nodes = this.data.nodes;
+				let nodes_flags = this.data.nodes_flags;	
 				let angles = this.data.angles;	
 				let _rotates = [];
 				let _offsets = [];
 				let _nodes = [];
+				let _nodes_flags = [];
 				let _angles = [];
 
 				for( let ci = 0; ci < this.cincs_count; ci++ ) {
@@ -152,6 +158,7 @@ class Cincture {
 
 					for( let ni = 0; ni < this.nodes_count; ni++ ) {
 						_nodes.push ( nodes[ i + ni ] );
+						_nodes_flags.push ( nodes_flags[ i + ni ] );
 						if ( angles != undefined ) _angles.push ( angles[ i + ni ] );
 					}
 					
@@ -182,6 +189,7 @@ class Cincture {
 
 							let _node = this.catmullrom( 0.5, node0, node1, node2, node3 );
 							_nodes.push ( _node );
+							_nodes_flags.push ( 0 );
 
 							if ( angles != undefined ) {
 								let angle0 = angles[ i + ni0 ];
@@ -204,6 +212,7 @@ class Cincture {
 				this.data.rotates = _rotates;
 				this.data.offsets = _offsets;
 				this.data.nodes = _nodes;
+				this.data.nodes_flags = _nodes_flags;
 				if ( angles != undefined ) this.data.angles = _angles;
 
 				this.calc_counters();
@@ -229,8 +238,13 @@ class Cincture {
 		let ni = i - ci * this.nodes_count;
 		let ri = ci * this.nodes_count + ( this.nodes_count - 1 - ni );
 		
+		//return ri; 
 		return this.data.nodes[ ri ] * this.data.scale; 
 	}
+
+	// get_real_node_value( i ) {
+	// 	return this.data.nodes[ this.get_real_node_index( i ) ] * this.data.scale; 
+	// }
 
 	get_real_angle( i ) { // 
 
@@ -283,14 +297,14 @@ class Cincture {
 				
             for ( let ni = 0; ni < this.nodes_count; ni++ ) {
 				
-				node0 = this.get_real_node ( fni + ni );
+				node0 = this.get_real_node( fni + ni );
 				
                 if ( ni != this.nodes_count - 1 )
-                    node1 = this.get_real_node ( fni + ni + 1 );
+                    node1 = this.get_real_node( fni + ni + 1 );
                 else 
-					node1 = this.get_real_node ( fni );
+					node1 = this.get_real_node( fni );
 
-				let angle1_delta = mirror * this.get_real_angle ( fni + ni );
+				let angle1_delta = mirror * this.get_real_angle( fni + ni );
 				angle1 = angle0 + angle1_delta;
 
 				if ( ni == this.nodes_count - 1 ) 
@@ -305,15 +319,17 @@ class Cincture {
 				let v0 = new THREE.Vector3( 0, 0, 0 );
 				let v1 = new THREE.Vector3( node0 * cos0, 0, node0 * sin0 );
 				let v2 = new THREE.Vector3( node1 * cos1, 0, node1 * sin1 );
-
+				
 				if ( mirror == -1 ) {
-					v2 = new THREE.Vector3( node0 * cos0, 0, node0 * sin0 );
 					v1 = new THREE.Vector3( node1 * cos1, 0, node1 * sin1 );
+					v2 = new THREE.Vector3( node0 * cos0, 0, node0 * sin0 );
 				}
 
 				v0 = RV( v0, total_rotation );
 				v1 = RV( v1, total_rotation );
 				v2 = RV( v2, total_rotation );
+
+				this.data.nodes_markers.push( new THREE.Vector3( v1.x, v1.y, v1.z ) );
 
 				v0.add( total_position );
 				v1.add( total_position );
@@ -326,7 +342,6 @@ class Cincture {
 
 				// Add uv coords
 				{ 
-				
 					let w = this.data.uv.width;
 					let h = this.data.uv.height;
 
@@ -507,35 +522,37 @@ class Cincture {
 		this.data.bones = [];
 
 		var total_rotation = V( 0, 0, 0 );
-		//var total_position = V( 0, 0, 0 );
+		// var total_position = V( 0, 0, 0 );
 		var rotation;
 		var position;
 
+		var fni = 0; // first node index in cincture ci
 		var fti = 0; // first coord/angle for cincture ci
-
 		for( let ci = 0; ci < this.cincs_count; ci++ ) {
 			
 			rotation = V( this.data.rotates[ fti + 0 ], this.data.rotates[ fti + 1 ], this.data.rotates[ fti + 2 ] );
 			total_rotation.add( rotation );
 			
 			position = RV ( V( this.data.offsets[ fti + 0 ], this.data.offsets[ fti + 1 ], this.data.offsets[ fti + 2 ] ), total_rotation);
-			//total_position.add( position );
 			
 			var bone = new THREE.Bone();
-
-				// bone.position.set(
-				// 	this.data.offsets [ ci * 3 + 0 ],
-				// 	this.data.offsets [ ci * 3 + 1 ],
-				// 	this.data.mirror * this.data.offsets [ ci * 3 + 2 ]
-				// );
-				//bone.rotation.set( rotation.x, rotation.y, rotation.z );
 				bone.position.set( position.x, position.y, this.data.mirror * position.z );
-				
-				//bone.rotation.set( total_rotation.x, total_rotation.y, total_rotation.z );
+
 
 			this.data.bones.push( bone );
 			if( ci > 0 ) this.data.bones[ ci - 1 ].add( this.data.bones[ ci ] );
 
+			// add markers of real nodes:
+			for ( let ni = 0; ni < this.nodes_count; ni++ ) {
+				let nmv = this.data.nodes_markers[ fni + ni ];
+				let nmf = this.data.nodes_flags[ fni + ni ];
+				if( nmv != undefined && nmf != undefined ) {
+					if( nmf == 1 ) bone.add( marker( nmv, rgb(200, 200, 200), 0.004, 8, false ) );
+					//if( nmf == 0 ) bone.add( marker( nmv, rgb(0, 0, 0), 0.002, 2, true ) );
+				}
+			}
+
+			fni += this.nodes_count; 
 			fti += 3;
 		}
 
@@ -665,7 +682,7 @@ class Cincture {
 
 		if ( this.data.smooth.vertices == 0 ) return; 
 
-		//log( 'Smooth vertices:' );
+		//log( ' Smooth vertices:' );
 		for ( let ci = 0; ci < this.cincs_count; ci++ ) {
 			let _nodes = [];
 			for ( let ni = 0; ni < this.cincs_count; ni++ ) {

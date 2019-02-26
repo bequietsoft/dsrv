@@ -630,9 +630,9 @@ class Avatar {
 		return cinc;
 	}
 	
-	//#endregion simple
+	// #endregion simple parts
 
-	//#region update
+	// #region update
 	
 	update_mouse() {
 
@@ -680,8 +680,8 @@ class Avatar {
 	update () {
 		this.update_mouse();
 		this.update_keyboard();
-		this.joints.runstate( this.targetstate, this.targetspeed, true, false );
+		if( !this.joints.edit ) this.joints.runstate( this.targetstate, this.targetspeed, true, false );
 	}
 	
-	//#endregion update
+	// #endregion update
 }
