@@ -8,10 +8,10 @@ class List {
 		if ( this.debug_info ) this.print();
 	}
 
-	static add_named_items( items, list ) {
+	add_named_items( items ) {
 		for( let i = 0; i < items.length; i++ ) 
 			if( items[i].name != undefined ) 
-				if( items[i].name.length > 0 ) list.add( items[i] );
+				if( items[i].name.length > 0 ) this.add( items[i] );
 	}
 
 	clear() {

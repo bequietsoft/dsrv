@@ -10,9 +10,9 @@ class Avatar {
 		this.targetstate = 'state0';
 		this.targetspeed = 0.1;
 
-		//this.test_minimum_cinc();
+		this.test_minimum_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		this.simple_men();
+		//this.simple_men();
     }
 
 	switch_edit() {
@@ -378,7 +378,7 @@ class Avatar {
 		{
 			data.offsets = 
 			[	
-			   -0.045,  -0.510,   0.000,
+			   -0.020,  -0.320,   0.000,
 			   -0.020,   0.095,   0.000,
 			    0.015,   0.040,   0.000,
 			    0.005,   0.040,   0.000
@@ -402,7 +402,7 @@ class Avatar {
 		}	
 
 		data.name = 'hairs';
-		data.scale = 0.80;
+		data.scale = 0.87;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
 		data.subnodes = 1;

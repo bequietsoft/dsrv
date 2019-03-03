@@ -533,7 +533,10 @@ class Cincture {
 			rotation = V( this.data.rotates[ fti + 0 ], this.data.rotates[ fti + 1 ], this.data.rotates[ fti + 2 ] );
 			total_rotation.add( rotation );
 			
-			position = RV ( V( this.data.offsets[ fti + 0 ], this.data.offsets[ fti + 1 ], this.data.offsets[ fti + 2 ] ), total_rotation);
+			position = RV( MV( V( 
+				this.data.offsets[ fti + 0 ], 
+				this.data.offsets[ fti + 1 ], 
+				this.data.offsets[ fti + 2 ] ), this.data.scale ), total_rotation);
 			
 			var bone = new THREE.Bone();
 				bone.position.set( position.x, position.y, this.data.mirror * position.z );
@@ -547,7 +550,7 @@ class Cincture {
 				let nmv = this.data.nodes_markers[ fni + ni ];
 				let nmf = this.data.nodes_flags[ fni + ni ];
 				if( nmv != undefined && nmf != undefined ) {
-					if( nmf == 1 ) bone.add( marker( nmv, rgb(200, 200, 200), 0.004, 8, false ) );
+					if( nmf == 1 ) bone.add( marker( nmv, rgb(200, 200, 200), 0.004, 8, true ) );
 					//if( nmf == 0 ) bone.add( marker( nmv, rgb(0, 0, 0), 0.002, 2, true ) );
 				}
 			}

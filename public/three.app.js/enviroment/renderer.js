@@ -3,7 +3,6 @@ class Renderer  {
 	static init() {
 		
 		Renderer.instance = new THREE.WebGLRenderer( { antialias: true } );
-		//Renderer.instance.antialias = true;
 		Renderer.instance.depth = App.far;
 		Renderer.instance.setClearColor( App.ambient_color, 1 );
 		Renderer.instance.autoClear = false;
@@ -15,7 +14,7 @@ class Renderer  {
 		Renderer.instance.shadowMapWidth = 1024;
 		Renderer.instance.shadowMapHeight = 1024;
 		Renderer.instance.domElement.id = 'three_canvas';
-		//Renderer.instance.setClearColor( App.ambient_color, 1 );
+		Renderer.instance.setClearColor( App.ambient_color, 1 );
 		//Renderer.instance.vr.enabled = true;
 
 		document.body.appendChild( Renderer.instance.domElement );

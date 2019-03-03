@@ -12,7 +12,8 @@ class Joints {
 	add( root, names, color, size ) {
 
 		for( let i = 0; i < names.length; i++ )	root.data.bones[i].name = names[i];
-		List.add_named_items( root.data.bones, this.nodes );
+		
+		this.nodes.add_named_items( root.data.bones );
 
 		if( this.cursor == undefined )
 			this.cursor = marker( V0, rgb(0, 0, 0), size * 2, 8, false );;
@@ -20,7 +21,9 @@ class Joints {
 		for( let i = 0; i < names.length; i++ )	{
 			let m = marker( V0, color, size, 8, false );
 			if( names[i] == undefined ) m = marker( V0, color, size / 2, 2, false ); 
+
 			root.data.bones[i].add( m );
+
 			m.add( this.cursor );
 			this.markers.add( m );
 		}

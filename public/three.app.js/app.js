@@ -17,9 +17,9 @@ class App {
 			App.avatar = undefined;
 		}
 		
-		Actions.init();
+		//Actions.init();
 		Events.init();
-		Keyframes.init();
+		//Keyframes.init();
 		Keyboard.init();
 		Mouse.init();
 		Renderer.init();
@@ -31,12 +31,10 @@ class App {
 		//App.audio = new Audio();
 		//App.physics = new Physics();
 
-		App.camera = new Camera();
-		//App.camera.tank.rotateZ( -Math.PI/10 ); 
-		App.camera.target.rotateZ( -Math.PI/10 ); 
+		App.camera = new Camera( App.world.scene, 5, V( 0, 0, -Math.PI/10 ), false );
 		
 		App.add_gui_elements();
-		App.add_key_binds();
+		App.add_events_binds();
 	
 		resize();
 		App.update();
@@ -57,7 +55,7 @@ class App {
 
 	}
 
-	static add_key_binds() {
+	static add_events_binds() {
 		
 		let avatar = 'App.avatar.';
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
@@ -231,7 +229,7 @@ class App {
 		requestAnimationFrame( App.update );
 
 		Mouse.update();
-		Actions.update();	
+		//Actions.update();	
 		App.fps.update();
 		//App.audio.update();
 		//App.physics.update();
@@ -240,7 +238,7 @@ class App {
 			App.avatar.update();
 			App.camera.update( App.avatar.root );
 		} else 
-			App.camera.update( { position: V(0, 0, 0), rotation: V(0, 0, 0) } );
+			App.camera.update( { position: V0, rotation: V0 } );
 		
 		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
 		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
