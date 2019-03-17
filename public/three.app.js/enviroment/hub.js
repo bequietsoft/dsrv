@@ -70,6 +70,9 @@ class Hub {
 					let avatar = new Avatar( data.name );
 					App.world.add( avatar );
 					
+					avatar.camera_root.add( App.camera.root );
+					//App.camera.position.x = -5;
+					App.camera.lookAt( avatar.camera_root.position.x, avatar.camera_root.position.y, avatar.camera_root.position.z );
 
 					if( App.hub.name == data.name ) {
 						if( App.hub.state == 'logout' ) {
@@ -104,6 +107,7 @@ class Hub {
 					
 					App.gui_log( data.name + ': logout' );
 					App.world.del( data.name );
+					App.world.scene.add( App.camera.root );
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'logout';

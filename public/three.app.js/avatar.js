@@ -6,13 +6,15 @@ class Avatar {
 		this.root = new THREE.Object3D();
 		this.root.name = 'root';
 		this.joints = new Joints( name + '_joints' );
+		this.camera_root = App.world.scene;
+		this.input_type = 'orbit';
 
 		this.targetstate = 'state0';
 		this.targetspeed = 0.1;
 
-		this.test_minimum_cinc();
+		//this.test_minimum_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
-		//this.simple_men();
+		this.simple_men();
     }
 
 	switch_edit() {
@@ -50,9 +52,12 @@ class Avatar {
 		this.box.visible = false;
 		this.root.add( this.box );
 		this.root.position.set ( 0, 0, 0 );
+
+		this.camera_root = this.test.mesh;
 	}
 	
 	simple_men() {
+		
 		
 		let wire_mat = mat('wire');
 		let skin_mat = mat( 'phong', rgb(229, 220, 206));
@@ -108,6 +113,12 @@ class Avatar {
 		this.box.visible = false;
 		this.root.add( this.box );
 		this.root.position.set ( 0, 0.8, 0 );
+
+
+		this.camera_root = helper( 0.01, 0.01, 0.01, 'white');
+		this.head.last_bone().add( this.camera_root );
+		this.camera_root.position.y = -0.07;
+		this.camera_root.position.x = 0.03;
 	}
 
 	// #region simple parts
@@ -660,16 +671,19 @@ class Avatar {
 			
 			if( edit_flag == false ) {
 				App.camera.position.x += Mouse.wheel / 10;
-				if( App.camera.position.x > -1 ) App.camera.position.x = -1;
+				if( App.camera.position.x > 0 ) App.camera.position.x = 0;
 			}
 		}
 	}
 
 	update_keyboard() {
+		
 		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
 		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
 		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); App.camera.target.rotation.y -= 0.1; this.save(); }
-		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); App.camera.target.rotation.y += 0.1; this.save(); }	
+		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); App.camera.target.rotation.y += 0.1; this.save(); }
+
+		//log(this.root.position, false);	
 	}
 	
 	save( sharing = 'all' ) {

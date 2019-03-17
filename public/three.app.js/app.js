@@ -236,12 +236,15 @@ class App {
 		//App.audio.update();
 		//App.physics.update();
 
-		if( App.avatar != undefined ) {
-			App.avatar.update();
-			App.camera.update( App.avatar.root );
-		} else 
-			App.camera.update( { position: V0, rotation: V0 } );
-		
+		// if( App.avatar != undefined ) {
+		// 	App.avatar.update();
+		// 	//log( App.avatar.camera_target, false );
+		// 	App.camera.update( App.avatar.camera_target );
+		// } else 
+		// 	App.camera.update( { position: V0, rotation: V0 } );
+		if( App.avatar != undefined ) App.avatar.update();
+		//App.camera.update();
+
 		App.gui.item(1).element.innerHTML = crop( App.fps.fps );
 		App.gui.item(0).element.style.left = window.innerWidth / 2 - App.gui.item(0).element.offsetWidth / 2  + 'px';
 		App.gui.item(1).element.style.left = window.innerWidth / 2 - App.gui.item(1).element.offsetWidth / 2  + 'px';
