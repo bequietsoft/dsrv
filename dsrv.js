@@ -17,7 +17,7 @@ var show_conn_log = false;
 var ping_timeout = 5000;
 var kill_timeout = 30000;
 
-var only_localhost = true;
+var only_localhost = false;
 var port = 3000;
 var main_root = __dirname;
 var client_root = 'public';

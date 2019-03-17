@@ -31,11 +31,13 @@ class App {
 		//App.audio = new Audio();
 		//App.physics = new Physics();
 
-		App.camera = new Camera( App.world.scene, 5, V( 0, 0, -Math.PI/10 ), false );
+		App.camera = new Camera( App.world.scene, 5, V( 0, 0, -Math.PI/10 ), true );
 		
 		App.add_gui_elements();
 		App.add_events_binds();
 	
+		
+
 		resize();
 		App.update();
 	}

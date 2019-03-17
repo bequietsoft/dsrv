@@ -45,7 +45,7 @@ class Avatar {
 		
 		this.test = cinc;
 
-		this.joints.add( this.test, ['test0', 'test1'], rgb( 0, 200, 0 ), 0.03 );
+		this.joints.add( this.test, ['joint0', 'joint1'], rgb( 0, 200, 0 ), 0.03 );
 		this.box = box( V( 0.4, 0.4, 0.4 ), V0, V0, mat( 'wire', this.color ), false );
 		this.box.visible = false;
 		this.root.add( this.box );

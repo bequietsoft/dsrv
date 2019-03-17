@@ -16,7 +16,7 @@ class Joints {
 		this.nodes.add_named_items( root.data.bones );
 
 		if( this.cursor == undefined )
-			this.cursor = marker( V0, rgb(0, 0, 0), size * 2, 8, false );;
+			this.cursor = marker( V0, rgb(0, 0, 0), size * 2, 8, false );
 
 		for( let i = 0; i < names.length; i++ )	{
 			let m = marker( V0, color, size, 8, false );

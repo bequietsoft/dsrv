@@ -26,7 +26,8 @@ class Hub {
 				case 'id': {
 
 					document.title = 'anonimous';
-					App.gui_log( '? or help for command line help', false );
+					App.gui_log( navigator.userAgent, false );
+					//App.gui_log( '? or help for command line help', false );
 
 					if( App.id == undefined ) {	
 						if( App.hub.debug ) log( 'ID: ' + data.id );

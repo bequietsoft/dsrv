@@ -84,6 +84,12 @@ class Cincture {
 		
 		if ( this.data.edges_mesh_build ) return;
 
+		let _nodes_flags = [];
+		for( let ci = 0; ci < this.cincs_count; ci++ )
+			for( let ni = 0; ni < this.nodes_count; ni++ )
+				_nodes_flags.push( 1 );
+		this.data.nodes_flags = _nodes_flags;
+
 		// nodes sub divisions
 		if ( this.data.subnodes > 0 ) {
 			for ( let si=0; si < this.data.subnodes; si++ ) {
@@ -114,7 +120,7 @@ class Cincture {
 
 						let _node = this.catmullrom( 0.5, node0, node1, node2, node3 );						
 						_nodes.push( node1, _node );
-						_nodes_flags.push( 1, 0 );
+						_nodes_flags.push( this.data.nodes_flags[ i + ni1 ], 0 );
 
 						if ( angles != undefined ) {
 							let _angle = angles[ i + ni1 ] / 2;
@@ -129,7 +135,7 @@ class Cincture {
 
 				this.calc_counters();
 			}
-		}
+		} 
 
 		// cincs sub divisions
 		if ( this.data.subcincs > 0 ) {
@@ -547,12 +553,20 @@ class Cincture {
 
 			// add markers of real nodes:
 			for ( let ni = 0; ni < this.nodes_count; ni++ ) {
-				let nmv = this.data.nodes_markers[ fni + ni ];
-				let nmf = this.data.nodes_flags[ fni + ni ];
-				if( nmv != undefined && nmf != undefined ) {
-					if( nmf == 1 ) bone.add( marker( nmv, rgb(200, 200, 200), 0.004, 8, true ) );
-					//if( nmf == 0 ) bone.add( marker( nmv, rgb(0, 0, 0), 0.002, 2, true ) );
+				
+				let nmv = V0;
+				let nmf = 1;
+				let color = rgb(200, 0, 0);
+				
+				if( this.data.nodes_markers != undefined && this.data.nodes_flags != undefined ) {
+					nmv = this.data.nodes_markers[ fni + ni ];
+					nmf = this.data.nodes_flags[ fni + ni ];
+					color = rgb( 200, 200, 200 );
 				}
+				//if( nmv != undefined && nmf != undefined ) {
+					if( nmf == 1 ) bone.add( marker( nmv, color, 0.004, 8, true ) );
+					//if( nmf == 0 ) bone.add( marker( nmv, rgb(0, 0, 0), 0.002, 2, true ) );
+				//}
 			}
 
 			fni += this.nodes_count; 
