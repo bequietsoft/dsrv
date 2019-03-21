@@ -563,10 +563,11 @@ class Cincture {
 					nmf = this.data.nodes_flags[ fni + ni ];
 					color = rgb( 200, 200, 200 );
 				}
-				//if( nmv != undefined && nmf != undefined ) {
-					if( nmf == 1 ) bone.add( marker( nmv, color, 0.004, 8, true ) );
-					//if( nmf == 0 ) bone.add( marker( nmv, rgb(0, 0, 0), 0.002, 2, true ) );
-				//}
+				
+				if( nmf == 1 ) { 
+					//bone.marker = marker( nmv, color, 0.004, 8, false );
+					//bone.add( bone.marker );
+				}
 			}
 
 			fni += this.nodes_count; 

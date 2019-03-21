@@ -12,7 +12,7 @@ class App {
 			App.shadow_camera_size = 20;
 			App.near = 0.1;
 			App.fov = 50;
-			App.far = 100;
+			App.far = 50;
 			App.fog = 0.2;
 			App.avatar = undefined;
 		}
@@ -31,37 +31,22 @@ class App {
 		//App.audio = new Audio();
 		//App.physics = new Physics();
 
-		App.camera = new Camera( App.world.scene, 5, V( 0, 0, -Math.PI/10 ), true );
+		App.camera = new Camera( App.world.scene, 5, V( 0, 0, -Math.PI/10 ), false );
 		
-		App.add_gui_elements();
-		App.add_events_binds();
+		App.init_events_binds();
+		App.init_gui_elements();
 	
-		
-
-		resize();
+		on_window_resize();
 		App.update();
 	}
 	
-	static add_gui_elements() {
-		
-		App.gui = new List();
-		App.gui.add( new EditBox( 'EditBox0', '', [], 2, 1, 10, 60 ) );
-		App.gui.add( new EditBox( 'EditBox1', '', undefined, 0, -1, 0, 10 ) );
-		App.gui.item(0).element.onenter = App.input;
-		App.gui.item(0).element.focus();
-
-		App.gui_log = function( message, use_max ) {
-			if( App.debug ) log( message, use_max );
-			App.gui.item(0).add( message, use_max );
-		}
-
-	}
-
-	static add_events_binds() {
+	static init_events_binds() {
 		
 		let avatar = 'App.avatar.';
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next' );
+			Events.bind( 'keydown', ['h'], avatar + 'joints.prev' );
+			Events.bind( 'keydown', ['j'], avatar + 'joints.next' );
 			Events.bind( 'keydown', ['l'], avatar + 'joints.print' ); 
 
 			Events.bind( 'keydown', ['0'], 'function() { ' + avatar + 'targetstate = "state0"; }' );
@@ -81,7 +66,22 @@ class App {
 			Events.bind( 'keydown', ['g'], avatar + 'switch_edit' );
 	}
 
-	static input( cmd ) {
+	static init_gui_elements() {
+		
+		App.gui = new List();
+		App.gui.add( new EditBox( 'CMD_EDIT_BOX', '', [], 2, 1, 10, 60 ) );
+		App.gui.add( new EditBox( 'FPS_LABEL', '', undefined, 0, -1, 0, 10 ) );
+		App.gui.item(0).element.onenter = App.cmd_gui_input;
+		App.gui.item(0).element.focus();
+
+		App.gui_log = function( message, use_max ) {
+			if( App.debug ) log( message, use_max );
+			App.gui.item(0).add( message, use_max );
+		}
+
+	}
+
+	static cmd_gui_input( cmd ) {
 		
 		if( cmd == 'ss' ) cmd = 'set states'; 
 		if( cmd == 'gs' ) cmd = 'get states'; 
@@ -253,3 +253,24 @@ class App {
 	}
 }
 
+window.addEventListener ( "resize", on_window_resize );
+window.addEventListener ( "load", on_window_load );
+
+function on_window_load() {
+
+	App.init();
+
+	// dlog( WEBVR.getVRDisplay );
+	//document.body.appendChild( WEBVR.createButton( Renderer.instance ) );
+
+	document.addEventListener( "contextmenu", function(e) { 
+		e.preventDefault(); }, false );
+
+	window.addEventListener( "mousewheel", function(e) {  
+		if ( e.ctrlKey == true ) e.preventDefault(); }, false );
+}
+
+function on_window_resize() {	
+	App.camera.aspect = window.innerWidth / window.innerHeight;
+	App.camera.updateProjectionMatrix();
+}

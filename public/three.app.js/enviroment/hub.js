@@ -36,7 +36,7 @@ class Hub {
 
 						// Auto login in debug mode 
 						if( App.debug ) {
-							App.input( ("00" + ri(0, 999)).slice(-2) );
+							App.cmd_gui_input( ("00" + ri(0, 999)).slice(-2) );
 						}
 					}
 
@@ -70,19 +70,20 @@ class Hub {
 					let avatar = new Avatar( data.name );
 					App.world.add( avatar );
 					
-					avatar.camera_root.add( App.camera.root );
-					//App.camera.position.x = -5;
-					App.camera.lookAt( avatar.camera_root.position.x, avatar.camera_root.position.y, avatar.camera_root.position.z );
-
 					if( App.hub.name == data.name ) {
 						if( App.hub.state == 'logout' ) {
 
 							App.gui_log( data.name + ': login' );
 							App.hub.state = 'login';
 							App.avatar = avatar;
+
+							avatar.camera_root.add( App.camera.root );
+							App.camera.lookAt( avatar.camera_root.position.x, avatar.camera_root.position.y, avatar.camera_root.position.z );
+
 							avatar.root.position.x = rf(-5, 5);
 							avatar.root.position.z = rf(-5, 5);
 							avatar.root.rotation.set( 0, rf(0, wPI), 0 );
+
 							App.avatar.save();
 
 							App.avatar.joints.states.name = 'states';
@@ -107,7 +108,7 @@ class Hub {
 					
 					App.gui_log( data.name + ': logout' );
 					App.world.del( data.name );
-					App.world.scene.add( App.camera.root );
+					
 
 					if( App.hub.name == data.name ) {
 						App.hub.state = 'logout';
@@ -116,6 +117,8 @@ class Hub {
 						App.world.del( 'states' );
 						App.avatar = undefined;
 						App.hub.name = undefined;
+
+						App.world.scene.add( App.camera.root );
 					} 
 					break;
 				}

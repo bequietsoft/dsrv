@@ -6,8 +6,9 @@ class Avatar {
 		this.root = new THREE.Object3D();
 		this.root.name = 'root';
 		this.joints = new Joints( name + '_joints' );
+		this.nodes = new List( name + '_nodes' );
 		this.camera_root = App.world.scene;
-		this.input_type = 'orbit';
+		// this.input_type = 'orbit';
 
 		this.targetstate = 'state0';
 		this.targetspeed = 0.1;
@@ -26,11 +27,20 @@ class Avatar {
 				this.joints.markers.items.forEach( marker => { marker.visible = true; } );
 				this.joints.cursor.visible = true;
 				this.box.visible = true;
+
+				// this.data.bones.forEach( bone => {
+				// 	log( bone, false ); 
+				// 	if( bone.marker != undefined ) bone.marker.visible = true;
+				// } );
 			}
 		} else {
 			this.joints.markers.items.forEach( marker => { marker.visible = false; } );
 			this.joints.cursor.visible = false;
 			this.box.visible = false;
+
+			// this.data.bones.forEach( bone => { 
+			// 	if( bone.marker != undefined ) bone.marker.visible = false;
+			// } );
 		}
 	}
 	
@@ -109,14 +119,19 @@ class Avatar {
 		this.joints.add( this.r_arm, ['r_arm0', ud, ud, 'r_arm1', ud, ud, ud, ud, ud, ud, ud, 'r_arm2', ud, ud, ud, 'r_arm3'], white, size );
 		this.joints.add( this.l_leg, ['l_leg0', ud, ud, 'l_leg1', 'l_leg1', ud, ud, 'l_leg2'], white, size );
 		this.joints.add( this.r_leg, ['r_leg0', ud, ud, 'r_leg1', 'r_leg1', ud, ud, 'r_leg2'], white, size );
+		
+
 		this.box = box( V( 0.4, 1.6, 0.7 ), V0, V0, mat( 'wire', white ), false );
 		this.box.visible = false;
 		this.root.add( this.box );
+		
 		this.root.position.set ( 0, 0.8, 0 );
 
-
-		this.camera_root = helper( 0.01, 0.01, 0.01, 'white');
+		// this.camera_root = helper( 0.01, 0.01, 0.01, 'white');
+		// this.head.last_bone().add( this.camera_root );
+		this.camera_root = new THREE.Object3D();
 		this.head.last_bone().add( this.camera_root );
+
 		this.camera_root.position.y = -0.07;
 		this.camera_root.position.x = 0.03;
 	}
@@ -648,10 +663,14 @@ class Avatar {
 	update_mouse() {
 
 		// rotate camera
-		if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
-			App.camera.target.rotation.y -= Mouse.mdx / App.fps.fps;
-			App.camera.target.rotation.z -= Mouse.mdy / App.fps.fps;
-		}
+		if( Keyboard.ctrl[0] == false && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) 
+			if( App.camera.position.x != 0 ) {
+				App.camera.target.rotation.y -= Mouse.mdx / App.fps.fps;
+				App.camera.target.rotation.z -= Mouse.mdy / App.fps.fps;
+			} else {
+				
+			}
+
 
 		// translate camera
 		if( Keyboard.ctrl[0] == true && Mouse.buttons[0] == 1 && App.mid_fps != 0 ) {
@@ -671,19 +690,35 @@ class Avatar {
 			
 			if( edit_flag == false ) {
 				App.camera.position.x += Mouse.wheel / 10;
-				if( App.camera.position.x > 0 ) App.camera.position.x = 0;
+				if( App.camera.position.x > 0 ) {
+					App.camera.position.x = 0;
+					App.camera.target.position.y = 0;
+					App.camera.target.rotation.y = 0;
+					App.camera.target.rotation.z = 0;
+				}
 			}
 		}
 	}
 
 	update_keyboard() {
 		
-		if ( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
-		if ( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
-		if ( Keyboard.key_time('A') > 0 ) { this.root.rotateY( +0.1 ); App.camera.target.rotation.y -= 0.1; this.save(); }
-		if ( Keyboard.key_time('D') > 0 ) { this.root.rotateY( -0.1 ); App.camera.target.rotation.y += 0.1; this.save(); }
+			if( Keyboard.key_time('W') > 0 ) { this.root.translateX( +0.1 ); this.save(); }
+			
+			if( Keyboard.key_time('S') > 0 ) { this.root.translateX( -0.1 ); this.save(); }
+			
+			if( Keyboard.key_time('A') > 0 ) { 
+				this.root.rotateY( +0.1 ); 
+				if( App.camera.position.x < 0 )
+					App.camera.target.rotation.y -= 0.1; 
+					this.save(); 
+				}
 
-		//log(this.root.position, false);	
+			if( Keyboard.key_time('D') > 0 ) { 
+				this.root.rotateY( -0.1 ); 
+				if( App.camera.position.x < 0 )
+					App.camera.target.rotation.y += 0.1; 
+					this.save(); 
+				}
 	}
 	
 	save( sharing = 'all' ) {

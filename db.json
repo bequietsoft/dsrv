@@ -1,18 +1,5 @@
 {
-    "connections": [
-        {
-            "time": "Sun Mar 17 2019 20:42:32 GMT+0700 (GMT+07:00)",
-            "id": "kVUCAoqubfGtpI3yAAAD",
-            "name": "anonimous",
-            "state": "logout"
-        },
-        {
-            "id": "_RcKKTZqIy6Xq-MiAAAA",
-            "state": "login",
-            "name": "28",
-            "time": "Sun Mar 17 2019 20:43:43 GMT+0700 (GMT+07:00)"
-        }
-    ],
+    "connections": [],
     "objects": [
         {
             "items": [
