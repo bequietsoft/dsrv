@@ -13,6 +13,9 @@ class Avatar {
 		this.targetstate = 'state0';
 		this.targetspeed = 0.1;
 
+		this.subnodes = 0;
+		this.subcincs = 0;
+
 		//this.test_minimum_cinc();
 		//this.test_cloth_cinc( V( 0.0, 0.0, +0.1 ), V( +hPI/2, 0.0, 0.0 ), +1 );
 		this.simple_men();
@@ -43,6 +46,35 @@ class Avatar {
 			// } );
 		}
 	}
+
+	switch_details() {
+
+		log( this.subcincs, false );
+
+		if( this.subnodes == 1) {
+			this.subnodes = 0;
+			this.subcincs = 0;
+		} else {
+			this.subnodes = 1;
+			this.subcincs = 1;
+		}
+
+		this.root.remove( this.torso.mesh );
+		// this.torso = undefined;
+		// this.head = undefined
+		// this.hairs = undefined;
+		// this.hairs1 = undefined;
+		// this.l_leg = undefined;
+		// this.r_leg = undefined;
+		// this.l_arm = undefined;
+		// this.r_arm = undefined;
+		this.simple_men();
+		
+		this.camera_root.add( App.camera.root );
+		App.camera.lookAt( avatar.camera_root.position.x, avatar.camera_root.position.y, avatar.camera_root.position.z );
+		
+		log( this.subcincs, false );
+	}
 	
 	test_minimum_cinc() {
 		let data = Object.assign( {}, default_cincture_data );
@@ -66,78 +98,6 @@ class Avatar {
 		this.camera_root = this.test.mesh;
 	}
 	
-	simple_men() {
-		
-		
-		let wire_mat = mat('wire');
-		let skin_mat = mat( 'phong', rgb(229, 220, 206));
-		let hairs_mat1 = mat( 'phong', rgb(199, 190, 176) ); 
-		let hairs_mat2 = mat( 'phong', rgb(51, 41, 34) ); 
-			// hairs_mat1.side = THREE.DoubleSide;
-			// hairs_mat2.side = THREE.DoubleSide;
-
-		let mat_00 = mat( 'phong', rgb( 149, 163, 145 ) ); 
-		let mat_01 = mat( 'phong', rgb( 78, 96, 124 ) ); 
-		let mat_02 = mat( 'phong', rgb( 159, 163, 145 ) ); 
-		let mat_10 = tmat( 'images/test00.jpg' );
-
-		//
-		// wires
-		// skin_mat = wire_mat;
-		// hairs_mat1 = wire_mat;
-		// hairs_mat2 = wire_mat;
-		// mat_00 = wire_mat;
-		// mat_01 = wire_mat;
-		// mat_02 = wire_mat;
-
-		this.torso = this.simple_torso( mat_00 );
-		this.head = this.simple_head( skin_mat );
-		this.hairs = this.simple_hairs( hairs_mat1, hairs_mat2 );
-		this.hairs1 = this.simple_hairs1( this.head, hairs_mat1, hairs_mat2 );
-		
-		this.l_leg = this.simple_leg( V( 0, 0.05, -0.07 ), V( 0, 0, Math.PI ), +1, mat_01 );
-		this.r_leg = this.simple_leg( V( 0, 0.05, +0.07 ), V( 0, 0, Math.PI ), -1, mat_01 );
-		
-		this.l_arm = this.simple_arm( V( 0, -0.01, -0.00 ), V( -Math.PI/1.7, 0, 0 ), +1, mat_02  );
-		this.r_arm = this.simple_arm( V( 0, -0.01, +0.00 ), V( +Math.PI/1.7, 0, 0 ), -1, mat_02  );
-		
-		this.root.add( this.torso.mesh );
-		
-		this.torso.last_bone().add ( this.head.mesh );
-
-		this.torso.first_bone().add( this.l_leg.mesh );
-		this.torso.first_bone().add( this.r_leg.mesh );
-		
-		this.torso.last_bone().add( this.l_arm.mesh );
-		this.torso.last_bone().add( this.r_arm.mesh );
-
-		let size = 0.01;
-		
-		this.joints.add( this.torso, ['torso0', 'torso1', 'torso2', 'torso3', 'torso4', 'torso5', 'torso6'], white, size );
-		this.joints.add( this.head, [ud, ud, 'head0', ud, 'head2'], white, size );
-		this.joints.add( this.l_arm, ['l_arm0', ud, ud, 'l_arm1', ud, ud, ud, ud, ud, ud, ud, 'l_arm2', ud, ud, ud, 'l_arm3'], white, size );
-		this.joints.add( this.r_arm, ['r_arm0', ud, ud, 'r_arm1', ud, ud, ud, ud, ud, ud, ud, 'r_arm2', ud, ud, ud, 'r_arm3'], white, size );
-		this.joints.add( this.l_leg, ['l_leg0', ud, ud, 'l_leg1', 'l_leg1', ud, ud, 'l_leg2'], white, size );
-		this.joints.add( this.r_leg, ['r_leg0', ud, ud, 'r_leg1', 'r_leg1', ud, ud, 'r_leg2'], white, size );
-		
-
-		this.box = box( V( 0.4, 1.6, 0.7 ), V0, V0, mat( 'wire', white ), false );
-		this.box.visible = false;
-		this.root.add( this.box );
-		
-		this.root.position.set ( 0, 0.8, 0 );
-
-		// this.camera_root = helper( 0.01, 0.01, 0.01, 'white');
-		// this.head.last_bone().add( this.camera_root );
-		this.camera_root = new THREE.Object3D();
-		this.head.last_bone().add( this.camera_root );
-
-		this.camera_root.position.y = -0.07;
-		this.camera_root.position.x = 0.03;
-	}
-
-	// #region simple parts
-
 	test_cloth_cinc( dp, dr, mirror ) {
 		
 		var data = Object.assign( {}, default_cincture_data );
@@ -227,6 +187,8 @@ class Avatar {
 		
 	}
 
+	// test rotate
+	/*
 	torso_rotate( step = V0 ) {
 		
 		if( this.torso == undefined ) return;
@@ -313,6 +275,89 @@ class Avatar {
 			}
 		);
 	}
+	*/
+
+	simple_men() {
+		
+		
+		let wire_mat = mat('wire');
+		let skin_mat = mat( 'phong', rgb(229, 220, 206));
+		let hairs_mat1 = mat( 'phong', rgb(199, 190, 176) ); 
+		let hairs_mat2 = mat( 'phong', rgb(51, 41, 34) ); 
+			// hairs_mat1.side = THREE.DoubleSide;
+			// hairs_mat2.side = THREE.DoubleSide;
+
+		let mat_00 = mat( 'phong', rgb( 149, 163, 145 ) ); 
+		let mat_01 = mat( 'phong', rgb( 78, 96, 124 ) ); 
+		let mat_02 = mat( 'phong', rgb( 159, 163, 145 ) ); 
+		let mat_10 = tmat( 'images/test00.jpg' );
+
+		//
+		// wires
+		// skin_mat = wire_mat;
+		// hairs_mat1 = wire_mat;
+		// hairs_mat2 = wire_mat;
+		// mat_00 = wire_mat;
+		// mat_01 = wire_mat;
+		// mat_02 = wire_mat;
+
+		this.torso = this.simple_torso( mat_00 );
+		this.head = this.simple_head( skin_mat );
+		this.hairs = this.simple_hairs( hairs_mat1, hairs_mat2 );
+		//this.hairs1 = this.simple_hairs1( this.head, hairs_mat1, hairs_mat2 );
+		
+		this.l_leg = this.simple_leg( V( 0, 0.05, -0.07 ), V( 0, 0, Math.PI ), +1, mat_01 );
+		this.r_leg = this.simple_leg( V( 0, 0.05, +0.07 ), V( 0, 0, Math.PI ), -1, mat_01 );
+		
+		this.l_arm = this.simple_arm( V( 0, -0.01, -0.00 ), V( -Math.PI/1.7, 0, 0 ), +1, mat_02  );
+		this.r_arm = this.simple_arm( V( 0, -0.01, +0.00 ), V( +Math.PI/1.7, 0, 0 ), -1, mat_02  );
+		
+		this.root.add( this.torso.mesh );
+		
+		this.torso.last_bone().add ( this.head.mesh );
+
+		this.torso.first_bone().add( this.l_leg.mesh );
+		this.torso.first_bone().add( this.r_leg.mesh );
+		
+		this.torso.last_bone().add( this.l_arm.mesh );
+		this.torso.last_bone().add( this.r_arm.mesh );
+
+		let size = 0.01;
+		
+		if( this.subcincs == 0 ) { 
+			this.joints.add( this.torso, ['torso0', 'torso2', 'torso4', 'torso6'], white, size );
+			this.joints.add( this.head, ['head0', 'head2'], white, size );
+			this.joints.add( this.l_arm, ['l_arm0', ud, 'l_arm1', ud, ud, ud, 'l_arm2', ud, 'l_arm3'], white, size );
+			this.joints.add( this.r_arm, ['r_arm0', ud, 'r_arm1', ud, ud, ud, 'r_arm2', ud, 'r_arm3'], white, size );
+			this.joints.add( this.l_leg, ['l_leg0', ud, 'l_leg1', 'l_leg1', ud, 'l_leg2'], white, size );
+			this.joints.add( this.r_leg, ['r_leg0', ud, 'r_leg1', 'r_leg1', ud, 'r_leg2'], white, size );
+		}
+
+		if( this.subcincs == 1 ) { 
+			this.joints.add( this.torso, ['torso0', 'torso1', 'torso2', 'torso3', 'torso4', 'torso5', 'torso6'], white, size );
+			this.joints.add( this.head, [ud, ud, 'head0', ud, 'head2'], white, size );
+			this.joints.add( this.l_arm, ['l_arm0', ud, ud, 'l_arm1', ud, ud, ud, ud, ud, ud, ud, 'l_arm2', ud, ud, ud, 'l_arm3'], white, size );
+			this.joints.add( this.r_arm, ['r_arm0', ud, ud, 'r_arm1', ud, ud, ud, ud, ud, ud, ud, 'r_arm2', ud, ud, ud, 'r_arm3'], white, size );
+			this.joints.add( this.l_leg, ['l_leg0', ud, ud, 'l_leg1', 'l_leg1', ud, ud, 'l_leg2'], white, size );
+			this.joints.add( this.r_leg, ['r_leg0', ud, ud, 'r_leg1', 'r_leg1', ud, ud, 'r_leg2'], white, size );
+		}
+
+		this.box = box( V( 0.4, 1.6, 0.7 ), V0, V0, mat( 'wire', white ), false );
+		this.box.visible = false;
+		this.root.add( this.box );
+		
+		this.root.position.set ( 0, 0.8, 0 );
+
+		// this.camera_root = helper( 0.01, 0.01, 0.01, 'white');
+		// this.head.last_bone().add( this.camera_root );
+		this.camera_root = new THREE.Object3D();
+		this.head.last_bone().add( this.camera_root );
+
+		this.camera_root.position.y = -0.07;
+		this.camera_root.position.x = 0.03;
+	}
+
+	// #region simple parts
 
 	simple_head ( mat ) {
 		
@@ -352,13 +397,13 @@ class Avatar {
 				0.035,	0.025,	0.020,	0.020,   0.020,   0.025
 			];
 		}	
-
+		
 		data.name = 'head';
 		data.scale = 0.77;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
-		data.subnodes = 1;
-		data.subcincs = 1;
+		data.subnodes = this.subnodes;
+		data.subcincs = this.subcincs;
 		//data.helpers = 0.0001;
 		data.cap_curve = { begin: 2, end: 2 };
 		data.material = mat;
@@ -431,8 +476,8 @@ class Avatar {
 		data.scale = 0.87;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
-		data.subnodes = 1;
-		data.subcincs = 1;
+		data.subnodes = this.subnodes;
+		data.subcincs = this.subcincs;
 		data.cbegin = false;
 		//data.helpers = 0.0001;
 		data.cap_curve = { begin: 1, end: 2 };
@@ -441,8 +486,8 @@ class Avatar {
 		let cinc = new Cincture ( data );
 		//cinc.data.bones[0].position.set( -0.01, -0.018, 0 );
 		
-		var root = this.head.last_bone();
-		root.add(cinc.mesh);
+		//var root = ;
+		this.head.last_bone().add(cinc.mesh);
 		//return cinc;
 	}
 
@@ -477,8 +522,8 @@ class Avatar {
 		data.scale = 0.75;
 		data.start_angle = 180;
 		data.smooth = { normals: 1, vertices: 1 };
-		data.subnodes = 1;
-		data.subcincs = 1;
+		data.subnodes = this.subnodes;
+		data.subcincs = this.subcincs;
 		data.cbegin = false;
 		//data.helpers = 0.0001;
 		data.cap_curve = { begin: -3, end: 2 };
@@ -562,8 +607,8 @@ class Avatar {
 		if( mirror == -1) data.name = 'right_arm';
 		data.mirror = mirror;
 		data.smooth = { normals: 1, vertices: 1 };
-		data.subnodes = 1;
-		data.subcincs = 1;
+		data.subnodes = this.subnodes;
+		data.subcincs = this.subcincs;
 		data.material = mat;
 		//data.material = tmat('images/test00.jpg');
 
@@ -599,8 +644,8 @@ class Avatar {
 		data.name = 'torso';
 		data.cap.begin = false;
 		data.smooth = { normals: 1, vertices: 1 };
-		data.subnodes = 1;
-		data.subcincs = 1;
+		data.subnodes = this.subnodes;
+		data.subcincs = this.subcincs;
 		data.cinc_angle = 180;
 		data.symmetry = true;
 		data.material = mat;

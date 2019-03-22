@@ -45,9 +45,10 @@ class App {
 		let avatar = 'App.avatar.';
 			Events.bind( 'keydown', ['b'], avatar + 'joints.prev' );
 			Events.bind( 'keydown', ['n'], avatar + 'joints.next' );
-			Events.bind( 'keydown', ['h'], avatar + 'joints.prev' );
-			Events.bind( 'keydown', ['j'], avatar + 'joints.next' );
-			Events.bind( 'keydown', ['l'], avatar + 'joints.print' ); 
+			// Events.bind( 'keydown', ['h'], avatar + 'joints.prev' );
+			// Events.bind( 'keydown', ['j'], avatar + 'joints.next' );
+			Events.bind( 'keydown', ['p'], avatar + 'joints.print' ); 
+			Events.bind( 'keydown', ['='], avatar + 'switch_details' ); 
 
 			Events.bind( 'keydown', ['0'], 'function() { ' + avatar + 'targetstate = "state0"; }' );
 			Events.bind( 'keydown', ['1'], 'function() { ' + avatar + 'targetstate = "state1"; }' );
